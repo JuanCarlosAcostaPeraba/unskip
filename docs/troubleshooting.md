@@ -14,4 +14,4 @@ Build on a supported Windows version with the .NET 10 SDK. WPF is Windows-only. 
 
 ## The application opens but cannot send
 
-Issue #2 provides only the application shell. Native delivery is deliberately scheduled for issue #3.
+The native sender exists but is not connected to the WPF composer until issue #6. When connected, Windows may still reject delivery if `msg.exe` is unavailable, the sender lacks Message permission, the target cannot be contacted, or no compatible active session is available. Unskip will report the category and sanitized technical details without claiming that a person read the message.

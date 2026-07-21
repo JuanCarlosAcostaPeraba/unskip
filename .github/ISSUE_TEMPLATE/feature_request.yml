@@ -1,0 +1,27 @@
+name: Feature request
+description: Propose a focused improvement consistent with Unskip's constraints.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Product constraints
+      options:
+        - label: This remains Windows-only and local-first.
+          required: true
+        - label: This introduces no cloud backend, telemetry, sound, Node.js, or Electron.
+          required: true

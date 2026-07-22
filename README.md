@@ -8,13 +8,19 @@ Unskip is an unofficial, Windows-only desktop application for sending native mes
 
 ## Current status
 
-The repository contains a .NET 10 LTS WPF application, secure native delivery, local device persistence, a visual device directory, the message composer, and privacy-conscious local send history.
+The repository contains a working .NET 10 LTS WPF application, secure native delivery, local device persistence, a visual device directory, the message composer, privacy-conscious local send history, and Windows CI. It is still pre-release: a supported installer or signed end-user package has not been published yet.
 
-## Requirements
+Start with the [user guide](docs/user-guide.md) for prerequisites, the first message, saved devices, history, limitations, backup, and deletion.
+
+## Runtime prerequisites
 
 - Windows 10 or Windows 11
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Visual Studio with the .NET desktop development workload is optional
+- Windows `msg.exe` available on the sending computer
+- A destination computer name, compatible active session, required Windows permission, and permitted network path
+
+The recipient does not install Unskip or create an account. Unskip has no central server, cloud backend, telemetry, runtime Internet requirement, or sound. A successful native request is never proof that a message was read or acknowledged.
+
+The current pre-release source build additionally requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Visual Studio with the .NET desktop development workload is optional.
 
 .NET 10 is an LTS release supported through November 2028. `global.json` accepts stable .NET 10 feature bands while preventing preview SDK selection.
 
@@ -55,6 +61,14 @@ docs/                  Architecture, privacy, security, and support notes
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes. Product work is tracked in [epic #1](https://github.com/JuanCarlosAcostaPeraba/unskip/issues/1).
+
+## Documentation
+
+- [User guide](docs/user-guide.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Privacy](docs/privacy.md) and [local data](docs/local-persistence.md)
+- [Security design](docs/security.md) and [threat model](docs/threat-model.md)
+- [Architecture](docs/architecture.md) and [testing](docs/testing.md)
 
 ## License
 

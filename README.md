@@ -1,5 +1,7 @@
 # Unskip
 
+[![CI](https://github.com/JuanCarlosAcostaPeraba/unskip/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanCarlosAcostaPeraba/unskip/actions/workflows/ci.yml)
+
 Unskip is an unofficial, Windows-only desktop application for sending native messages to Windows computers on an accessible local network. The MVP is designed to work without a central server, cloud backend, Internet connection at runtime, or recipient-side installation.
 
 > Unskip is an independent community project. It is not affiliated with, endorsed by, or sponsored by Microsoft or any employer.

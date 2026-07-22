@@ -5,4 +5,4 @@
 - Added weekly grouped Dependabot updates for NuGet and GitHub Actions.
 - Added an explicit `NativeIntegration` test boundary that requires two opt-in environment variables and remains excluded from CI.
 - Expanded the pull request template with native-test and security checks.
-- Deferred the README status badge until the workflow has completed successfully on GitHub.
+- Added the README status badge only after the first GitHub workflow completed successfully.

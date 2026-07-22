@@ -167,7 +167,7 @@ public sealed class DeviceDirectoryViewModelTests
     }
 
     [Fact]
-    public async Task PrepareMessageDoesNotClaimThatAnythingWasSent()
+    public async Task PrepareMessageOpensComposerWithoutClaimingDelivery()
     {
         var context = ViewModelTestContext.Create(
             ViewModelTestContext.Device("Reception", "front-desk", null));
@@ -176,7 +176,10 @@ public sealed class DeviceDirectoryViewModelTests
 
         context.Directory.PrepareMessageCommand.Execute(null);
 
-        Assert.Contains("No message has been sent", context.Directory.StatusMessage, StringComparison.Ordinal);
+        Assert.True(context.Main.IsComposerVisible);
+        Assert.Equal("Reception", context.Main.Composer.DestinationAlias);
+        Assert.Equal("front-desk", context.Main.Composer.Destination);
+        Assert.Contains("Nothing has been sent", context.Directory.StatusMessage, StringComparison.Ordinal);
         Assert.DoesNotContain("read", context.Directory.StatusMessage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("acknowledged", context.Directory.StatusMessage, StringComparison.OrdinalIgnoreCase);
     }

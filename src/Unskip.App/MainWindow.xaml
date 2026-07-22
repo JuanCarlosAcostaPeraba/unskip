@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Unskip.App.ViewModels"
+        xmlns:views="clr-namespace:Unskip.App.Views"
         xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
         mc:Ignorable="d"
-        Title="Unskip · Devices"
+        Title="{Binding CurrentSection, StringFormat=Unskip · {0}}"
         Width="1320"
         Height="820"
         MinWidth="1040"
@@ -242,11 +243,35 @@
         </StackPanel>
         <Button Grid.Column="1" Content="＋  Add device"
                 Command="{Binding DeviceDirectory.NewDeviceCommand}"
-                Style="{StaticResource PrimaryButtonStyle}"
-                automation:AutomationProperties.Name="Add a saved device" />
+                automation:AutomationProperties.Name="Add a saved device">
+          <Button.Style>
+            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsComposerVisible}" Value="True">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Button.Style>
+        </Button>
+        <Button Grid.Column="1" Content="←  Change destination"
+                Command="{Binding Composer.BackCommand}"
+                Style="{StaticResource SecondaryButtonStyle}"
+                Visibility="{Binding IsComposerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                automation:AutomationProperties.Name="Return to device selection" />
       </Grid>
 
       <Grid Grid.Row="1">
+        <Grid.Style>
+          <Style TargetType="Grid">
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsComposerVisible}" Value="True">
+                <Setter Property="Visibility" Value="Collapsed" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Grid.Style>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="1.08*" MinWidth="390" />
           <ColumnDefinition Width="24" />
@@ -510,13 +535,33 @@
         </Grid>
       </Grid>
 
+      <views:MessageComposerView Grid.Row="1"
+                                 DataContext="{Binding Composer}"
+                                 Visibility="{Binding DataContext.IsComposerVisible, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
       <Grid Grid.Row="2" Margin="2,16,2,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBlock Text="{Binding DeviceDirectory.StatusMessage}"
-                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextTrimming="CharacterEllipsis" />
+        <Grid>
+          <TextBlock Text="{Binding DeviceDirectory.StatusMessage}"
+                     Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextTrimming="CharacterEllipsis">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock">
+                <Setter Property="Visibility" Value="Visible" />
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsComposerVisible}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
+          <TextBlock Text="{Binding Composer.ResultMessage}"
+                     Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextTrimming="CharacterEllipsis"
+                     Visibility="{Binding IsComposerVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </Grid>
         <TextBlock Grid.Column="1" Text="Offline by design"
                    Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" FontWeight="SemiBold" />
       </Grid>

@@ -47,6 +47,8 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
         PrepareMessageCommand = new RelayCommand(_ => PrepareMessage(), _ => HasPreparedDestination && !IsBusy);
     }
 
+    public event EventHandler<MessagePreparationRequestedEventArgs>? MessagePreparationRequested;
+
     public ObservableCollection<DeviceListItemViewModel> FilteredDevices { get; } = [];
 
     public DeviceEditorViewModel Editor { get; } = new();
@@ -388,7 +390,21 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
 
     private void PrepareMessage()
     {
-        StatusMessage = $"Destination prepared for {PreparedAlias}. No message has been sent. The composer arrives in issue #6.";
+        if (PreparedAlias is null
+            || PreparedDestination is null
+            || PreparedDestinationKind is not DeviceDestinationKind destinationKind)
+        {
+            return;
+        }
+
+        StatusMessage = $"Opening a message for {PreparedAlias}. Nothing has been sent yet.";
+        MessagePreparationRequested?.Invoke(
+            this,
+            new MessagePreparationRequestedEventArgs(
+                PreparedAlias,
+                PreparedDestination,
+                destinationKind,
+                PreparedDeviceId));
     }
 
     private void ClearPreparedDestination()

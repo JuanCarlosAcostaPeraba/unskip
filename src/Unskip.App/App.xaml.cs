@@ -4,6 +4,7 @@ using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
 using Unskip.Core.Time;
 using Unskip.Infrastructure.Persistence;
+using Unskip.Infrastructure.Windows;
 
 namespace Unskip.App;
 
@@ -25,7 +26,7 @@ public partial class App : Application
             directory,
             clock,
             new MessageBoxDeviceDeletionConfirmation());
-        var viewModel = new MainWindowViewModel(deviceDirectory);
+        var viewModel = new MainWindowViewModel(deviceDirectory, new WindowsMsgSender());
         viewModel.InitializeAsync().GetAwaiter().GetResult();
 
         base.OnStartup(e);

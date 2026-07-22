@@ -1,6 +1,7 @@
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
+using Unskip.Core.Messaging;
 using Unskip.Core.Time;
 
 namespace Unskip.App.Tests;
@@ -14,7 +15,8 @@ internal sealed class ViewModelTestContext
         Confirmation = new StubConfirmation();
         var service = new DeviceDirectoryService(Repository, Clock);
         Directory = new DeviceDirectoryViewModel(service, Clock, Confirmation);
-        Main = new MainWindowViewModel(Directory);
+        Sender = new StubMessageSender();
+        Main = new MainWindowViewModel(Directory, Sender);
     }
 
     public MutableClock Clock { get; }
@@ -22,6 +24,8 @@ internal sealed class ViewModelTestContext
     public InMemoryDeviceRepository Repository { get; }
 
     public StubConfirmation Confirmation { get; }
+
+    public StubMessageSender Sender { get; }
 
     public DeviceDirectoryViewModel Directory { get; }
 
@@ -70,6 +74,28 @@ internal sealed class ViewModelTestContext
         {
             RequestCount++;
             return Task.FromResult(Response);
+        }
+    }
+
+    internal sealed class StubMessageSender : IMessageSender
+    {
+        public List<MessageRequest> Requests { get; } = [];
+
+        public MessageSendResult Result { get; set; } = new(
+            MessageDeliveryStatus.Sent,
+            MessageFailureCategory.None,
+            0,
+            string.Empty,
+            string.Empty,
+            TimeSpan.FromMilliseconds(20),
+            "Windows accepted the message request. This does not confirm that a person read it.");
+
+        public Task<MessageSendResult> SendAsync(
+            MessageRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            Requests.Add(request);
+            return Task.FromResult(Result);
         }
     }
 

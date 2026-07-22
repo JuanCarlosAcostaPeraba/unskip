@@ -14,7 +14,9 @@ Build on a supported Windows version with the .NET 10 SDK. WPF is Windows-only. 
 
 ## The application opens but cannot send
 
-The native sender exists but is not connected to the WPF composer until issue #6. When connected, Windows may still reject delivery if `msg.exe` is unavailable, the sender lacks Message permission, the target cannot be contacted, or no compatible active session is available. Unskip will report the category and sanitized technical details without claiming that a person read the message.
+Windows may reject delivery if `msg.exe` is unavailable, the sender lacks Message permission, the target cannot be contacted, or no compatible active session is available. Unskip reports an honest category and offers sanitized technical details without claiming that a person read the message. Failed and timed-out requests can be retried without re-entering the draft.
+
+The current native boundary supports Windows computer names. A stored or manually entered IPv4 address remains visible in the composer but is rejected before process execution.
 
 ## The local database cannot be opened
 

@@ -1,0 +1,243 @@
+using Unskip.App.ViewModels;
+using Unskip.Core.Devices;
+using Unskip.Core.Messaging;
+
+namespace Unskip.App.Tests;
+
+public sealed class MessageComposerViewModelTests
+{
+    [Fact]
+    public void PreparedDestinationShowsAliasAndTechnicalTarget()
+    {
+        var composer = new MessageComposerViewModel(new QueueMessageSender());
+
+        composer.Prepare(Destination());
+
+        Assert.Equal("Reception", composer.DestinationAlias);
+        Assert.Equal("front-desk", composer.Destination);
+        Assert.Equal("Computer name", composer.DestinationKindLabel);
+    }
+
+    [Fact]
+    public void EmptyAndOversizedMessagesCannotBeSubmitted()
+    {
+        var composer = new MessageComposerViewModel(new QueueMessageSender());
+        composer.Prepare(Destination());
+
+        Assert.False(composer.SendCommand.CanExecute(null));
+
+        composer.Message = new string('x', MessagePolicy.MaximumMessageLength + 1);
+
+        Assert.True(composer.IsMessageOverLimit);
+        Assert.False(composer.SendCommand.CanExecute(null));
+        Assert.Equal(
+            $"{MessagePolicy.MaximumMessageLength + 1:N0} / {MessagePolicy.MaximumMessageLength:N0}",
+            composer.CharacterCountLabel);
+    }
+
+    [Fact]
+    public async Task DuplicateSubmissionIsIgnoredWhileSendIsPending()
+    {
+        var sender = new PendingMessageSender();
+        var composer = new MessageComposerViewModel(sender);
+        composer.Prepare(Destination());
+        composer.Message = "Fictitious test message";
+
+        var firstSend = composer.SendCommand.ExecuteAsync();
+        await sender.Started.Task;
+        var duplicateSend = composer.SendCommand.ExecuteAsync();
+
+        Assert.True(composer.IsSending);
+        Assert.False(composer.SendCommand.CanExecute(null));
+        Assert.Single(sender.Requests);
+
+        sender.Complete(Sent());
+        await Task.WhenAll(firstSend, duplicateSend);
+        Assert.Single(sender.Requests);
+    }
+
+    [Fact]
+    public async Task SentStatusNeverClaimsReadAcknowledgement()
+    {
+        var sender = new QueueMessageSender(Sent());
+        var composer = new MessageComposerViewModel(sender);
+        composer.Prepare(Destination());
+        composer.Message = "Fictitious test message";
+
+        await composer.SendCommand.ExecuteAsync();
+
+        Assert.Equal("Sent", composer.StatusLabel);
+        Assert.Contains("does not confirm", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("was read", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.False(composer.CanRetry);
+    }
+
+    [Theory]
+    [InlineData(MessageDeliveryStatus.Failed, "Failed")]
+    [InlineData(MessageDeliveryStatus.TimedOut, "Timed out")]
+    public async Task FailedOrTimedOutSendKeepsDraftAndCanRetry(
+        MessageDeliveryStatus initialStatus,
+        string expectedLabel)
+    {
+        var sender = new QueueMessageSender(
+            Result(initialStatus, "The request did not complete."),
+            Sent());
+        var composer = new MessageComposerViewModel(sender);
+        composer.Prepare(Destination());
+        composer.Message = "Keep this fictitious draft";
+
+        await composer.SendCommand.ExecuteAsync();
+
+        Assert.Equal(expectedLabel, composer.StatusLabel);
+        Assert.Equal("Keep this fictitious draft", composer.Message);
+        Assert.True(composer.CanRetry);
+
+        await composer.RetryCommand.ExecuteAsync();
+
+        Assert.Equal("Sent", composer.StatusLabel);
+        Assert.Equal(2, sender.Requests.Count);
+    }
+
+    [Fact]
+    public async Task TechnicalDetailsAreOptionalAndExpandable()
+    {
+        var sender = new QueueMessageSender(new MessageSendResult(
+            MessageDeliveryStatus.Rejected,
+            MessageFailureCategory.NativeRejected,
+            5,
+            string.Empty,
+            "Access denied",
+            TimeSpan.FromMilliseconds(10),
+            "Windows rejected the request."));
+        var composer = new MessageComposerViewModel(sender);
+        composer.Prepare(Destination());
+        composer.Message = "Fictitious test message";
+
+        await composer.SendCommand.ExecuteAsync();
+        composer.ToggleTechnicalDetailsCommand.Execute(null);
+
+        Assert.True(composer.HasTechnicalDetails);
+        Assert.True(composer.IsTechnicalDetailsExpanded);
+        Assert.Contains("exit code: 5", composer.TechnicalDetails, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Access denied", composer.TechnicalDetails, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Ipv4DestinationIsHonestlyRejectedBeforeNativeExecution()
+    {
+        var sender = new QueueMessageSender(Sent());
+        var composer = new MessageComposerViewModel(sender);
+        composer.Prepare(new MessagePreparationRequestedEventArgs(
+            "Manual destination",
+            "192.0.2.7",
+            DeviceDestinationKind.Ipv4,
+            null));
+        composer.Message = "Fictitious test message";
+
+        await composer.SendCommand.ExecuteAsync();
+
+        Assert.Equal("Rejected", composer.StatusLabel);
+        Assert.Contains("computer name", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(sender.Requests);
+    }
+
+    [Fact]
+    public async Task UnexpectedExceptionDoesNotExposeItsPotentiallySensitiveMessage()
+    {
+        var composer = new MessageComposerViewModel(new ThrowingMessageSender());
+        composer.Prepare(Destination());
+        composer.Message = "Fictitious private draft";
+
+        await composer.SendCommand.ExecuteAsync();
+
+        Assert.Equal("Failed", composer.StatusLabel);
+        Assert.True(composer.CanRetry);
+        Assert.Contains(nameof(InvalidOperationException), composer.TechnicalDetails, StringComparison.Ordinal);
+        Assert.DoesNotContain("Fictitious private draft", composer.TechnicalDetails, StringComparison.Ordinal);
+    }
+
+    private static MessagePreparationRequestedEventArgs Destination()
+    {
+        return new MessagePreparationRequestedEventArgs(
+            "Reception",
+            "front-desk",
+            DeviceDestinationKind.Hostname,
+            Guid.NewGuid());
+    }
+
+    private static MessageSendResult Sent()
+    {
+        return new MessageSendResult(
+            MessageDeliveryStatus.Sent,
+            MessageFailureCategory.None,
+            0,
+            string.Empty,
+            string.Empty,
+            TimeSpan.FromMilliseconds(10),
+            "Windows accepted the message request. This does not confirm that a person read it.");
+    }
+
+    private static MessageSendResult Result(MessageDeliveryStatus status, string message)
+    {
+        return new MessageSendResult(
+            status,
+            status == MessageDeliveryStatus.TimedOut
+                ? MessageFailureCategory.Timeout
+                : MessageFailureCategory.ProcessFailure,
+            null,
+            string.Empty,
+            string.Empty,
+            TimeSpan.FromMilliseconds(10),
+            message);
+    }
+
+    private sealed class QueueMessageSender(params MessageSendResult[] results) : IMessageSender
+    {
+        private readonly Queue<MessageSendResult> _results = new(results);
+
+        public List<MessageRequest> Requests { get; } = [];
+
+        public Task<MessageSendResult> SendAsync(
+            MessageRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            Requests.Add(request);
+            return Task.FromResult(_results.Dequeue());
+        }
+    }
+
+    private sealed class PendingMessageSender : IMessageSender
+    {
+        private readonly TaskCompletionSource<MessageSendResult> _completion =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public TaskCompletionSource Started { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public List<MessageRequest> Requests { get; } = [];
+
+        public Task<MessageSendResult> SendAsync(
+            MessageRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            Requests.Add(request);
+            Started.TrySetResult();
+            return _completion.Task;
+        }
+
+        public void Complete(MessageSendResult result)
+        {
+            _completion.SetResult(result);
+        }
+    }
+
+    private sealed class ThrowingMessageSender : IMessageSender
+    {
+        public Task<MessageSendResult> SendAsync(
+            MessageRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            throw new InvalidOperationException($"Failure while sending {request.Message}");
+        }
+    }
+}

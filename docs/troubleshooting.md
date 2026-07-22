@@ -15,3 +15,7 @@ Build on a supported Windows version with the .NET 10 SDK. WPF is Windows-only. 
 ## The application opens but cannot send
 
 The native sender exists but is not connected to the WPF composer until issue #6. When connected, Windows may still reject delivery if `msg.exe` is unavailable, the sender lacks Message permission, the target cannot be contacted, or no compatible active session is available. Unskip will report the category and sanitized technical details without claiming that a person read the message.
+
+## The local database cannot be opened
+
+Confirm that the current Windows account can write to `%LOCALAPPDATA%\Unskip`. Close Unskip before copying or moving `unskip.db`, `unskip.db-shm`, or `unskip.db-wal`. Renaming the entire `Unskip` directory is a recoverable way to let the application create a fresh database while preserving the original for investigation.

@@ -1,5 +1,4 @@
-using System.Net;
-using System.Net.Sockets;
+using Unskip.Core.Networking;
 
 namespace Unskip.Core.Messaging;
 
@@ -33,7 +32,7 @@ public static class MessageRequestValidator
         }
 
         var normalizedTarget = target.Trim();
-        if (IsIpv4Address(normalizedTarget))
+        if (NetworkAddressValidator.IsIpv4Address(normalizedTarget))
         {
             errors.Add(
                 new ValidationError(
@@ -43,7 +42,7 @@ public static class MessageRequestValidator
             return null;
         }
 
-        if (!IsValidHostname(normalizedTarget))
+        if (!NetworkAddressValidator.TryNormalizeHostname(normalizedTarget, out var hostname))
         {
             errors.Add(
                 new ValidationError(
@@ -53,7 +52,7 @@ public static class MessageRequestValidator
             return null;
         }
 
-        return normalizedTarget.ToLowerInvariant();
+        return hostname;
     }
 
     private static void ValidateMessage(string? message, List<ValidationError> errors)
@@ -81,42 +80,6 @@ public static class MessageRequestValidator
                     ValidationErrorCode.UnsupportedControlCharacter,
                     "The message contains an unsupported control character."));
         }
-    }
-
-    private static bool IsIpv4Address(string value)
-    {
-        return IPAddress.TryParse(value, out var address)
-            && address.AddressFamily == AddressFamily.InterNetwork;
-    }
-
-    private static bool IsValidHostname(string value)
-    {
-        if (value.Length is 0 or > MessagePolicy.MaximumHostnameLength
-            || value[0] == '.'
-            || value[^1] == '.')
-        {
-            return false;
-        }
-
-        foreach (var label in value.Split('.'))
-        {
-            if (label.Length is 0 or > 63
-                || !IsAsciiLetterOrDigit(label[0])
-                || !IsAsciiLetterOrDigit(label[^1])
-                || label.Any(character => !IsAsciiLetterOrDigit(character) && character != '-'))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static bool IsAsciiLetterOrDigit(char value)
-    {
-        return value is >= 'a' and <= 'z'
-            or >= 'A' and <= 'Z'
-            or >= '0' and <= '9';
     }
 
     private static bool IsUnsupportedControlCharacter(char value)

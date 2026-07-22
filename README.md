@@ -6,7 +6,7 @@ Unskip is an unofficial, Windows-only desktop application for sending native mes
 
 ## Current status
 
-The repository currently contains the issue #2 foundation: a .NET 10 LTS WPF shell, an MVVM-oriented project structure, tests, and repository standards. Native `msg.exe` delivery and local persistence are intentionally not implemented yet.
+The repository contains a .NET 10 LTS WPF shell, an MVVM-oriented project structure, and the secure native delivery engine from issue #3. The engine is not connected to the visual composer yet; that user-facing workflow remains scoped to issue #6. Local persistence is also intentionally not implemented yet.
 
 ## Requirements
 
@@ -41,9 +41,12 @@ These commands are development instructions only. The application does not invok
 src/
   Unskip.App/          WPF presentation and view models
   Unskip.Core/         Domain and application-facing abstractions
+  Unskip.Infrastructure.Windows/  Isolated Windows process integration
 tests/
   Unskip.App.Tests/    Presentation-layer tests
   Unskip.Core.Tests/   Core tests
+  Unskip.Infrastructure.Windows.Tests/  Native boundary and process-lifecycle tests
+  Unskip.TestProcess/  Safe local helper used only by tests
 docs/                  Architecture, privacy, security, and support notes
 ```
 

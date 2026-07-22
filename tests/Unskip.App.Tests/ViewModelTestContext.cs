@@ -20,7 +20,7 @@ internal sealed class ViewModelTestContext
         HistoryRepository = new InMemorySendHistoryRepository();
         HistoryConfirmation = new StubHistoryConfirmation();
         var history = new SendHistoryService(HistoryRepository, Clock);
-        Main = new MainWindowViewModel(Directory, Sender, history, HistoryConfirmation);
+        Main = new MainWindowViewModel(Directory, Sender, history, HistoryConfirmation, "Version 0.1.0-test");
     }
 
     public MutableClock Clock { get; }

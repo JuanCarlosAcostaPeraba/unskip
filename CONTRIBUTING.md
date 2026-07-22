@@ -13,6 +13,8 @@ Thank you for helping improve Unskip.
 
 GitHub Actions repeats formatting, Release build, deterministic tests, dependency auditing, and pull-request dependency review on Windows. Native `msg.exe` integration is opt-in and excluded from CI; ordinary tests must never contact a real device.
 
+Release tags and packaging are maintainer operations. Follow [docs/releasing.md](docs/releasing.md); never tag an unmerged commit, add a signing claim without a verified certificate, or place local databases and real network data in release inputs.
+
 ## Engineering expectations
 
 - Use English for source code and repository documentation.

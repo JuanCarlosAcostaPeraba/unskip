@@ -1,5 +1,7 @@
 # Unskip
 
+<img src="assets/unskip-logo.svg" alt="Unskip logo" width="112" height="112" />
+
 [![CI](https://github.com/JuanCarlosAcostaPeraba/unskip/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanCarlosAcostaPeraba/unskip/actions/workflows/ci.yml)
 
 Unskip is an unofficial, Windows-only desktop application for sending native messages to Windows computers on an accessible local network. The MVP is designed to work without a central server, cloud backend, Internet connection at runtime, or recipient-side installation.
@@ -8,7 +10,7 @@ Unskip is an unofficial, Windows-only desktop application for sending native mes
 
 ## Current status
 
-The repository contains a working .NET 10 LTS WPF application, secure native delivery, local device persistence, a visual device directory, the message composer, privacy-conscious local send history, and Windows CI. It is still pre-release: a supported installer or signed end-user package has not been published yet.
+The repository contains a working .NET 10 LTS WPF application, secure native delivery, local device persistence, a visual device directory, the message composer, privacy-conscious local send history, Windows CI, and a reproducible Windows release pipeline. Published releases provide a per-user installer and portable archive. Early releases are unsigned and may trigger Microsoft Defender SmartScreen.
 
 Start with the [user guide](docs/user-guide.md) for prerequisites, the first message, saved devices, history, limitations, backup, and deletion.
 
@@ -21,6 +23,8 @@ Start with the [user guide](docs/user-guide.md) for prerequisites, the first mes
 The recipient does not install Unskip or create an account. Unskip has no central server, cloud backend, telemetry, runtime Internet requirement, or sound. A successful native request is never proof that a message was read or acknowledged.
 
 The current pre-release source build additionally requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Visual Studio with the .NET desktop development workload is optional.
+
+End users should download only from [GitHub Releases](https://github.com/JuanCarlosAcostaPeraba/unskip/releases) and verify the published SHA-256 checksum. The self-contained x64 build does not require a separate .NET installation.
 
 .NET 10 is an LTS release supported through November 2028. `global.json` accepts stable .NET 10 feature bands while preventing preview SDK selection.
 
@@ -69,6 +73,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes. Product work is
 - [Privacy](docs/privacy.md) and [local data](docs/local-persistence.md)
 - [Security design](docs/security.md) and [threat model](docs/threat-model.md)
 - [Architecture](docs/architecture.md) and [testing](docs/testing.md)
+- [Release and packaging process](docs/releasing.md)
 
 ## License
 

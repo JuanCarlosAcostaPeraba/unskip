@@ -4,9 +4,23 @@ Unskip is an unofficial Windows desktop application that submits native session 
 
 Unskip is not a chat platform, guaranteed-delivery system, monitoring tool, or acknowledgement service. It does not play a sound. A `Sent` result means only that Windows accepted the native request; it does not prove that anyone saw, read, or acknowledged the message.
 
-## Current installation status
+## Install a release
 
-Unskip is currently a pre-release project. A supported installer or signed end-user package has not been published yet. Issue #10 tracks packaging and release work.
+Download releases only from the repository's [GitHub Releases page](https://github.com/JuanCarlosAcostaPeraba/unskip/releases). Each release provides:
+
+- `Unskip-VERSION-win-x64-setup.exe`, the recommended per-user installer;
+- `Unskip-VERSION-win-x64.zip`, a portable copy for evaluation;
+- `SHA256SUMS.txt`, the integrity checksums for both artifacts.
+
+Compare the downloaded file's SHA-256 hash with `SHA256SUMS.txt` before running it. The installer and portable archive are self-contained and do not require a separate .NET installation. They support x64 Windows 10 and Windows 11.
+
+The installer uses the current Windows account and does not request administrator rights by default. It installs under `%LOCALAPPDATA%\Programs\Unskip`, creates a Start menu shortcut, and offers an optional desktop shortcut. Use Windows **Installed apps** to uninstall it.
+
+Early releases are not code-signed because the project does not have a verified signing certificate. Microsoft Defender SmartScreen can therefore show an unknown-publisher or unrecognized-app warning, and managed devices may block execution. Verify the GitHub repository and checksum, then follow your organization's security policy. Do not disable SmartScreen or other protections to install Unskip.
+
+For a portable run, extract the complete ZIP to a normal user-writable folder and launch `Unskip.App.exe`. Do not run it from inside the ZIP.
+
+## Evaluate from source
 
 To evaluate the current source build, use a Windows 10 or Windows 11 computer with the stable .NET 10 SDK:
 
@@ -16,7 +30,7 @@ dotnet build Unskip.sln --configuration Release --no-restore
 dotnet run --project src/Unskip.App/Unskip.App.csproj --configuration Release
 ```
 
-These terminal commands are for contributors and pre-release evaluation only. The application itself never invokes PowerShell, `cmd.exe`, or another shell. When packaged releases exist, use only the installer and checksums published by this repository.
+These terminal commands are for contributors and source evaluation only. The application itself never invokes PowerShell, `cmd.exe`, or another shell.
 
 ## Before the first message
 
@@ -107,6 +121,8 @@ To back up or restore data:
 3. Keep backups protected with the same care as the Windows account.
 
 Deleting the application files does not necessarily delete this folder. Deleting the folder removes the saved directory and history; the next launch creates a new database. This is irreversible without a backup. Clearing history in the UI does not delete saved devices.
+
+Installing a newer version or uninstalling Unskip leaves this folder untouched. This preserves devices and history across upgrades and makes uninstall non-destructive. Delete the folder separately only when you intentionally want to erase the current account's Unskip data.
 
 Unskip relies on Windows account and filesystem permissions. It does not currently add application-level encryption to the database.
 

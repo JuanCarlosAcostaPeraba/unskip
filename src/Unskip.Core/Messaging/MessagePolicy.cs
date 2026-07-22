@@ -7,5 +7,5 @@ public static class MessagePolicy
 {
     public const int MaximumMessageLength = 1_024;
 
-    public const int MaximumHostnameLength = 253;
+    public const int MaximumHostnameLength = Networking.NetworkAddressValidator.MaximumHostnameLength;
 }

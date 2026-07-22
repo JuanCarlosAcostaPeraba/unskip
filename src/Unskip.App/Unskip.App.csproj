@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\Unskip.Core\Unskip.Core.csproj" />
+    <ProjectReference Include="..\Unskip.Infrastructure.Persistence\Unskip.Infrastructure.Persistence.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>

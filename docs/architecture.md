@@ -10,7 +10,9 @@ Unskip uses .NET 10 LTS, WPF, C#, and an MVVM-oriented separation:
 - `Unskip.App` contains the Windows WPF presentation layer and view models.
 - Each production project has a corresponding xUnit test project.
 
-Dependencies point inward: both infrastructure projects reference core, while core has no WPF, Entity Framework Core, or infrastructure dependency. The initial shell binds directly to `MainWindowViewModel`. The WPF application entry point applies pending local database migrations before showing its first window.
+Dependencies point inward: both infrastructure projects reference core, while core has no WPF, Entity Framework Core, or infrastructure dependency. The WPF composition root applies pending local database migrations, constructs `DeviceDirectoryService`, and injects the device-directory view model before showing its first window.
+
+The device UI follows MVVM. `DeviceDirectoryViewModel` owns search, selection, editing, validation presentation, favorites, and one-time destination state. Commands expose asynchronous persistence operations, while the window code-behind only initializes WPF and assigns its injected data context. A small dialog service isolates explicit delete confirmation from view-model behavior.
 
 ## Planned boundaries
 

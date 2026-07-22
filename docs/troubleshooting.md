@@ -19,3 +19,7 @@ The native sender exists but is not connected to the WPF composer until issue #6
 ## The local database cannot be opened
 
 Confirm that the current Windows account can write to `%LOCALAPPDATA%\Unskip`. Close Unskip before copying or moving `unskip.db`, `unskip.db-shm`, or `unskip.db-wal`. Renaming the entire `Unskip` directory is a recoverable way to let the application create a fresh database while preserving the original for investigation.
+
+## A saved device does not appear in search
+
+Clear the search box or search by alias, computer name, IPv4 address, or description. Search is case-insensitive. Favorites and recently used devices appear first when no filter is active.

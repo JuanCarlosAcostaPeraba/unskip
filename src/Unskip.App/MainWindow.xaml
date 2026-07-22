@@ -4,98 +4,522 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Unskip.App.ViewModels"
+        xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
         mc:Ignorable="d"
-        Title="Unskip"
-        Width="960"
-        Height="640"
-        MinWidth="760"
-        MinHeight="520"
+        Title="Unskip · Devices"
+        Width="1320"
+        Height="820"
+        MinWidth="1040"
+        MinHeight="680"
         WindowStartupLocation="CenterScreen"
-        Background="#F4F6F8">
-  <Window.DataContext>
-    <viewModels:MainWindowViewModel />
-  </Window.DataContext>
+        Background="{DynamicResource AppBackgroundBrush}"
+        FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display">
+  <Window.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+    <Style x:Key="CardStyle" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="16" />
+      <Setter Property="Padding" Value="22" />
+    </Style>
+
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="18,10" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ButtonBorder"
+                    Padding="{TemplateBinding Padding}"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="8">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource AccentDarkBrush}" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="White" />
+                <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+      <Setter Property="Background" Value="{DynamicResource SurfaceMutedBrush}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ButtonBorder"
+                    Padding="{TemplateBinding Padding}"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="2" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+      <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+    </Style>
+
+    <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+      <Setter Property="Background" Value="{DynamicResource SurfaceMutedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="12,9" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Margin" Value="2,5,0,0" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="DeviceItemStyle" TargetType="ListBoxItem">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0,0,0,10" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ListBoxItem">
+            <Border x:Name="ItemBorder"
+                    Padding="14"
+                    Background="{DynamicResource SurfaceMutedBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="11">
+              <ContentPresenter />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+              </Trigger>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                <Setter TargetName="ItemBorder" Property="BorderThickness" Value="2" />
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
 
   <Grid>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="240" />
+      <ColumnDefinition Width="232" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
 
-    <Border Background="#17212B" Padding="28">
+    <Border Background="{DynamicResource SidebarBrush}" Padding="24,28">
       <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
-          <TextBlock Text="{Binding ProductName}"
-                     Foreground="White"
-                     FontSize="28"
-                     FontWeight="SemiBold" />
-          <TextBlock Margin="0,8,0,32"
-                     Text="Local Windows messaging"
-                     Foreground="#AAB7C4"
-                     FontSize="13" />
+          <Grid Margin="0,0,0,38">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="42" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Width="36" Height="36" Background="#28B5AA" CornerRadius="10">
+              <TextBlock Text="U" Foreground="White" FontSize="18" FontWeight="Bold"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="{Binding ProductName}" Foreground="White" FontSize="20" FontWeight="SemiBold" />
+              <TextBlock Text="Local messaging" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="11" />
+            </StackPanel>
+          </Grid>
+
           <ItemsControl ItemsSource="{Binding NavigationItems}">
             <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <Border Margin="0,0,0,8" Padding="12,10" CornerRadius="6" Background="#22303D">
-                  <TextBlock Text="{Binding}" Foreground="#E8EDF2" FontSize="15" />
+              <DataTemplate DataType="{x:Type viewModels:NavigationItemViewModel}">
+                <Border x:Name="NavigationBorder" Margin="0,0,0,8" Padding="12,11" CornerRadius="9">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="28" />
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Symbol}" Foreground="{DynamicResource SidebarMutedBrush}"
+                               FontSize="16" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding Label}" Foreground="#DCE8E8"
+                               FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border x:Name="NavigationBadge" Grid.Column="2" Padding="7,3" Background="#244348" CornerRadius="8">
+                      <TextBlock Text="{Binding Badge}" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="10" />
+                    </Border>
+                  </Grid>
                 </Border>
+                <DataTemplate.Triggers>
+                  <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter TargetName="NavigationBorder" Property="Background" Value="#1D4D50" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding Badge}" Value="{x:Null}">
+                    <Setter TargetName="NavigationBadge" Property="Visibility" Value="Collapsed" />
+                  </DataTrigger>
+                </DataTemplate.Triggers>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
         </StackPanel>
 
-        <TextBlock DockPanel.Dock="Bottom"
-                   Text="Offline by design"
-                   Foreground="#7F91A3"
-                   FontSize="12" />
+        <StackPanel DockPanel.Dock="Bottom">
+          <Border Padding="12" Background="#18383C" CornerRadius="10">
+            <StackPanel>
+              <TextBlock Text="LOCAL ONLY" Foreground="#5ED4CA" FontSize="10" FontWeight="Bold" />
+              <TextBlock Margin="0,5,0,0" Text="No cloud · No telemetry" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="11" />
+            </StackPanel>
+          </Border>
+          <TextBlock Margin="2,14,2,0" Text="{Binding AffiliationNotice}"
+                     Foreground="#718D8F" FontSize="10" TextWrapping="Wrap" />
+        </StackPanel>
       </DockPanel>
     </Border>
 
-    <Grid Grid.Column="1" Margin="56,48">
+    <Grid Grid.Column="1" Margin="34,26,34,22">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <StackPanel>
-        <TextBlock Text="{Binding CurrentSection}"
-                   Foreground="#17212B"
-                   FontSize="34"
-                   FontWeight="SemiBold" />
-        <TextBlock Margin="0,10,0,0"
-                   Text="{Binding Tagline}"
-                   Foreground="#536272"
-                   FontSize="16" />
-      </StackPanel>
-
-      <Border Grid.Row="1"
-              Margin="0,36,0,36"
-              Padding="36"
-              Background="White"
-              BorderBrush="#DDE3E8"
-              BorderThickness="1"
-              CornerRadius="12">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-          <TextBlock Text="Foundation ready"
-                     Foreground="#17212B"
-                     FontSize="24"
-                     FontWeight="SemiBold"
-                     HorizontalAlignment="Center" />
-          <TextBlock Margin="0,12,0,0"
-                     Text="{Binding StatusMessage}"
-                     Foreground="#687786"
-                     FontSize="14"
-                     TextAlignment="Center" />
+      <Grid Margin="2,0,2,22">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+          <TextBlock Text="{Binding CurrentSection}" Foreground="{DynamicResource TextPrimaryBrush}"
+                     FontSize="31" FontWeight="SemiBold" />
+          <TextBlock Margin="0,5,0,0" Text="{Binding SectionDescription}"
+                     Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" />
         </StackPanel>
-      </Border>
+        <Button Grid.Column="1" Content="＋  Add device"
+                Command="{Binding DeviceDirectory.NewDeviceCommand}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                automation:AutomationProperties.Name="Add a saved device" />
+      </Grid>
 
-      <TextBlock Grid.Row="2"
-                 MaxWidth="620"
-                 Text="{Binding AffiliationNotice}"
-                 Foreground="#687786"
-                 FontSize="12"
-                 TextWrapping="Wrap" />
+      <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="1.08*" MinWidth="390" />
+          <ColumnDefinition Width="24" />
+          <ColumnDefinition Width="0.92*" MinWidth="360" />
+        </Grid.ColumnDefinitions>
+
+        <Border Style="{StaticResource CardStyle}" Padding="20">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <StackPanel>
+                <TextBlock Text="Saved devices" Foreground="{DynamicResource TextPrimaryBrush}"
+                           FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding DeviceDirectory.FilterResultLabel}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" />
+              </StackPanel>
+              <Border Grid.Column="1" Padding="9,5" Background="{DynamicResource AccentSoftBrush}" CornerRadius="9">
+                <TextBlock Text="Favorites first" Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" FontWeight="SemiBold" />
+              </Border>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,18,0,16">
+              <TextBox Text="{Binding DeviceDirectory.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                       Style="{StaticResource FieldTextBoxStyle}"
+                       automation:AutomationProperties.Name="Search saved devices"
+                       ToolTip="Search alias, computer name, IPv4 address, or description" />
+              <TextBlock Margin="13,0,0,0" Text="Search alias, computer, IPv4 or description"
+                         Foreground="{DynamicResource TextSecondaryBrush}" IsHitTestVisible="False"
+                         VerticalAlignment="Center">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding DeviceDirectory.SearchText}" Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Visible" />
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding DeviceDirectory.SearchText}" Value="">
+                        <Setter Property="Visibility" Value="Visible" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Grid>
+
+            <ListBox Grid.Row="2"
+                     ItemsSource="{Binding DeviceDirectory.FilteredDevices}"
+                     SelectedItem="{Binding DeviceDirectory.SelectedDevice, Mode=TwoWay}"
+                     ItemContainerStyle="{StaticResource DeviceItemStyle}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     automation:AutomationProperties.Name="Saved devices">
+              <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type viewModels:DeviceListItemViewModel}">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="{Binding Alias}" Foreground="{DynamicResource TextPrimaryBrush}"
+                                 FontSize="16" FontWeight="SemiBold" />
+                      <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12">
+                        <Run Text="{Binding ComputerName}" /><Run Text="  ·  " /><Run Text="{Binding Ipv4Address}" />
+                      </TextBlock>
+                      <TextBlock Margin="0,8,0,0" Text="{Binding RecencyLabel}"
+                                 Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Width="38" Height="38" Padding="0"
+                            Content="{Binding FavoriteSymbol}"
+                            FontSize="20"
+                            Command="{Binding DataContext.DeviceDirectory.ToggleFavoriteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            automation:AutomationProperties.Name="Toggle favorite" />
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Column="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <Border Style="{StaticResource CardStyle}" Padding="20">
+            <StackPanel>
+              <TextBlock Text="One-time destination" Foreground="{DynamicResource TextPrimaryBrush}"
+                         FontSize="16" FontWeight="SemiBold" />
+              <TextBlock Margin="0,4,0,12" Text="Use a computer name or IPv4 address without saving it."
+                         Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="10" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding DeviceDirectory.ManualDestination, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FieldTextBoxStyle}"
+                         automation:AutomationProperties.Name="One-time computer name or IPv4 address" />
+                <Button Grid.Column="2" Content="Use"
+                        Command="{Binding DeviceDirectory.UseManualDestinationCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}" />
+              </Grid>
+              <TextBlock Text="{Binding DeviceDirectory.ManualDestinationError}" Style="{StaticResource ErrorTextStyle}" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="22">
+            <Grid>
+              <Grid x:Name="DetailsPanel">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="*" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                  <TextBlock Text="Resolved destination" Foreground="{DynamicResource TextSecondaryBrush}"
+                             FontSize="11" FontWeight="Bold" />
+                  <TextBlock Margin="0,7,0,0" Text="{Binding DeviceDirectory.PreparedAlias}"
+                             Foreground="{DynamicResource TextPrimaryBrush}" FontSize="23" FontWeight="SemiBold" />
+                  <TextBlock Margin="0,4,0,0" Text="{Binding DeviceDirectory.PreparedDestination}"
+                             Foreground="{DynamicResource AccentDarkBrush}" FontSize="17" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding DeviceDirectory.PreparedKindLabel}"
+                             Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" />
+                </StackPanel>
+
+                <Border Grid.Row="1" Margin="0,18,0,18" Height="1" Background="{DynamicResource BorderBrush}" />
+
+                <StackPanel Grid.Row="2">
+                  <StackPanel Visibility="{Binding DeviceDirectory.HasSelectedDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Saved details" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,10,0,0" Text="{Binding DeviceDirectory.SelectedDevice.Description}"
+                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <TextBlock Margin="0,14,0,0" Foreground="{DynamicResource TextSecondaryBrush}">
+                      <Run Text="Preferred: " /><Run Text="{Binding DeviceDirectory.SelectedDevice.PreferredDestinationLabel}" FontWeight="SemiBold" />
+                    </TextBlock>
+                    <StackPanel Margin="0,18,0,0" Orientation="Horizontal">
+                      <Button Content="Edit" Command="{Binding DeviceDirectory.EditDeviceCommand}"
+                              Style="{StaticResource SecondaryButtonStyle}" />
+                      <Button Margin="10,0,0,0" Content="Delete" Command="{Binding DeviceDirectory.DeleteDeviceCommand}"
+                              Style="{StaticResource DangerButtonStyle}" />
+                    </StackPanel>
+                  </StackPanel>
+
+                  <StackPanel Visibility="{Binding DeviceDirectory.IsManualPrepared, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Unsaved destination" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,8,0,0" Text="You can use this once or turn it into a saved device."
+                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    <Button Margin="0,16,0,0" HorizontalAlignment="Left" Content="Save as device"
+                            Command="{Binding DeviceDirectory.SaveManualDestinationCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                  </StackPanel>
+
+                  <TextBlock Text="Select a saved device or enter a one-time destination. The technical target will always appear here before sending."
+                             Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding DeviceDirectory.HasPreparedDestination}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </StackPanel>
+
+                <Button Grid.Row="3" Margin="0,22,0,0" Content="Prepare message  →"
+                        Command="{Binding DeviceDirectory.PrepareMessageCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        automation:AutomationProperties.Name="Prepare a message for the resolved destination" />
+              </Grid>
+
+              <Border Background="{DynamicResource SurfaceBrush}">
+                <Border.Style>
+                  <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding DeviceDirectory.Editor.IsOpen}" Value="True">
+                        <Setter Property="Visibility" Value="Visible" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Border.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                  <StackPanel>
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.Title}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="21" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,4,0,20" Text="Aliases can represent people, rooms, or shared workstations."
+                               Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+
+                    <TextBlock Text="Alias" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DeviceDirectory.Editor.Alias, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FieldTextBoxStyle}"
+                             automation:AutomationProperties.Name="Device alias" />
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.AliasError}" Style="{StaticResource ErrorTextStyle}" />
+
+                    <TextBlock Margin="0,14,0,6" Text="Computer name" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DeviceDirectory.Editor.ComputerName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FieldTextBoxStyle}"
+                             automation:AutomationProperties.Name="Windows computer name" />
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.ComputerNameError}" Style="{StaticResource ErrorTextStyle}" />
+
+                    <TextBlock Margin="0,14,0,6" Text="IPv4 address" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding DeviceDirectory.Editor.Ipv4Address, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FieldTextBoxStyle}"
+                             automation:AutomationProperties.Name="IPv4 address" />
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.Ipv4AddressError}" Style="{StaticResource ErrorTextStyle}" />
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.DestinationError}" Style="{StaticResource ErrorTextStyle}" />
+
+                    <TextBlock Margin="0,14,0,7" Text="Preferred destination" Style="{StaticResource FieldLabelStyle}" />
+                    <StackPanel Orientation="Horizontal">
+                      <RadioButton Content="Computer name" GroupName="PreferredDestination"
+                                   IsChecked="{Binding DeviceDirectory.Editor.PreferHostname}" Foreground="{DynamicResource TextPrimaryBrush}" />
+                      <RadioButton Margin="18,0,0,0" Content="IPv4 address" GroupName="PreferredDestination"
+                                   IsChecked="{Binding DeviceDirectory.Editor.PreferIpv4}" Foreground="{DynamicResource TextPrimaryBrush}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.PreferredDestinationError}" Style="{StaticResource ErrorTextStyle}" />
+
+                    <TextBlock Margin="0,14,0,6" Text="Description" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Height="66" AcceptsReturn="True" TextWrapping="Wrap"
+                             Text="{Binding DeviceDirectory.Editor.Description, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FieldTextBoxStyle}"
+                             automation:AutomationProperties.Name="Device description" />
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.DescriptionError}" Style="{StaticResource ErrorTextStyle}" />
+
+                    <CheckBox Margin="0,16,0,0" Content="Add to favorites"
+                              IsChecked="{Binding DeviceDirectory.Editor.IsFavorite}"
+                              Foreground="{DynamicResource TextPrimaryBrush}" />
+                    <TextBlock Text="{Binding DeviceDirectory.Editor.GeneralError}" Style="{StaticResource ErrorTextStyle}" />
+
+                    <StackPanel Margin="0,22,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                      <Button Content="Cancel" Command="{Binding DeviceDirectory.CancelEditCommand}"
+                              Style="{StaticResource SecondaryButtonStyle}" />
+                      <Button Margin="10,0,0,0" Content="Save device" Command="{Binding DeviceDirectory.SaveDeviceCommand}"
+                              Style="{StaticResource PrimaryButtonStyle}" />
+                    </StackPanel>
+                  </StackPanel>
+                </ScrollViewer>
+              </Border>
+            </Grid>
+          </Border>
+        </Grid>
+      </Grid>
+
+      <Grid Grid.Row="2" Margin="2,16,2,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="{Binding DeviceDirectory.StatusMessage}"
+                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="1" Text="Offline by design"
+                   Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" FontWeight="SemiBold" />
+      </Grid>
     </Grid>
   </Grid>
 </Window>

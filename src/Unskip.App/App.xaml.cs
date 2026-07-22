@@ -1,4 +1,8 @@
 using System.Windows;
+using Unskip.App.Services;
+using Unskip.App.ViewModels;
+using Unskip.Core.Devices;
+using Unskip.Core.Time;
 using Unskip.Infrastructure.Persistence;
 
 namespace Unskip.App;
@@ -10,9 +14,24 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        SystemThemeManager.Apply(Resources);
+
         var database = UnskipDatabase.ForCurrentUser();
         database.InitializeAsync().GetAwaiter().GetResult();
 
+        var clock = new SystemClock();
+        var directory = new DeviceDirectoryService(database.Devices, clock);
+        var deviceDirectory = new DeviceDirectoryViewModel(
+            directory,
+            clock,
+            new MessageBoxDeviceDeletionConfirmation());
+        var viewModel = new MainWindowViewModel(deviceDirectory);
+        viewModel.InitializeAsync().GetAwaiter().GetResult();
+
         base.OnStartup(e);
+
+        var window = new MainWindow(viewModel);
+        MainWindow = window;
+        window.Show();
     }
 }

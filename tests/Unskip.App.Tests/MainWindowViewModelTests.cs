@@ -1,16 +1,16 @@
-using Unskip.App.ViewModels;
-
 namespace Unskip.App.Tests;
 
 public sealed class MainWindowViewModelTests
 {
     [Fact]
-    public void InitialShellExposesExpectedSectionsWithoutDeliveryClaims()
+    public void DevicesIsActiveWithoutDeliveryClaims()
     {
-        var viewModel = new MainWindowViewModel();
+        var context = ViewModelTestContext.Create();
 
-        Assert.Equal(["Send", "Devices", "History"], viewModel.NavigationItems);
-        Assert.DoesNotContain("read", viewModel.StatusMessage, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("acknowledged", viewModel.StatusMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Devices", context.Main.CurrentSection);
+        Assert.Equal(["Send", "Devices", "History"], context.Main.NavigationItems.Select(item => item.Label));
+        Assert.True(context.Main.NavigationItems.Single(item => item.Label == "Devices").IsActive);
+        Assert.DoesNotContain("read", context.Main.SectionDescription, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("acknowledged", context.Main.SectionDescription, StringComparison.OrdinalIgnoreCase);
     }
 }

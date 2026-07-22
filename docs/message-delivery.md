@@ -32,9 +32,9 @@ Standard output and error are captured for support diagnostics. Message-body occ
 - A resolvable target computer name reachable through the Windows facilities used by `msg.exe`.
 - An active compatible user session on the target.
 - Message special access permission for the sender, as required by Windows.
-- Network and organizational policy that permits the native operation.
+- Domain, workgroup, local security, network, and firewall policy that permits the native operation for the specific sender and target.
 
-Unskip does not change firewall rules, registry values, Windows services, session permissions, or organizational policy. Ping success is not proof that native delivery will work.
+Unskip does not change firewall rules, registry values, Windows services, session permissions, or organizational policy. Ping success is not proof that native delivery will work. Troubleshooting must not recommend disabling protections or enabling broad access as a generic fix.
 
 ## Real integration verification
 

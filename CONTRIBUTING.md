@@ -11,6 +11,8 @@ Thank you for helping improve Unskip.
 5. Review the diff for secrets, personal data, real network details, and accidental generated files.
 6. Open a focused pull request that links the issue. Do not close an issue until all acceptance criteria are met.
 
+GitHub Actions repeats formatting, Release build, deterministic tests, dependency auditing, and pull-request dependency review on Windows. Native `msg.exe` integration is opt-in and excluded from CI; ordinary tests must never contact a real device.
+
 ## Engineering expectations
 
 - Use English for source code and repository documentation.

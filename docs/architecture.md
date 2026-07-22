@@ -10,13 +10,13 @@ Unskip uses .NET 10 LTS, WPF, C#, and an MVVM-oriented separation:
 - `Unskip.App` contains the Windows WPF presentation layer and view models.
 - Each production project has a corresponding xUnit test project.
 
-Dependencies point inward: both infrastructure projects reference core, while core has no WPF, Entity Framework Core, or infrastructure dependency. The WPF composition root applies pending local database migrations, constructs `DeviceDirectoryService`, and injects both the device directory and native message sender before showing its first window.
+Dependencies point inward: both infrastructure projects reference core, while core has no WPF, Entity Framework Core, or infrastructure dependency. The WPF composition root applies pending local database migrations, constructs `DeviceDirectoryService` and `SendHistoryService`, and injects the SQLite repositories and native message sender before showing its first window.
 
 The device UI follows MVVM. `DeviceDirectoryViewModel` owns search, selection, editing, validation presentation, favorites, and one-time destination state. Commands expose asynchronous persistence operations, while the window code-behind only initializes WPF and assigns its injected data context. A small dialog service isolates explicit delete confirmation from view-model behavior.
 
-`MainWindowViewModel` coordinates the destination handoff into `MessageComposerViewModel`. The composer owns draft validation, asynchronous send state, honest delivery-result presentation, optional sanitized diagnostics, and retry behavior. It depends only on the core `IMessageSender` seam; the composition root supplies the Windows implementation.
+`MainWindowViewModel` coordinates the Devices, Send, and History workspaces and the destination handoff into `MessageComposerViewModel`. The composer owns draft validation, asynchronous send state, honest delivery-result presentation, optional sanitized diagnostics, and retry behavior. It depends only on the core `IMessageSender` seam; the composition root supplies the Windows implementation.
 
-## Planned boundaries
+## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.
 

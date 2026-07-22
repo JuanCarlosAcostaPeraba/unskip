@@ -1,27 +1,77 @@
 # Troubleshooting
 
+Start with the result and **Technical details** shown by Unskip. Diagnostics are sanitized and bounded, and message-body occurrences are removed. Do not post real computer names, addresses, user identities, or message content in a public issue.
+
+## The application is not installed yet
+
+Unskip is currently pre-release and does not yet provide a supported installer or signed end-user package. Use the source-build instructions in the [user guide](user-guide.md) only for development or evaluation. Issue #10 tracks packaging.
+
 ## The required SDK is not found
 
-Install a stable .NET 10 SDK and run `dotnet --info`. The repository's `global.json` rejects preview SDKs and rolls forward within stable .NET 10 feature bands.
+This applies only to source builds. Install a stable .NET 10 SDK and run `dotnet --info`. The repository's `global.json` rejects preview SDKs and rolls forward within stable .NET 10 feature bands.
 
 ## Restore fails
 
-Confirm that the development machine can reach NuGet.org and that its NuGet configuration is readable. Runtime use of Unskip does not require Internet access; package restore is a development/build operation.
+Confirm that the development machine can reach NuGet.org and that its NuGet configuration is readable. Runtime use of Unskip does not require Internet access; package restore is a development operation.
 
 ## WPF does not build
 
-Build on a supported Windows version with the .NET 10 SDK. WPF is Windows-only. If using Visual Studio, install the .NET desktop development workload.
+Build on Windows 10 or Windows 11 with the .NET 10 SDK. WPF is Windows-only. If using Visual Studio, install the .NET desktop development workload.
 
-## The application opens but cannot send
+## IPv4 is rejected before sending
 
-Windows may reject delivery if `msg.exe` is unavailable, the sender lacks Message permission, the target cannot be contacted, or no compatible active session is available. Unskip reports an honest category and offers sanitized technical details without claiming that a person read the message. Failed and timed-out requests can be retried without re-entering the draft.
+This is expected. The directory can retain a canonical IPv4 address, but the current native boundary supports Windows computer names or DNS names only. Select or enter the computer name. Do not work around the validation by editing the database.
 
-The current native boundary supports Windows computer names. A stored or manually entered IPv4 address remains visible in the composer but is rejected before process execution.
+## Windows reports permission denied or error 5
+
+Unskip maps exit code 5, or a bounded diagnostic containing error 5, to **Permission denied**. The sender does not currently have the Windows permission required to message sessions on that destination.
+
+Verify that the destination is correct and ask the responsible administrator to review the sender's message-session permission for that specific computer. Do not use unrestricted administrator rights as a permanent workaround, and do not relax policy for every user or computer.
+
+## Windows cannot contact the target: errors 53, 1722, or 1726
+
+Unskip maps these verified native codes to **Target unavailable**. Check:
+
+1. the Windows computer name is spelled correctly;
+2. the name resolves from the sending computer;
+3. the target is powered on and reachable through the managed network;
+4. a compatible Windows session is active;
+5. the responsible administrator permits the required native Windows operation between these specific computers.
+
+Ping success does not prove that the remote session operation is available. Do not disable Windows Firewall, expose broad port ranges, enable services globally, or edit registry and domain policy as a generic fix. Ask an administrator for the narrowest change that matches organizational policy.
+
+## Windows rejected the request with another code
+
+Unskip reports **Native rejected** when `msg.exe` returns a non-zero result that is not one of the verified mappings above. Expand **Technical details**, note the sanitized exit code and diagnostic, and compare it with the destination's Windows/session prerequisites. Avoid guessing from undocumented codes.
+
+## The request timed out
+
+Unskip stops the native process when it exceeds the configured timeout. Confirm the target name and session state, then retry once. Repeated timeouts should be investigated as a target, network, service, or policy problem; increasing timeouts or weakening network controls is not the default remedy.
+
+## `msg.exe` is unavailable
+
+Unskip reports this when Windows cannot find the native executable. Confirm that the sending computer is a supported Windows installation and that `%WINDIR%\System32\msg.exe` exists. Do not download a replacement executable from an unofficial site.
+
+## Unskip says Sent but the recipient did not respond
+
+`Sent` means only that Windows returned exit code zero. It does not prove display, reading, attention, or acknowledgement. Unskip does not produce sound, read receipts, or presence information. Confirm the intended computer and session through an appropriate separate channel.
 
 ## The local database cannot be opened
 
-Confirm that the current Windows account can write to `%LOCALAPPDATA%\Unskip`. Close Unskip before copying or moving `unskip.db`, `unskip.db-shm`, or `unskip.db-wal`. Renaming the entire `Unskip` directory is a recoverable way to let the application create a fresh database while preserving the original for investigation.
+Confirm that the current Windows account can write to `%LOCALAPPDATA%\Unskip`. Close Unskip before copying or moving `unskip.db`, `unskip.db-shm`, or `unskip.db-wal`.
+
+Renaming the entire `Unskip` directory while the application is closed is a recoverable way to let Unskip create a fresh database while preserving the original for investigation. Do not edit the SQLite file manually.
+
+## Back up, restore, or reset local data
+
+Close Unskip and copy the complete `%LOCALAPPDATA%\Unskip` folder, including SQLite sidecar files. Restore the complete folder only while Unskip is closed.
+
+Deleting the folder removes saved devices and history and cannot be undone without a backup. Clearing history from the UI leaves saved devices intact. Removing the application files does not necessarily remove local data.
 
 ## A saved device does not appear in search
 
 Clear the search box or search by alias, computer name, IPv4 address, or description. Search is case-insensitive. Favorites and recently used devices appear first when no filter is active.
+
+## Reporting a problem
+
+For ordinary bugs, follow the repository issue template and replace every real hostname, address, alias, and message with fictitious data. For security vulnerabilities, follow [SECURITY.md](../SECURITY.md) and do not open a public issue containing undisclosed details.

@@ -2,6 +2,7 @@ using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
+using Unskip.Core.Messaging.History;
 using Unskip.Core.Time;
 
 namespace Unskip.App.Tests;
@@ -16,7 +17,10 @@ internal sealed class ViewModelTestContext
         var service = new DeviceDirectoryService(Repository, Clock);
         Directory = new DeviceDirectoryViewModel(service, Clock, Confirmation);
         Sender = new StubMessageSender();
-        Main = new MainWindowViewModel(Directory, Sender);
+        HistoryRepository = new InMemorySendHistoryRepository();
+        HistoryConfirmation = new StubHistoryConfirmation();
+        var history = new SendHistoryService(HistoryRepository, Clock);
+        Main = new MainWindowViewModel(Directory, Sender, history, HistoryConfirmation);
     }
 
     public MutableClock Clock { get; }
@@ -26,6 +30,10 @@ internal sealed class ViewModelTestContext
     public StubConfirmation Confirmation { get; }
 
     public StubMessageSender Sender { get; }
+
+    public InMemorySendHistoryRepository HistoryRepository { get; }
+
+    public StubHistoryConfirmation HistoryConfirmation { get; }
 
     public DeviceDirectoryViewModel Directory { get; }
 
@@ -96,6 +104,39 @@ internal sealed class ViewModelTestContext
         {
             Requests.Add(request);
             return Task.FromResult(Result);
+        }
+    }
+
+    internal sealed class StubHistoryConfirmation : IHistoryDeletionConfirmation
+    {
+        public bool Response { get; set; }
+
+        public Task<bool> ConfirmDeleteAsync(string destinationAlias) => Task.FromResult(Response);
+
+        public Task<bool> ConfirmClearAsync(int count) => Task.FromResult(Response);
+    }
+
+    internal sealed class InMemorySendHistoryRepository : ISendHistoryRepository
+    {
+        public List<SendHistoryRecord> Records { get; } = [];
+
+        public Task<IReadOnlyList<SendHistoryRecord>> GetAllAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SendHistoryRecord>>([.. Records.OrderByDescending(record => record.OccurredAt)]);
+
+        public Task AddAsync(SendHistoryRecord record, CancellationToken cancellationToken = default)
+        {
+            Records.Add(record);
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Records.RemoveAll(record => record.Id == id) > 0);
+
+        public Task<int> ClearAsync(CancellationToken cancellationToken = default)
+        {
+            var count = Records.Count;
+            Records.Clear();
+            return Task.FromResult(count);
         }
     }
 

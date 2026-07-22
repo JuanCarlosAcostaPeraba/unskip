@@ -13,11 +13,25 @@ internal sealed class SendHistoryEntity
 
     public required string AliasSnapshot { get; set; }
 
+    public string? ComputerNameSnapshot { get; set; }
+
+    public string? Ipv4AddressSnapshot { get; set; }
+
     public DeviceDestinationKind DestinationKind { get; set; }
 
     public required string DestinationSnapshot { get; set; }
 
     public MessageDeliveryStatus DeliveryStatus { get; set; }
 
+    public MessageFailureCategory FailureCategory { get; set; }
+
     public DateTimeOffset OccurredAt { get; set; }
+
+    public long DurationTicks { get; set; }
+
+    public int? ExitCode { get; set; }
+
+    public string? DiagnosticSummary { get; set; }
+
+    public int MessageLength { get; set; }
 }

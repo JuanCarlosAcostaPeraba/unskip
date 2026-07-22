@@ -3,12 +3,17 @@ using System.Text;
 using Unskip.App.Commands;
 using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
+using Unskip.Core.Messaging.History;
 
 namespace Unskip.App.ViewModels;
 
 public sealed class MessageComposerViewModel : ObservableObject
 {
     private readonly IMessageSender _sender;
+    private readonly SendHistoryService _history;
+    private DeviceDestinationKind _destinationKind;
+    private string? _computerName;
+    private string? _ipv4Address;
     private string _destination = string.Empty;
     private string _destinationAlias = string.Empty;
     private string _destinationKindLabel = string.Empty;
@@ -21,9 +26,10 @@ public sealed class MessageComposerViewModel : ObservableObject
     private bool _isTechnicalDetailsExpanded;
     private bool _canRetry;
 
-    public MessageComposerViewModel(IMessageSender sender)
+    public MessageComposerViewModel(IMessageSender sender, SendHistoryService history)
     {
         _sender = sender ?? throw new ArgumentNullException(nameof(sender));
+        _history = history ?? throw new ArgumentNullException(nameof(history));
         SendCommand = new AsyncRelayCommand(_ => SendAsync(), _ => CanSend);
         RetryCommand = new AsyncRelayCommand(_ => SendAsync(), _ => CanRetry && !IsSending);
         ToggleTechnicalDetailsCommand = new RelayCommand(
@@ -33,6 +39,8 @@ public sealed class MessageComposerViewModel : ObservableObject
     }
 
     public event EventHandler? BackRequested;
+
+    public event EventHandler? HistoryChanged;
 
     public AsyncRelayCommand SendCommand { get; }
 
@@ -171,6 +179,9 @@ public sealed class MessageComposerViewModel : ObservableObject
             ? "IPv4 address"
             : "Computer name";
         DeviceId = destination.DeviceId;
+        _destinationKind = destination.DestinationKind;
+        _computerName = destination.ComputerName;
+        _ipv4Address = destination.Ipv4Address;
         ClearResult();
         MessageError = null;
         NotifyCommandStates();
@@ -183,6 +194,14 @@ public sealed class MessageComposerViewModel : ObservableObject
         if (!validation.IsValid)
         {
             ApplyValidation(validation);
+            await RecordAsync(new MessageSendResult(
+                MessageDeliveryStatus.Rejected,
+                MessageFailureCategory.Validation,
+                null,
+                string.Empty,
+                string.Empty,
+                TimeSpan.Zero,
+                validation.Errors[0].Message)).ConfigureAwait(true);
             return;
         }
 
@@ -197,6 +216,7 @@ public sealed class MessageComposerViewModel : ObservableObject
         {
             var result = await _sender.SendAsync(request).ConfigureAwait(true);
             ApplyResult(result);
+            await RecordAsync(result).ConfigureAwait(true);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
@@ -204,6 +224,14 @@ public sealed class MessageComposerViewModel : ObservableObject
             ResultMessage = "Unskip could not complete the Windows messaging request. You can retry without re-entering the message.";
             TechnicalDetails = $"Unexpected application error: {exception.GetType().Name}";
             CanRetry = true;
+            await RecordAsync(new MessageSendResult(
+                MessageDeliveryStatus.Failed,
+                MessageFailureCategory.ProcessFailure,
+                null,
+                string.Empty,
+                string.Empty,
+                TimeSpan.Zero,
+                "Unskip could not complete the Windows messaging request.")).ConfigureAwait(true);
         }
         finally
         {
@@ -268,6 +296,31 @@ public sealed class MessageComposerViewModel : ObservableObject
         TechnicalDetails = null;
         IsTechnicalDetailsExpanded = false;
         CanRetry = false;
+    }
+
+    private async Task RecordAsync(MessageSendResult result)
+    {
+        try
+        {
+            await _history.RecordAsync(new SendHistoryAttempt(
+                DeviceId,
+                DestinationAlias,
+                _computerName,
+                _ipv4Address,
+                _destinationKind,
+                Destination,
+                result.Status,
+                result.FailureCategory,
+                result.Duration,
+                result.ExitCode,
+                BuildTechnicalDetails(result),
+                Message.Length)).ConfigureAwait(true);
+            HistoryChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            ResultMessage += " The result could not be added to local history.";
+        }
     }
 
     private void NotifyCommandStates()

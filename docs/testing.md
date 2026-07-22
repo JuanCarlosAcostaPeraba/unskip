@@ -16,6 +16,8 @@ Device-directory view-model tests use an in-memory repository, injected clock, a
 
 Message-composer tests inject fake senders. They cover visible resolved destinations, length validation, duplicate-submit protection, accurate result states, retry with draft preservation, optional technical details, and the documented IPv4 rejection. No view-model test starts `msg.exe`.
 
+History tests use injected clocks and in-memory repositories for MVVM behavior, plus temporary migrated SQLite databases for full metadata round trips, deletion, clearing, and immutable snapshots after device edits or deletion. Test message bodies are verified absent from persisted diagnostics.
+
 Restore the repository-local Entity Framework tool and list migrations with:
 
 ```powershell

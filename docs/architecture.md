@@ -23,3 +23,5 @@ Destination and message validation live in core behind `IMessageSender`. Device 
 The current delivery boundary supports documented hostname targets only. The directory can store a canonical IPv4 address, but delivery rejects IPv4 until compatible `msg.exe` behavior is verified in a controlled Windows environment.
 
 Historical send rows keep alias and destination snapshots. Their optional device foreign key uses `SET NULL`, so editing or deleting a directory entry cannot rewrite or remove historical context. Message bodies are not part of the persistence schema.
+
+`SendHistoryService` creates timestamped records through `ISendHistoryRepository`. SQLite stores both available technical targets, the selected destination, result metadata, message length, and a bounded sanitized diagnostic summary. `SendHistoryViewModel` owns local filtering and deletion; destination reuse deliberately opens an empty composer because message bodies are never retained.

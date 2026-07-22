@@ -11,11 +11,14 @@ public sealed class UnskipDatabase
     {
         _contextFactory = new UnskipDbContextFactory(databasePath);
         Devices = new SqliteDeviceRepository(_contextFactory);
+        SendHistory = new SqliteSendHistoryRepository(_contextFactory);
     }
 
     public string DatabasePath => _contextFactory.DatabasePath;
 
     public IDeviceRepository Devices { get; }
+
+    public Core.Messaging.History.ISendHistoryRepository SendHistory { get; }
 
     public static UnskipDatabase ForCurrentUser()
     {

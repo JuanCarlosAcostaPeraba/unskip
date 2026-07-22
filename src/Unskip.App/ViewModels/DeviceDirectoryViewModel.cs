@@ -404,7 +404,9 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
                 PreparedAlias,
                 PreparedDestination,
                 destinationKind,
-                PreparedDeviceId));
+                PreparedDeviceId,
+                SelectedDevice?.ComputerName ?? (destinationKind == DeviceDestinationKind.Hostname ? PreparedDestination : null),
+                SelectedDevice?.Ipv4Address ?? (destinationKind == DeviceDestinationKind.Ipv4 ? PreparedDestination : null)));
     }
 
     private void ClearPreparedDestination()

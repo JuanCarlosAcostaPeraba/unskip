@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Unskip.Core\Unskip.Core.csproj" />
     <ProjectReference Include="..\Unskip.Infrastructure.Persistence\Unskip.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\Unskip.Infrastructure.Windows\Unskip.Infrastructure.Windows.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>

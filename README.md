@@ -6,7 +6,7 @@ Unskip is an unofficial, Windows-only desktop application for sending native mes
 
 ## Current status
 
-The repository contains a .NET 10 LTS WPF application, the secure native delivery engine from issue #3, local device persistence from issue #4, and the visual device directory from issue #5. The final message-composer workflow remains scoped to issue #6.
+The repository contains a .NET 10 LTS WPF application, the secure native delivery engine from issue #3, local device persistence from issue #4, the visual device directory from issue #5, and the message-composer workflow from issue #6.
 
 ## Requirements
 

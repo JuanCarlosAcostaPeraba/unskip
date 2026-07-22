@@ -12,6 +12,8 @@ Unskip uses .NET 10 LTS, WPF, C#, and an MVVM-oriented separation:
 
 Dependencies point inward: both infrastructure projects reference core, while core has no WPF, Entity Framework Core, or infrastructure dependency. The WPF composition root applies pending local database migrations, constructs `DeviceDirectoryService` and `SendHistoryService`, and injects the SQLite repositories and native message sender before showing its first window.
 
+Release packaging publishes `Unskip.App` as a self-contained `win-x64` folder and wraps it in a per-user NSIS installer. Installation binaries live under `%LOCALAPPDATA%\Programs\Unskip`; mutable application data remains separately owned by the persistence layer under `%LOCALAPPDATA%\Unskip`. This boundary makes upgrades and uninstall non-destructive to user data.
+
 The device UI follows MVVM. `DeviceDirectoryViewModel` owns search, selection, editing, validation presentation, favorites, and one-time destination state. Commands expose asynchronous persistence operations, while the window code-behind only initializes WPF and assigns its injected data context. A small dialog service isolates explicit delete confirmation from view-model behavior.
 
 `MainWindowViewModel` coordinates the Devices, Send, and History workspaces and the destination handoff into `MessageComposerViewModel`. The composer owns draft validation, asynchronous send state, honest delivery-result presentation, optional sanitized diagnostics, and retry behavior. It depends only on the core `IMessageSender` seam; the composition root supplies the Windows implementation.

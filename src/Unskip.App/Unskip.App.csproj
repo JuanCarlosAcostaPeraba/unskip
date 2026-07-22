@@ -5,8 +5,14 @@
     <ProjectReference Include="..\Unskip.Infrastructure.Windows\Unskip.Infrastructure.Windows.csproj" />
   </ItemGroup>
   <PropertyGroup>
+    <ApplicationIcon>Assets\unskip.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Link="LICENSE.txt" CopyToPublishDirectory="PreserveNewest" />
+    <Resource Include="Assets\unskip.ico" />
+  </ItemGroup>
 </Project>

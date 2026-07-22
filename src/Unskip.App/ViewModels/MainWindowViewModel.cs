@@ -14,9 +14,12 @@ public sealed class MainWindowViewModel : ObservableObject
         DeviceDirectoryViewModel deviceDirectory,
         IMessageSender messageSender,
         SendHistoryService historyService,
-        IHistoryDeletionConfirmation historyConfirmation)
+        IHistoryDeletionConfirmation historyConfirmation,
+        string versionLabel)
     {
         DeviceDirectory = deviceDirectory ?? throw new ArgumentNullException(nameof(deviceDirectory));
+        ArgumentException.ThrowIfNullOrWhiteSpace(versionLabel);
+        VersionLabel = versionLabel;
         Composer = new MessageComposerViewModel(messageSender, historyService);
         History = new SendHistoryViewModel(historyService, historyConfirmation);
         ShowDevicesCommand = new RelayCommand(_ => Show(Workspace.Devices), _ => !Composer.IsSending);
@@ -32,6 +35,7 @@ public sealed class MainWindowViewModel : ObservableObject
     public string ProductName { get; } = ProductIdentity.Name;
     public string Tagline { get; } = ProductIdentity.Tagline;
     public string AffiliationNotice { get; } = ProductIdentity.AffiliationNotice;
+    public string VersionLabel { get; }
     public string CurrentSection => _workspace switch { Workspace.Composer => "Send", Workspace.History => "History", _ => "Devices" };
     public string SectionDescription => _workspace switch
     {

@@ -32,7 +32,8 @@ public partial class App : Application
             deviceDirectory,
             new WindowsMsgSender(),
             history,
-            new MessageBoxHistoryDeletionConfirmation());
+            new MessageBoxHistoryDeletionConfirmation(),
+            ApplicationVersion.DisplayLabel);
         viewModel.InitializeAsync().GetAwaiter().GetResult();
 
         base.OnStartup(e);

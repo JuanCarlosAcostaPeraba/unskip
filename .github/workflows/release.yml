@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CI: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+  NSIS_COMPILER_SHA256: B043E554AFEFBFC56315669D0B4779793AEAE67F0F2A7A790E2EA91F05298EFF
+
+jobs:
+  release:
+    name: Build Windows release
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            **/*.csproj
+
+      - name: Validate release tag
+        id: version
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if ($tag -notmatch '^v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$') {
+            throw "Release tags must use vMAJOR.MINOR.PATCH or a SemVer pre-release suffix. Received: $tag"
+          }
+
+          git fetch origin main --no-tags
+          git merge-base --is-ancestor HEAD origin/main
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Release tags must point to a commit contained in main.'
+          }
+
+          "version=$($Matches.version)" >> $env:GITHUB_OUTPUT
+          "prerelease=$($Matches.version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore Unskip.sln
+
+      - name: Verify formatting and analyzers
+        run: dotnet format Unskip.sln --verify-no-changes --no-restore
+
+      - name: Build
+        run: dotnet build Unskip.sln --configuration Release --no-restore
+
+      - name: Test deterministic suite
+        run: >
+          dotnet test Unskip.sln
+          --configuration Release
+          --no-build
+          --no-restore
+          --filter "Category!=NativeIntegration"
+
+      - name: Audit NuGet dependencies
+        run: dotnet list Unskip.sln package --vulnerable --include-transitive
+
+      - name: Install pinned NSIS compiler
+        id: nsis
+        shell: pwsh
+        run: |
+          winget install `
+            --id NSIS.NSIS `
+            --version 3.12 `
+            --exact `
+            --silent `
+            --accept-package-agreements `
+            --accept-source-agreements `
+            --disable-interactivity
+          if ($LASTEXITCODE -ne 0) {
+            throw "NSIS installation failed with exit code $LASTEXITCODE."
+          }
+
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          if (-not (Test-Path -LiteralPath $compiler)) {
+            throw "NSIS compiler was not found at $compiler."
+          }
+
+          $actualHash = (Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash
+          if ($actualHash -ne $env:NSIS_COMPILER_SHA256) {
+            throw "NSIS compiler checksum mismatch. Expected $env:NSIS_COMPILER_SHA256, received $actualHash."
+          }
+
+          "compiler=$compiler" >> $env:GITHUB_OUTPUT
+
+      - name: Build installer and portable archive
+        shell: pwsh
+        run: >
+          ./eng/package.ps1
+          -Version '${{ steps.version.outputs.version }}'
+          -NsisCompiler '${{ steps.nsis.outputs.compiler }}'
+
+      - name: Upload release build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Unskip-${{ steps.version.outputs.version }}-win-x64
+          path: artifacts/release
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IS_PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        shell: pwsh
+        run: |
+          $arguments = @(
+            'release', 'create', '${{ github.ref_name }}',
+            '--verify-tag',
+            '--generate-notes',
+            '--title', "Unskip $env:RELEASE_VERSION"
+          )
+          if ($env:IS_PRERELEASE -eq 'true') {
+            $arguments += '--prerelease'
+          }
+          $arguments += Get-ChildItem -LiteralPath artifacts/release -File | ForEach-Object FullName
+          gh @arguments

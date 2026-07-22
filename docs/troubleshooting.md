@@ -2,9 +2,17 @@
 
 Start with the result and **Technical details** shown by Unskip. Diagnostics are sanitized and bounded, and message-body occurrences are removed. Do not post real computer names, addresses, user identities, or message content in a public issue.
 
-## The application is not installed yet
+## Windows shows a SmartScreen warning
 
-Unskip is currently pre-release and does not yet provide a supported installer or signed end-user package. Use the source-build instructions in the [user guide](user-guide.md) only for development or evaluation. Issue #10 tracks packaging.
+Early Unskip releases are unsigned, so Windows may identify the installer or executable as an unknown publisher or unrecognized app. Managed policy may block unsigned software completely.
+
+Download only from the repository's GitHub Releases page and compare the file against `SHA256SUMS.txt`. Follow your organization's policy and ask the responsible administrator if execution is blocked. Do not disable SmartScreen, antivirus, or organizational controls as a workaround.
+
+## The installer cannot update files
+
+Close Unskip and run the installer again. The installer targets only the current Windows account and normally needs no administrator rights. An upgrade reuses `%LOCALAPPDATA%\Programs\Unskip` and leaves `%LOCALAPPDATA%\Unskip` untouched.
+
+If policy blocks installation, use the portable ZIP only when organizational policy permits it. Do not move the local database into the application directory.
 
 ## The required SDK is not found
 

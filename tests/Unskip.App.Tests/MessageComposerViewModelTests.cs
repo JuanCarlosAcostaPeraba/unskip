@@ -1,6 +1,7 @@
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
+using Unskip.Core.Messaging.History;
 
 namespace Unskip.App.Tests;
 
@@ -9,7 +10,7 @@ public sealed class MessageComposerViewModelTests
     [Fact]
     public void PreparedDestinationShowsAliasAndTechnicalTarget()
     {
-        var composer = new MessageComposerViewModel(new QueueMessageSender());
+        var composer = CreateComposer(new QueueMessageSender());
 
         composer.Prepare(Destination());
 
@@ -21,7 +22,7 @@ public sealed class MessageComposerViewModelTests
     [Fact]
     public void EmptyAndOversizedMessagesCannotBeSubmitted()
     {
-        var composer = new MessageComposerViewModel(new QueueMessageSender());
+        var composer = CreateComposer(new QueueMessageSender());
         composer.Prepare(Destination());
 
         Assert.False(composer.SendCommand.CanExecute(null));
@@ -39,7 +40,7 @@ public sealed class MessageComposerViewModelTests
     public async Task DuplicateSubmissionIsIgnoredWhileSendIsPending()
     {
         var sender = new PendingMessageSender();
-        var composer = new MessageComposerViewModel(sender);
+        var composer = CreateComposer(sender);
         composer.Prepare(Destination());
         composer.Message = "Fictitious test message";
 
@@ -60,7 +61,7 @@ public sealed class MessageComposerViewModelTests
     public async Task SentStatusNeverClaimsReadAcknowledgement()
     {
         var sender = new QueueMessageSender(Sent());
-        var composer = new MessageComposerViewModel(sender);
+        var composer = CreateComposer(sender);
         composer.Prepare(Destination());
         composer.Message = "Fictitious test message";
 
@@ -82,7 +83,7 @@ public sealed class MessageComposerViewModelTests
         var sender = new QueueMessageSender(
             Result(initialStatus, "The request did not complete."),
             Sent());
-        var composer = new MessageComposerViewModel(sender);
+        var composer = CreateComposer(sender);
         composer.Prepare(Destination());
         composer.Message = "Keep this fictitious draft";
 
@@ -109,7 +110,7 @@ public sealed class MessageComposerViewModelTests
             "Access denied",
             TimeSpan.FromMilliseconds(10),
             "Windows rejected the request."));
-        var composer = new MessageComposerViewModel(sender);
+        var composer = CreateComposer(sender);
         composer.Prepare(Destination());
         composer.Message = "Fictitious test message";
 
@@ -126,7 +127,7 @@ public sealed class MessageComposerViewModelTests
     public async Task Ipv4DestinationIsHonestlyRejectedBeforeNativeExecution()
     {
         var sender = new QueueMessageSender(Sent());
-        var composer = new MessageComposerViewModel(sender);
+        var composer = CreateComposer(sender);
         composer.Prepare(new MessagePreparationRequestedEventArgs(
             "Manual destination",
             "192.0.2.7",
@@ -144,7 +145,7 @@ public sealed class MessageComposerViewModelTests
     [Fact]
     public async Task UnexpectedExceptionDoesNotExposeItsPotentiallySensitiveMessage()
     {
-        var composer = new MessageComposerViewModel(new ThrowingMessageSender());
+        var composer = CreateComposer(new ThrowingMessageSender());
         composer.Prepare(Destination());
         composer.Message = "Fictitious private draft";
 
@@ -163,6 +164,16 @@ public sealed class MessageComposerViewModelTests
             "front-desk",
             DeviceDestinationKind.Hostname,
             Guid.NewGuid());
+    }
+
+    private static MessageComposerViewModel CreateComposer(IMessageSender sender)
+    {
+        var clock = new ViewModelTestContext.MutableClock(
+            new DateTimeOffset(2026, 7, 22, 9, 0, 0, TimeSpan.Zero));
+        var history = new SendHistoryService(
+            new ViewModelTestContext.InMemorySendHistoryRepository(),
+            clock);
+        return new MessageComposerViewModel(sender, history);
     }
 
     private static MessageSendResult Sent()

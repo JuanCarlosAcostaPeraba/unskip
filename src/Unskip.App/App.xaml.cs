@@ -2,6 +2,7 @@ using System.Windows;
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
+using Unskip.Core.Messaging.History;
 using Unskip.Core.Time;
 using Unskip.Infrastructure.Persistence;
 using Unskip.Infrastructure.Windows;
@@ -22,11 +23,16 @@ public partial class App : Application
 
         var clock = new SystemClock();
         var directory = new DeviceDirectoryService(database.Devices, clock);
+        var history = new SendHistoryService(database.SendHistory, clock);
         var deviceDirectory = new DeviceDirectoryViewModel(
             directory,
             clock,
             new MessageBoxDeviceDeletionConfirmation());
-        var viewModel = new MainWindowViewModel(deviceDirectory, new WindowsMsgSender());
+        var viewModel = new MainWindowViewModel(
+            deviceDirectory,
+            new WindowsMsgSender(),
+            history,
+            new MessageBoxHistoryDeletionConfirmation());
         viewModel.InitializeAsync().GetAwaiter().GetResult();
 
         base.OnStartup(e);

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Unskip.Core.Devices;
+using Unskip.Core.Messaging.History;
 using Unskip.Core.Networking;
 
 namespace Unskip.Infrastructure.Persistence;
@@ -59,6 +60,11 @@ public sealed class UnskipDbContext(DbContextOptions<UnskipDbContext> options) :
             entity.Property(record => record.DestinationSnapshot)
                 .HasMaxLength(NetworkAddressValidator.MaximumHostnameLength)
                 .IsRequired();
+            entity.Property(record => record.ComputerNameSnapshot)
+                .HasMaxLength(NetworkAddressValidator.MaximumHostnameLength);
+            entity.Property(record => record.Ipv4AddressSnapshot).HasMaxLength(15);
+            entity.Property(record => record.DiagnosticSummary)
+                .HasMaxLength(SendHistoryPolicy.MaximumDiagnosticSummaryLength);
             entity.Property(record => record.OccurredAt).HasConversion(timestampConverter);
             entity.HasOne(record => record.Device)
                 .WithMany(device => device.SendHistoryRecords)

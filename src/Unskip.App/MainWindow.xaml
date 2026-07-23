@@ -19,6 +19,41 @@
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
+    <DrawingImage x:Key="UnskipLogoDrawing">
+      <DrawingImage.Drawing>
+        <DrawingGroup>
+          <GeometryDrawing Brush="#102A2E">
+            <GeometryDrawing.Geometry>
+              <RectangleGeometry Rect="0,0,1024,1024" RadiusX="220" RadiusY="220" />
+            </GeometryDrawing.Geometry>
+          </GeometryDrawing>
+          <GeometryDrawing>
+            <GeometryDrawing.Pen>
+              <Pen Brush="White"
+                   Thickness="112"
+                   StartLineCap="Round"
+                   EndLineCap="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+              <PathGeometry Figures="M304,242 V548 C304,677 397,754 512,754" />
+            </GeometryDrawing.Geometry>
+          </GeometryDrawing>
+          <GeometryDrawing>
+            <GeometryDrawing.Pen>
+              <Pen Brush="#5ED4CA"
+                   Thickness="112"
+                   StartLineCap="Round"
+                   EndLineCap="Round"
+                   LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+              <PathGeometry Figures="M512,754 C627,754 720,677 720,548 V400 L846,274 M748,274 H846 V372" />
+            </GeometryDrawing.Geometry>
+          </GeometryDrawing>
+        </DrawingGroup>
+      </DrawingImage.Drawing>
+    </DrawingImage>
+
     <Style x:Key="CardStyle" TargetType="Border">
       <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
@@ -168,8 +203,12 @@
               <ColumnDefinition Width="42" />
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="36" Height="36" Background="#102A2E" CornerRadius="10">
-              <Image Source="Assets/unskip.ico" Width="36" Height="36"
+            <Border Width="36" Height="36" CornerRadius="8">
+              <Image x:Name="SidebarLogo"
+                     Source="{StaticResource UnskipLogoDrawing}"
+                     Width="36"
+                     Height="36"
+                     Stretch="Uniform"
                      automation:AutomationProperties.Name="Unskip logo" />
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">

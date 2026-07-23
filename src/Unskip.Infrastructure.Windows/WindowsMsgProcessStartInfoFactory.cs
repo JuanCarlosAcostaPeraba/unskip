@@ -22,9 +22,9 @@ internal sealed class WindowsMsgProcessStartInfoFactory
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (request.Target.Kind != MessageTargetKind.Hostname)
+        if (request.Target.Kind is not MessageTargetKind.Hostname and not MessageTargetKind.Ipv4Address)
         {
-            throw new NotSupportedException("Windows msg.exe delivery currently supports validated hostnames only.");
+            throw new NotSupportedException("Windows msg.exe delivery requires a validated hostname or canonical IPv4 address.");
         }
 
         var startInfo = new ProcessStartInfo

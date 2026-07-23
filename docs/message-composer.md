@@ -6,4 +6,4 @@ Messages are limited to 1,024 characters. The send action is asynchronous and di
 
 `Sent` means that Windows accepted the native request. It does not prove that a recipient saw, read, or acknowledged the message.
 
-The native delivery boundary currently accepts documented hostname targets. IPv4 destinations remain visible and reusable in the directory, but the composer reports them as rejected before starting `msg.exe`.
+The native delivery boundary accepts validated hostnames and canonical dotted-decimal IPv4 destinations. A valid destination can still be rejected by Windows because of reachability, session state, permissions, or policy.

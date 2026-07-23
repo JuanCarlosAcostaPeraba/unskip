@@ -14,7 +14,7 @@ SQLite integration tests create isolated databases under the system temporary di
 
 Device-directory view-model tests use an in-memory repository, injected clock, and fake deletion confirmation. They cover cross-field search, saved and manual destination resolution, validation placement, create/edit/delete/favorite operations, and honest handoff to the composer.
 
-Message-composer tests inject fake senders. They cover visible resolved destinations, length validation, duplicate-submit protection, accurate result states, retry with draft preservation, optional technical details, and the documented IPv4 rejection. No view-model test starts `msg.exe`.
+Message-composer tests inject fake senders. They cover visible resolved destinations, hostname and canonical IPv4 validation, length validation, duplicate-submit protection, accurate result states, retry with draft preservation, and optional technical details. No view-model test starts `msg.exe`.
 
 History tests use injected clocks and in-memory repositories for MVVM behavior, plus temporary migrated SQLite databases for full metadata round trips, deletion, clearing, and immutable snapshots after device edits or deletion. Test message bodies are verified absent from persisted diagnostics.
 

@@ -124,7 +124,7 @@ public sealed class MessageComposerViewModelTests
     }
 
     [Fact]
-    public async Task Ipv4DestinationIsHonestlyRejectedBeforeNativeExecution()
+    public async Task CanonicalIpv4DestinationIsForwardedToSender()
     {
         var sender = new QueueMessageSender(Sent());
         var composer = CreateComposer(sender);
@@ -137,9 +137,9 @@ public sealed class MessageComposerViewModelTests
 
         await composer.SendCommand.ExecuteAsync();
 
-        Assert.Equal("Rejected", composer.StatusLabel);
-        Assert.Contains("computer name", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
-        Assert.Empty(sender.Requests);
+        Assert.Equal("Sent", composer.StatusLabel);
+        var request = Assert.Single(sender.Requests);
+        Assert.Equal("192.0.2.7", request.Target);
     }
 
     [Fact]

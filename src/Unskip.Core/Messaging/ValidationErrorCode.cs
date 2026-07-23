@@ -5,6 +5,6 @@ public enum ValidationErrorCode
     Required,
     TooLong,
     InvalidHostname,
-    Ipv4NotSupported,
+    InvalidIpv4Address,
     UnsupportedControlCharacter,
 }

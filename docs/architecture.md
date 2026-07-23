@@ -24,7 +24,7 @@ The device UI follows MVVM. `DeviceDirectoryViewModel` owns search, selection, e
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.
 
-The current delivery boundary supports documented hostname targets only. The directory can store a canonical IPv4 address, but delivery rejects IPv4 until compatible `msg.exe` behavior is verified in a controlled Windows environment.
+The delivery boundary accepts validated hostnames and canonical dotted-decimal IPv4 addresses. Both are passed unchanged as the value of a separate `/SERVER:` argument; Windows remains authoritative for reachability, permissions, and native acceptance.
 
 Historical send rows keep alias and destination snapshots. Their optional device foreign key uses `SET NULL`, so editing or deleting a directory entry cannot rewrite or remove historical context. Message bodies are not part of the persistence schema.
 

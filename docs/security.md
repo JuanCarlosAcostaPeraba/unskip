@@ -14,6 +14,10 @@ The delivery implementation:
 
 User-supplied message content is data and must never be executed.
 
+The optional update boundary accepts only the official latest stable GitHub Release, exact HTTPS asset paths for this repository, the expected versioned NSIS filename, bounded file sizes, and the published SHA-256 checksum. Downloads use a temporary extension and become installable only after verification. The installer is verified again immediately before it is started directly with `UseShellExecute = false` and no arguments. Unskip never invokes a command shell to update itself and never performs a silent or mandatory update.
+
+Release `0.1.x` binaries are unsigned. Checksum verification detects corruption or substitution between the published checksum and downloaded installer, but it is not a substitute for Authenticode signing and cannot protect against compromise of the release publisher itself. Organizational policy and SmartScreen decisions remain authoritative.
+
 Unskip does not modify firewall rules, registry entries, Windows services, session rights, or organizational policy. Troubleshooting must prefer target-specific verification and administrator review over blanket security changes.
 
 The local SQLite database is not application-encrypted. It relies on the current Windows account and filesystem permissions, stores no credentials or message bodies, and never synchronizes through Unskip. Destination metadata and sanitized diagnostics can still be sensitive.

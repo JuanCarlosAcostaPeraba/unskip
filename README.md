@@ -20,7 +20,7 @@ Start with the [user guide](docs/user-guide.md) for prerequisites, the first mes
 - Windows `msg.exe` available on the sending computer
 - A destination computer name, compatible active session, required Windows permission, and permitted network path
 
-The recipient does not install Unskip or create an account. Unskip has no central server, cloud backend, telemetry, runtime Internet requirement, or sound. A successful native request is never proof that a message was read or acknowledged.
+The recipient does not install Unskip or create an account. Unskip has no central server, cloud backend, telemetry, runtime Internet requirement, or sound. Users may explicitly check GitHub Releases for an update from the desktop UI; messaging and local data remain fully usable offline. A successful native request is never proof that a message was read or acknowledged.
 
 The current pre-release source build additionally requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Visual Studio with the .NET desktop development workload is optional.
 

@@ -16,9 +16,25 @@ Compare the downloaded file's SHA-256 hash with `SHA256SUMS.txt` before running 
 
 The installer uses the current Windows account and does not request administrator rights by default. It installs under `%LOCALAPPDATA%\Programs\Unskip`, creates a Start menu shortcut, and offers an optional desktop shortcut. Use Windows **Installed apps** to uninstall it.
 
-Early releases are not code-signed because the project does not have a verified signing certificate. Microsoft Defender SmartScreen can therefore show an unknown-publisher or unrecognized-app warning, and managed devices may block execution. Verify the GitHub repository and checksum, then follow your organization's security policy. Do not disable SmartScreen or other protections to install Unskip.
+Early releases are not code-signed because the project does not have a verified signing certificate. [Microsoft Defender SmartScreen](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation) can therefore show an unknown-publisher or unrecognized-app warning, and managed devices may block execution. Verify the GitHub repository and checksum, then follow your organization's security policy. Do not disable SmartScreen or other protections to install Unskip.
 
 For a portable run, extract the complete ZIP to a normal user-writable folder and launch `Unskip.App.exe`. Do not run it from inside the ZIP.
+
+## Update Unskip
+
+The sidebar shows the installed version and a **Check for updates** button. Unskip contacts the official GitHub Releases API only after that button is selected; it does not check in the background and does not require an account or token.
+
+If a newer stable release exists:
+
+1. select **Download update**;
+2. wait while Unskip downloads the Windows x64 installer and `SHA256SUMS.txt`;
+3. Unskip enables **Install update** only after the installer filename, source URL, size, and SHA-256 checksum are verified;
+4. select **Install update** to start the installer directly and close Unskip;
+5. complete the visible installer. Existing devices and history remain under `%LOCALAPPDATA%\Unskip`.
+
+The update cache is stored below `%LOCALAPPDATA%\Unskip\updates`. It can be removed while Unskip is closed without deleting the device directory or history database.
+
+Updates are optional and user-initiated. A failed or offline check does not block normal use. Early installers remain unsigned and Windows may still show a SmartScreen warning; follow the guidance above rather than disabling security controls.
 
 ## Evaluate from source
 

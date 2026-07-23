@@ -1,12 +1,17 @@
 using System.Reflection;
+using Unskip.Core.Updates;
 
 namespace Unskip.App;
 
 internal static class ApplicationVersion
 {
-    public static string DisplayLabel { get; } = CreateDisplayLabel(typeof(App).Assembly);
+    public static string Value { get; } = GetVersion(typeof(App).Assembly);
 
-    private static string CreateDisplayLabel(Assembly assembly)
+    public static string DisplayLabel { get; } = $"Version {Value}";
+
+    public static SemanticVersion Current { get; } = SemanticVersion.Parse(Value);
+
+    private static string GetVersion(Assembly assembly)
     {
         var informationalVersion = assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
@@ -15,6 +20,6 @@ internal static class ApplicationVersion
             ?? assembly.GetName().Version?.ToString(3)
             ?? "development";
 
-        return $"Version {version}";
+        return version;
     }
 }

@@ -4,6 +4,7 @@ using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
 using Unskip.Core.Messaging.History;
 using Unskip.Core.Time;
+using Unskip.Core.Updates;
 
 namespace Unskip.App.Tests;
 
@@ -20,7 +21,21 @@ internal sealed class ViewModelTestContext
         HistoryRepository = new InMemorySendHistoryRepository();
         HistoryConfirmation = new StubHistoryConfirmation();
         var history = new SendHistoryService(HistoryRepository, Clock);
-        Main = new MainWindowViewModel(Directory, Sender, history, HistoryConfirmation, "Version 0.1.0-test");
+        UpdateService = new StubApplicationUpdateService();
+        UpdateInstaller = new StubUpdateInstallerLauncher();
+        ApplicationShutdown = new StubApplicationShutdown();
+        Updates = new ApplicationUpdateViewModel(
+            UpdateService,
+            UpdateInstaller,
+            ApplicationShutdown,
+            SemanticVersion.Parse("0.1.0"));
+        Main = new MainWindowViewModel(
+            Directory,
+            Sender,
+            history,
+            HistoryConfirmation,
+            Updates,
+            "Version 0.1.0-test");
     }
 
     public MutableClock Clock { get; }
@@ -35,7 +50,15 @@ internal sealed class ViewModelTestContext
 
     public StubHistoryConfirmation HistoryConfirmation { get; }
 
+    public StubApplicationUpdateService UpdateService { get; }
+
+    public StubUpdateInstallerLauncher UpdateInstaller { get; }
+
+    public StubApplicationShutdown ApplicationShutdown { get; }
+
     public DeviceDirectoryViewModel Directory { get; }
+
+    public ApplicationUpdateViewModel Updates { get; }
 
     public MainWindowViewModel Main { get; }
 
@@ -114,6 +137,79 @@ internal sealed class ViewModelTestContext
         public Task<bool> ConfirmDeleteAsync(string destinationAlias) => Task.FromResult(Response);
 
         public Task<bool> ConfirmClearAsync(int count) => Task.FromResult(Response);
+    }
+
+    internal sealed class StubApplicationUpdateService : IApplicationUpdateService
+    {
+        public UpdateCheckResult CheckResult { get; set; } = UpdateCheckResult.UpToDate;
+
+        public UpdateDownloadResult DownloadResult { get; set; } =
+            new(@"C:\updates\Unskip-0.2.0-win-x64-setup.exe", new string('a', 64));
+
+        public bool VerificationResult { get; set; } = true;
+
+        public Exception? CheckException { get; set; }
+
+        public Exception? DownloadException { get; set; }
+
+        public int CheckCount { get; private set; }
+
+        public int DownloadCount { get; private set; }
+
+        public int VerificationCount { get; private set; }
+
+        public Task<UpdateCheckResult> CheckForUpdateAsync(
+            SemanticVersion currentVersion,
+            CancellationToken cancellationToken = default)
+        {
+            CheckCount++;
+            return CheckException is null
+                ? Task.FromResult(CheckResult)
+                : Task.FromException<UpdateCheckResult>(CheckException);
+        }
+
+        public Task<UpdateDownloadResult> DownloadAsync(
+            ApplicationUpdateRelease release,
+            IProgress<int>? progress = null,
+            CancellationToken cancellationToken = default)
+        {
+            DownloadCount++;
+            progress?.Report(100);
+            return DownloadException is null
+                ? Task.FromResult(DownloadResult)
+                : Task.FromException<UpdateDownloadResult>(DownloadException);
+        }
+
+        public Task<bool> VerifyAsync(
+            UpdateDownloadResult download,
+            CancellationToken cancellationToken = default)
+        {
+            VerificationCount++;
+            return Task.FromResult(VerificationResult);
+        }
+    }
+
+    internal sealed class StubUpdateInstallerLauncher : IUpdateInstallerLauncher
+    {
+        public bool Result { get; set; } = true;
+
+        public string? InstallerPath { get; private set; }
+
+        public bool TryLaunch(string installerPath)
+        {
+            InstallerPath = installerPath;
+            return Result;
+        }
+    }
+
+    internal sealed class StubApplicationShutdown : IApplicationShutdown
+    {
+        public int RequestCount { get; private set; }
+
+        public void Shutdown()
+        {
+            RequestCount++;
+        }
     }
 
     internal sealed class InMemorySendHistoryRepository : ISendHistoryRepository

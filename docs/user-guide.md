@@ -24,6 +24,8 @@ For a portable run, extract the complete ZIP to a normal user-writable folder an
 
 The sidebar shows the installed version and a **Check for updates** button. Unskip contacts the official GitHub Releases API only after that button is selected; it does not check in the background and does not require an account or token.
 
+The sidebar also identifies the developer, Juan Carlos Acosta Perabá. Selecting the name opens [jcap.tech](https://jcap.tech) in the default browser.
+
 If a newer stable release exists:
 
 1. select **Download update**;

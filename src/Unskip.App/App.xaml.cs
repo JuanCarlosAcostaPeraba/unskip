@@ -47,6 +47,7 @@ public partial class App : Application
             history,
             new MessageBoxHistoryDeletionConfirmation(),
             updates,
+            new SystemExternalUriLauncher(),
             ApplicationVersion.DisplayLabel);
         viewModel.InitializeAsync().GetAwaiter().GetResult();
 

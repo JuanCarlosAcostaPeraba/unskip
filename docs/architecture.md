@@ -20,6 +20,8 @@ The device UI follows MVVM. `DeviceDirectoryViewModel` owns search, selection, e
 
 `ApplicationUpdateViewModel` owns the explicit check, download, verification, and install states. `GitHubReleaseUpdateService` accepts only the latest stable release, exact repository asset paths, the expected NSIS filename, bounded download sizes, and the published SHA-256 checksum. `SemanticVersion` comparison lives in core. The verified installer process boundary lives in `Unskip.Infrastructure.Windows`, uses `UseShellExecute = false`, and has no command arguments or shell expansion. Update checks are never part of startup and failures do not affect offline application behavior.
 
+The visible developer portfolio link is a fixed HTTPS URI exposed by `MainWindowViewModel`. An injected `IExternalUriLauncher` seam delegates it to the Windows default browser association after validating the URI; failures are reported in the sidebar without crashing the application.
+
 ## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.

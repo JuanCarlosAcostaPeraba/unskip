@@ -14,6 +14,8 @@ The delivery implementation:
 
 User-supplied message content is data and must never be executed.
 
+The developer attribution opens only the fixed `https://jcap.tech` portfolio URI. External navigation rejects relative, non-HTTPS, and user-information-bearing URI forms, uses the Windows default browser association, and does not invoke a command shell or pass command arguments.
+
 The optional update boundary accepts only the official latest stable GitHub Release, exact HTTPS asset paths for this repository, the expected versioned NSIS filename, bounded file sizes, and the published SHA-256 checksum. Downloads use a temporary extension and become installable only after verification. The installer is verified again immediately before it is started directly with `UseShellExecute = false` and no arguments. Unskip never invokes a command shell to update itself and never performs a silent or mandatory update.
 
 Release `0.1.x` binaries are unsigned. Checksum verification detects corruption or substitution between the published checksum and downloaded installer, but it is not a substitute for Authenticode signing and cannot protect against compromise of the release publisher itself. Organizational policy and SmartScreen decisions remain authoritative.

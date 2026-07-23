@@ -1,6 +1,7 @@
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
+using Unskip.Core.Links;
 using Unskip.Core.Messaging;
 using Unskip.Core.Messaging.History;
 using Unskip.Core.Time;
@@ -24,6 +25,7 @@ internal sealed class ViewModelTestContext
         UpdateService = new StubApplicationUpdateService();
         UpdateInstaller = new StubUpdateInstallerLauncher();
         ApplicationShutdown = new StubApplicationShutdown();
+        ExternalUriLauncher = new StubExternalUriLauncher();
         Updates = new ApplicationUpdateViewModel(
             UpdateService,
             UpdateInstaller,
@@ -35,6 +37,7 @@ internal sealed class ViewModelTestContext
             history,
             HistoryConfirmation,
             Updates,
+            ExternalUriLauncher,
             "Version 0.1.0-test");
     }
 
@@ -55,6 +58,8 @@ internal sealed class ViewModelTestContext
     public StubUpdateInstallerLauncher UpdateInstaller { get; }
 
     public StubApplicationShutdown ApplicationShutdown { get; }
+
+    public StubExternalUriLauncher ExternalUriLauncher { get; }
 
     public DeviceDirectoryViewModel Directory { get; }
 
@@ -209,6 +214,19 @@ internal sealed class ViewModelTestContext
         public void Shutdown()
         {
             RequestCount++;
+        }
+    }
+
+    internal sealed class StubExternalUriLauncher : IExternalUriLauncher
+    {
+        public bool Result { get; set; } = true;
+
+        public Uri? OpenedUri { get; private set; }
+
+        public bool TryOpen(Uri uri)
+        {
+            OpenedUri = uri;
+            return Result;
         }
     }
 

@@ -1,6 +1,7 @@
 using Unskip.App.Commands;
 using Unskip.App.Services;
 using Unskip.Core;
+using Unskip.Core.Links;
 using Unskip.Core.Messaging;
 using Unskip.Core.Messaging.History;
 
@@ -8,7 +9,10 @@ namespace Unskip.App.ViewModels;
 
 public sealed class MainWindowViewModel : ObservableObject
 {
+    private static readonly Uri DeveloperPortfolioUri = new("https://jcap.tech", UriKind.Absolute);
+    private readonly IExternalUriLauncher _externalUriLauncher;
     private Workspace _workspace = Workspace.Devices;
+    private string _developerLinkStatus = string.Empty;
 
     public MainWindowViewModel(
         DeviceDirectoryViewModel deviceDirectory,
@@ -16,10 +20,12 @@ public sealed class MainWindowViewModel : ObservableObject
         SendHistoryService historyService,
         IHistoryDeletionConfirmation historyConfirmation,
         ApplicationUpdateViewModel applicationUpdate,
+        IExternalUriLauncher externalUriLauncher,
         string versionLabel)
     {
         DeviceDirectory = deviceDirectory ?? throw new ArgumentNullException(nameof(deviceDirectory));
         Updates = applicationUpdate ?? throw new ArgumentNullException(nameof(applicationUpdate));
+        _externalUriLauncher = externalUriLauncher ?? throw new ArgumentNullException(nameof(externalUriLauncher));
         ArgumentException.ThrowIfNullOrWhiteSpace(versionLabel);
         VersionLabel = versionLabel;
         Composer = new MessageComposerViewModel(messageSender, historyService);
@@ -29,6 +35,7 @@ public sealed class MainWindowViewModel : ObservableObject
             _ => Show(Workspace.Composer),
             _ => !string.IsNullOrWhiteSpace(Composer.Destination) && !Composer.IsSending);
         ShowHistoryCommand = new AsyncRelayCommand(_ => ShowHistoryAsync(), _ => !Composer.IsSending);
+        OpenDeveloperPortfolioCommand = new RelayCommand(_ => OpenDeveloperPortfolio());
         DeviceDirectory.MessagePreparationRequested += (_, destination) => PrepareComposer(destination, false);
         Composer.BackRequested += (_, _) => Show(Workspace.Devices);
         History.RetryRequested += (_, destination) => PrepareComposer(destination, true);
@@ -37,6 +44,14 @@ public sealed class MainWindowViewModel : ObservableObject
     public string ProductName { get; } = ProductIdentity.Name;
     public string Tagline { get; } = ProductIdentity.Tagline;
     public string AffiliationNotice { get; } = ProductIdentity.AffiliationNotice;
+    public string DeveloperName { get; } = "Juan Carlos Acosta Perabá";
+    public string DeveloperPortfolioUrl { get; } = DeveloperPortfolioUri.AbsoluteUri;
+    public string DeveloperLinkStatus
+    {
+        get => _developerLinkStatus;
+        private set => SetProperty(ref _developerLinkStatus, value);
+    }
+
     public string VersionLabel { get; }
     public string CurrentSection => _workspace switch { Workspace.Composer => "Send", Workspace.History => "History", _ => "Devices" };
     public string SectionDescription => _workspace switch
@@ -60,6 +75,7 @@ public sealed class MainWindowViewModel : ObservableObject
     public RelayCommand ShowDevicesCommand { get; }
     public RelayCommand ShowComposerCommand { get; }
     public AsyncRelayCommand ShowHistoryCommand { get; }
+    public RelayCommand OpenDeveloperPortfolioCommand { get; }
     public bool IsDevicesVisible => _workspace == Workspace.Devices;
     public bool IsComposerVisible => _workspace == Workspace.Composer;
     public bool IsHistoryVisible => _workspace == Workspace.History;
@@ -86,6 +102,13 @@ public sealed class MainWindowViewModel : ObservableObject
     {
         await History.ReloadAsync().ConfigureAwait(true);
         Show(Workspace.History);
+    }
+
+    private void OpenDeveloperPortfolio()
+    {
+        DeveloperLinkStatus = _externalUriLauncher.TryOpen(DeveloperPortfolioUri)
+            ? string.Empty
+            : "Couldn't open the portfolio. Visit jcap.tech in your browser.";
     }
 
     private void Show(Workspace workspace)

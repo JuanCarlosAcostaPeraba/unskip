@@ -5,15 +5,17 @@ Thank you for helping improve Unskip.
 ## Workflow
 
 1. Start from an open GitHub issue and read its acceptance criteria.
-2. Create a focused branch such as `feature/3-secure-message-delivery`.
+2. Update local `dev` and create a focused branch such as `feature/3-secure-message-delivery` from it.
 3. Keep the change within the issue scope and update affected documentation.
 4. Run restore, build, test, and formatting checks documented in the README.
 5. Review the diff for secrets, personal data, real network details, and accidental generated files.
-6. Open a focused pull request that links the issue. Do not close an issue until all acceptance criteria are met.
+6. Open a focused pull request into `dev` that links the issue. Do not close an issue until all acceptance criteria are met.
+
+Feature work and dependency updates must target `dev`. The `main` branch is reserved for reviewed release promotions from `dev`; every new commit merged into `main` starts the automated release workflow. See [docs/releasing.md](docs/releasing.md) before preparing that pull request.
 
 GitHub Actions repeats formatting, Release build, deterministic tests, dependency auditing, and pull-request dependency review on Windows. Native `msg.exe` integration is opt-in and excluded from CI; ordinary tests must never contact a real device.
 
-Release tags and packaging are maintainer operations. Follow [docs/releasing.md](docs/releasing.md); never tag an unmerged commit, add a signing claim without a verified certificate, or place local databases and real network data in release inputs.
+Release versions and promotion into `main` are maintainer operations. Follow [docs/releasing.md](docs/releasing.md); never reuse a published version, create release tags manually, add a signing claim without a verified certificate, or place local databases and real network data in release inputs.
 
 ## Engineering expectations
 

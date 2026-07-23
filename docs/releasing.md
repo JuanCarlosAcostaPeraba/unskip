@@ -30,15 +30,19 @@ The script resets only repository-owned paths below `artifacts`, publishes the a
 
 ## Publish from GitHub
 
-The `.github/workflows/release.yml` workflow accepts tags matching `vMAJOR.MINOR.PATCH` with an optional SemVer pre-release suffix. It rejects tags whose commit is not contained in `main`.
+Development is integrated into `dev`. The `main` branch is reserved for releases, and each new commit merged into `main` starts `.github/workflows/release.yml` automatically.
 
-1. Merge the release changes into `main` and confirm CI is green.
-2. Create an annotated tag such as `v0.1.0-beta.1` on the intended `main` commit.
-3. Push the tag.
-4. Review the Release workflow. It repeats formatting, build, deterministic tests, and dependency auditing before packaging.
-5. Inspect the generated GitHub release, generated changelog notes, filenames, and `SHA256SUMS.txt` before announcing it.
+1. Merge completed feature and dependency pull requests into `dev` and confirm CI is green.
+2. Set the intended release version in `Directory.Build.props`. Use `VersionPrefix` for `MAJOR.MINOR.PATCH`; add `VersionSuffix` for a pre-release identifier such as `beta.1`.
+3. Confirm that `vMAJOR.MINOR.PATCH[-SUFFIX]` has never been used for another commit.
+4. Open a release pull request from `dev` into `main`, review the complete change set, and wait for its checks.
+5. Merge the pull request. Do not push a release tag manually.
+6. Watch the Release workflow. It repeats formatting, build, deterministic tests, and dependency auditing before packaging, creating the annotated tag, and publishing the GitHub release.
+7. Inspect the generated release notes, filenames, and `SHA256SUMS.txt` before announcing the release.
 
-Stable tags create normal releases. A version with a hyphen, such as `v0.1.0-beta.1`, creates a GitHub pre-release. Do not reuse or move a published tag; release artifacts and their checksums are tied to that source commit.
+A version without a suffix creates a normal release. A version with a suffix, such as `0.2.0-beta.1`, creates a pre-release. The workflow refuses to reuse a tag that belongs to another commit. If a run fails after creating its tag or release, fix the underlying infrastructure problem and rerun the same workflow: an existing tag must point to the same `main` commit, and existing release assets are replaced safely.
+
+After a successful release, merge `main` back into `dev` if GitHub reports that the branches have diverged. This keeps the exact released commit in the development history.
 
 ## Signing and SmartScreen
 

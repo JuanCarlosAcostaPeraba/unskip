@@ -2,14 +2,14 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-main
   cancel-in-progress: false
 
 env:
@@ -39,23 +39,48 @@ jobs:
             Directory.Packages.props
             **/*.csproj
 
-      - name: Validate release tag
+      - name: Resolve and validate release version
         id: version
         shell: pwsh
         run: |
-          $tag = '${{ github.ref_name }}'
-          if ($tag -notmatch '^v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$') {
-            throw "Release tags must use vMAJOR.MINOR.PATCH or a SemVer pre-release suffix. Received: $tag"
+          $properties = [xml](Get-Content -LiteralPath Directory.Build.props -Raw)
+          $prefixNodes = @($properties.SelectNodes('/Project/PropertyGroup/VersionPrefix'))
+          $suffixNodes = @($properties.SelectNodes('/Project/PropertyGroup/VersionSuffix'))
+
+          if ($prefixNodes.Count -ne 1) {
+            throw 'Directory.Build.props must declare exactly one VersionPrefix.'
           }
 
-          git fetch origin main --no-tags
-          git merge-base --is-ancestor HEAD origin/main
+          if ($suffixNodes.Count -gt 1) {
+            throw 'Directory.Build.props must declare at most one VersionSuffix.'
+          }
+
+          $version = $prefixNodes[0].InnerText.Trim()
+          if ($suffixNodes.Count -eq 1 -and $suffixNodes[0].InnerText.Trim()) {
+            $version += "-$($suffixNodes[0].InnerText.Trim())"
+          }
+
+          $semVerPattern = '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:(?:0|[1-9]\d*)|(?:\d*[A-Za-z-][0-9A-Za-z-]*))(?:\.(?:(?:0|[1-9]\d*)|(?:\d*[A-Za-z-][0-9A-Za-z-]*)))*)?$'
+          if ($version -notmatch $semVerPattern) {
+            throw "The project version must be SemVer (MAJOR.MINOR.PATCH with an optional pre-release suffix). Received: $version"
+          }
+
+          $tag = "v$version"
+          git fetch origin --tags
           if ($LASTEXITCODE -ne 0) {
-            throw 'Release tags must point to a commit contained in main.'
+            throw 'Unable to fetch existing release tags.'
           }
 
-          "version=$($Matches.version)" >> $env:GITHUB_OUTPUT
-          "prerelease=$($Matches.version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          $existingCommit = git rev-list -n 1 $tag 2>$null
+          $tagExists = $LASTEXITCODE -eq 0
+          if ($tagExists -and $existingCommit.Trim() -ne '${{ github.sha }}') {
+            throw "Version $version is already assigned to commit $($existingCommit.Trim()). Increment VersionPrefix or VersionSuffix before merging into main."
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "tag_exists=$($tagExists.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "prerelease=$($version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
       - name: Restore
         run: dotnet restore Unskip.sln
@@ -120,15 +145,41 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Create release tag
+        if: steps.version.outputs.tag_exists != 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag --annotate $env:RELEASE_TAG --message "Unskip $env:RELEASE_VERSION" '${{ github.sha }}'
+          git push origin "refs/tags/$env:RELEASE_TAG"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to publish release tag $env:RELEASE_TAG."
+          }
+
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           IS_PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
           RELEASE_VERSION: ${{ steps.version.outputs.version }}
         shell: pwsh
         run: |
+          $assets = Get-ChildItem -LiteralPath artifacts/release -File | ForEach-Object FullName
+          gh release view $env:RELEASE_TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG $assets --clobber
+            if ($LASTEXITCODE -ne 0) {
+              throw "Unable to replace the assets for release $env:RELEASE_TAG."
+            }
+            exit 0
+          }
+
           $arguments = @(
-            'release', 'create', '${{ github.ref_name }}',
+            'release', 'create', $env:RELEASE_TAG,
             '--verify-tag',
             '--generate-notes',
             '--title', "Unskip $env:RELEASE_VERSION"
@@ -136,5 +187,8 @@ jobs:
           if ($env:IS_PRERELEASE -eq 'true') {
             $arguments += '--prerelease'
           }
-          $arguments += Get-ChildItem -LiteralPath artifacts/release -File | ForEach-Object FullName
+          $arguments += $assets
           gh @arguments
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to create release $env:RELEASE_TAG."
+          }

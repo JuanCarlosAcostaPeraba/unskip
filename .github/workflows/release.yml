@@ -71,8 +71,21 @@ jobs:
             throw 'Unable to fetch existing release tags.'
           }
 
-          $existingCommit = git rev-list -n 1 $tag 2>$null
-          $tagExists = $LASTEXITCODE -eq 0
+          $matchingTags = @(git tag --list $tag)
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Unable to inspect existing release tags.'
+          }
+
+          $tagExists = $matchingTags.Count -eq 1
+          $existingCommit = if ($tagExists) {
+            git rev-list -n 1 $tag
+            if ($LASTEXITCODE -ne 0) {
+              throw "Unable to resolve existing release tag $tag."
+            }
+          } else {
+            ''
+          }
+
           if ($tagExists -and $existingCommit.Trim() -ne '${{ github.sha }}') {
             throw "Version $version is already assigned to commit $($existingCommit.Trim()). Increment VersionPrefix or VersionSuffix before merging into main."
           }

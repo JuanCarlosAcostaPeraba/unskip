@@ -2,10 +2,10 @@
 
 ## Supported behavior
 
-Unskip uses the Windows `msg.exe` program directly. It sends to all active sessions on a validated target computer name by passing exactly three independent arguments:
+Unskip uses the Windows `msg.exe` program directly. It sends to all active sessions on a validated hostname or canonical IPv4 destination by passing exactly three independent arguments:
 
 1. `*`
-2. `/SERVER:<validated-computer-name>`
+2. `/SERVER:<validated-destination>`
 3. the message body
 
 No command shell, script host, string-built command, `/W`, file input, or standard-input message body is used. Quotes and shell-like characters in the body remain part of the single message argument.
@@ -14,7 +14,7 @@ The maximum message length is 1,024 UTF-16 characters. Newlines and tabs are all
 
 ## Destination support
 
-Windows documents `/SERVER` as accepting a server name. The local Windows help reports the same contract. Therefore, this implementation accepts ASCII computer names and DNS names and currently rejects IPv4 input with a clear validation error. IP support must not be enabled until behavior is verified in a controlled environment representative of supported users.
+Windows documents `/SERVER` as accepting a server name. Unskip accepts ASCII computer or DNS names and canonical dotted-decimal IPv4 addresses, then passes the validated value as one independent argument without shell interpretation. Ambiguous IPv4 forms such as shortened notation or segments with leading zeroes are rejected. Windows remains authoritative for whether a particular destination is reachable and permitted.
 
 ## Result semantics
 
@@ -29,7 +29,7 @@ Standard output and error are captured for support diagnostics. Message-body occ
 ## Windows prerequisites
 
 - A supported Windows version with `msg.exe` available.
-- A resolvable target computer name reachable through the Windows facilities used by `msg.exe`.
+- A target hostname or canonical IPv4 address reachable through the Windows facilities used by `msg.exe`.
 - An active compatible user session on the target.
 - Message special access permission for the sender, as required by Windows.
 - Domain, workgroup, local security, network, and firewall policy that permits the native operation for the specific sender and target.

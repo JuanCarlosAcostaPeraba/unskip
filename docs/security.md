@@ -4,7 +4,7 @@ Native delivery is isolated in `Unskip.Infrastructure.Windows`. It starts the fi
 
 The delivery implementation:
 
-- validates hostnames with ASCII allow-list rules and rejects IPv4 with a documented explanation;
+- validates hostnames with ASCII allow-list rules and IPv4 addresses with strict canonical dotted-decimal rules;
 - starts `msg.exe` directly with `ProcessStartInfo` and `UseShellExecute = false`;
 - places every argument in `ArgumentList` separately;
 - never invokes `cmd.exe`, PowerShell, a shell, or string-built commands;

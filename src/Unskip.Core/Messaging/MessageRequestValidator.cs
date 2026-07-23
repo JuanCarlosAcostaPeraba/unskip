@@ -9,7 +9,7 @@ public static class MessageRequestValidator
         ArgumentNullException.ThrowIfNull(request);
 
         var errors = new List<ValidationError>();
-        var normalizedTarget = ValidateTarget(request.Target, errors);
+        var validatedTarget = ValidateTarget(request.Target, errors);
         ValidateMessage(request.Message, errors);
 
         if (errors.Count > 0)
@@ -19,26 +19,31 @@ public static class MessageRequestValidator
 
         return MessageValidationResult.Success(
             new ValidatedMessageRequest(
-                new MessageTarget(normalizedTarget!, MessageTargetKind.Hostname),
+                validatedTarget!,
                 request.Message));
     }
 
-    private static string? ValidateTarget(string? target, List<ValidationError> errors)
+    private static MessageTarget? ValidateTarget(string? target, List<ValidationError> errors)
     {
         if (string.IsNullOrWhiteSpace(target))
         {
-            errors.Add(new ValidationError("Target", ValidationErrorCode.Required, "Enter a computer name."));
+            errors.Add(new ValidationError("Target", ValidationErrorCode.Required, "Enter a computer name or IPv4 address."));
             return null;
         }
 
         var normalizedTarget = target.Trim();
+        if (NetworkAddressValidator.TryNormalizeCanonicalIpv4(normalizedTarget, out var ipv4Address))
+        {
+            return new MessageTarget(ipv4Address!, MessageTargetKind.Ipv4Address);
+        }
+
         if (NetworkAddressValidator.IsIpv4Address(normalizedTarget))
         {
             errors.Add(
                 new ValidationError(
                     "Target",
-                    ValidationErrorCode.Ipv4NotSupported,
-                    "IPv4 destinations are not enabled because msg.exe documents /SERVER as a server name. Use the Windows computer name."));
+                    ValidationErrorCode.InvalidIpv4Address,
+                    "Use a canonical IPv4 address with four dotted-decimal segments and no leading zeroes."));
             return null;
         }
 
@@ -52,7 +57,7 @@ public static class MessageRequestValidator
             return null;
         }
 
-        return hostname;
+        return new MessageTarget(hostname!, MessageTargetKind.Hostname);
     }
 
     private static void ValidateMessage(string? message, List<ValidationError> errors)

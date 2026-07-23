@@ -34,9 +34,9 @@ Confirm that the development machine can reach NuGet.org and that its NuGet conf
 
 Build on Windows 10 or Windows 11 with the .NET 10 SDK. WPF is Windows-only. If using Visual Studio, install the .NET desktop development workload.
 
-## IPv4 is rejected before sending
+## An IPv4 destination is rejected before sending
 
-This is expected. The directory can retain a canonical IPv4 address, but the current native boundary supports Windows computer names or DNS names only. Select or enter the computer name. Do not work around the validation by editing the database.
+Use canonical dotted-decimal notation with four complete segments, for example the fictitious documentation address `192.0.2.25`. Shortened forms and segments with leading zeroes are rejected to avoid ambiguous destination parsing. Do not work around validation by editing the database.
 
 ## Windows reports permission denied or error 5
 
@@ -48,8 +48,8 @@ Verify that the destination is correct and ask the responsible administrator to 
 
 Unskip maps these verified native codes to **Target unavailable**. Check:
 
-1. the Windows computer name is spelled correctly;
-2. the name resolves from the sending computer;
+1. the Windows computer name or canonical IPv4 address is correct;
+2. a hostname resolves from the sending computer, when a hostname is used;
 3. the target is powered on and reachable through the managed network;
 4. a compatible Windows session is active;
 5. the responsible administrator permits the required native Windows operation between these specific computers.

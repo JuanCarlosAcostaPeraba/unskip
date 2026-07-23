@@ -53,14 +53,14 @@ These terminal commands are for contributors and source evaluation only. The app
 The sending computer needs:
 
 - Windows 10 or Windows 11 with `msg.exe` available;
-- the Windows computer name or DNS name of the destination;
+- the Windows computer name, DNS name, or canonical IPv4 address of the destination;
 - network access to the Windows facilities used by `msg.exe`;
 - permission to message sessions on the destination;
 - an active compatible session on the destination.
 
 The recipient does not install Unskip or create an Unskip account. Organizational Windows policy, session configuration, and network controls can still prevent native messaging. Ping success alone does not prove that delivery will work.
 
-Unskip currently sends only to computer names or DNS names. IPv4 addresses such as `192.168.50.25` can be saved in the directory, but the composer rejects them before starting `msg.exe`.
+Unskip accepts computer names, DNS names, and canonical dotted-decimal IPv4 addresses. Windows can still reject a valid destination because of reachability, session state, permissions, or organizational policy.
 
 ### Windows environment checklist
 
@@ -74,7 +74,7 @@ Unskip currently sends only to computer names or DNS names. IPv4 addresses such 
 
 1. Open Unskip and choose **Devices**.
 2. Select **Add device**, or enter a one-time computer name such as `lab-pc-01`.
-3. For a saved device, enter a friendly alias and at least one technical destination. Choose the computer name as the preferred destination when sending.
+3. For a saved device, enter a friendly alias and at least one technical destination. Choose the hostname or canonical IPv4 address that should be used for sending.
 4. Select the device or choose **Use** for the one-time destination.
 5. Confirm the alias and resolved technical destination shown under **Resolved destination**.
 6. Choose **Prepare message**.
@@ -102,7 +102,7 @@ Editing or deleting a device does not rewrite old history entries. Deleting a de
 
 Use **One-time destination** when a target should not be retained. The resolved value is displayed before the composer opens. **Save as device** converts it into a normal directory entry.
 
-The same hostname validation applies to saved and one-time destinations. Only letters, digits, hyphens, and dots are accepted for message delivery.
+The same destination validation applies to saved and one-time destinations. Hostnames use ASCII letters, digits, hyphens, and dots. IPv4 addresses must contain four dotted-decimal segments without leading zeroes.
 
 ## Local history
 
@@ -149,7 +149,7 @@ Unskip relies on Windows account and filesystem permissions. It does not current
 - No read receipts, acknowledgements, guaranteed delivery, queued offline delivery, or recipient presence indicator.
 - No central server, cloud synchronization, account system, or telemetry.
 - No recipient-side Unskip installation.
-- Hostname delivery only; IPv4 delivery is deliberately disabled.
+- Hostname and canonical IPv4 delivery depend on the native Windows environment.
 - Native messaging can be blocked by Windows edition, session state, permissions, services, network controls, or organizational policy.
 - Technical details are sanitized and bounded, but should still be treated as support data.
 

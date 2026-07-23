@@ -43,10 +43,25 @@ public sealed class WindowsMsgProcessStartInfoFactoryTests
     }
 
     [Fact]
-    public void CreateRejectsNonHostnameTarget()
+    public void CreateUsesCanonicalIpv4AsIndependentServerArgument()
     {
         var request = new ValidatedMessageRequest(
             new MessageTarget("192.0.2.25", MessageTargetKind.Ipv4Address),
+            "Test message");
+        var factory = new WindowsMsgProcessStartInfoFactory(@"C:\Windows\System32\msg.exe");
+
+        var startInfo = factory.Create(request);
+
+        Assert.False(startInfo.UseShellExecute);
+        Assert.Equal(["*", "/SERVER:192.0.2.25", "Test message"], startInfo.ArgumentList);
+        Assert.Empty(startInfo.Arguments);
+    }
+
+    [Fact]
+    public void CreateRejectsUnknownTargetKind()
+    {
+        var request = new ValidatedMessageRequest(
+            new MessageTarget("desktop-01", (MessageTargetKind)999),
             "Test message");
         var factory = new WindowsMsgProcessStartInfoFactory(@"C:\Windows\System32\msg.exe");
 

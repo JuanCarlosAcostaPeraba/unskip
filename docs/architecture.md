@@ -18,11 +18,15 @@ The device UI follows MVVM. `DeviceDirectoryViewModel` owns search, selection, e
 
 `MainWindowViewModel` coordinates the Devices, Send, and History workspaces and the destination handoff into `MessageComposerViewModel`. The composer owns draft validation, asynchronous send state, honest delivery-result presentation, optional sanitized diagnostics, and retry behavior. It depends only on the core `IMessageSender` seam; the composition root supplies the Windows implementation.
 
+`ApplicationUpdateViewModel` owns the explicit check, download, verification, and install states. `GitHubReleaseUpdateService` accepts only the latest stable release, exact repository asset paths, the expected NSIS filename, bounded download sizes, and the published SHA-256 checksum. `SemanticVersion` comparison lives in core. The verified installer process boundary lives in `Unskip.Infrastructure.Windows`, uses `UseShellExecute = false`, and has no command arguments or shell expansion. Update checks are never part of startup and failures do not affect offline application behavior.
+
+The visible developer portfolio link is a fixed HTTPS URI exposed by `MainWindowViewModel`. An injected `IExternalUriLauncher` seam delegates it to the Windows default browser association after validating the URI; failures are reported in the sidebar without crashing the application.
+
 ## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.
 
-The current delivery boundary supports documented hostname targets only. The directory can store a canonical IPv4 address, but delivery rejects IPv4 until compatible `msg.exe` behavior is verified in a controlled Windows environment.
+The delivery boundary accepts validated hostnames and canonical dotted-decimal IPv4 addresses. Both are passed unchanged as the value of a separate `/SERVER:` argument; Windows remains authoritative for reachability, permissions, and native acceptance.
 
 Historical send rows keep alias and destination snapshots. Their optional device foreign key uses `SET NULL`, so editing or deleting a directory entry cannot rewrite or remove historical context. Message bodies are not part of the persistence schema.
 

@@ -35,13 +35,14 @@ public sealed class MessageRequestValidatorTests
     }
 
     [Fact]
-    public void CanonicalIpv4AddressIsRejectedWithSpecificExplanation()
+    public void CanonicalIpv4AddressProducesTypedRequest()
     {
         var result = MessageRequestValidator.Validate(new MessageRequest("192.0.2.25", "Test message"));
 
-        var error = Assert.Single(result.Errors);
-        Assert.Equal(ValidationErrorCode.Ipv4NotSupported, error.Code);
-        Assert.Contains("computer name", error.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.True(result.IsValid);
+        Assert.NotNull(result.Request);
+        Assert.Equal("192.0.2.25", result.Request.Target.Value);
+        Assert.Equal(MessageTargetKind.Ipv4Address, result.Request.Target.Kind);
     }
 
     [Fact]
@@ -50,7 +51,7 @@ public sealed class MessageRequestValidatorTests
         var result = MessageRequestValidator.Validate(new MessageRequest("127.1", "Test message"));
 
         var error = Assert.Single(result.Errors);
-        Assert.Equal(ValidationErrorCode.Ipv4NotSupported, error.Code);
+        Assert.Equal(ValidationErrorCode.InvalidIpv4Address, error.Code);
     }
 
     [Fact]

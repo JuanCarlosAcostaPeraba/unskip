@@ -1,3 +1,5 @@
+using System.IO;
+using System.Net.Http;
 using System.Windows;
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
@@ -28,11 +30,24 @@ public partial class App : Application
             directory,
             clock,
             new MessageBoxDeviceDeletionConfirmation());
+        var updateService = new GitHubReleaseUpdateService(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(20) },
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Unskip",
+                "updates"));
+        var updates = new ApplicationUpdateViewModel(
+            updateService,
+            new SystemUpdateInstallerLauncher(),
+            new WpfApplicationShutdown(),
+            ApplicationVersion.Current);
         var viewModel = new MainWindowViewModel(
             deviceDirectory,
             new WindowsMsgSender(),
             history,
             new MessageBoxHistoryDeletionConfirmation(),
+            updates,
+            new SystemExternalUriLauncher(),
             ApplicationVersion.DisplayLabel);
         viewModel.InitializeAsync().GetAwaiter().GetResult();
 

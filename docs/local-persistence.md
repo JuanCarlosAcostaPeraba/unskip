@@ -22,6 +22,8 @@ The schema includes send-history metadata without message bodies. A history row 
 
 Close Unskip before copying, restoring, renaming, or deleting its data. Back up the complete `%LOCALAPPDATA%\Unskip` directory because SQLite may use `unskip.db-wal` and `unskip.db-shm` sidecar files alongside `unskip.db`.
 
+The optional update flow caches verified installers below `%LOCALAPPDATA%\Unskip\updates`. Removing only that directory while Unskip is closed does not remove devices or history. A complete directory backup includes this replaceable cache unless it is excluded intentionally.
+
 Restoring the complete directory while Unskip is closed preserves the device directory and history. Treat the backup as sensitive because it can identify local destinations even though it has no message bodies or credentials.
 
 Deleting the complete directory removes devices and history and is irreversible without a backup. Unskip creates a new database on the next launch. Clearing history in the UI removes history only; deleting the application binaries does not necessarily remove per-user data.

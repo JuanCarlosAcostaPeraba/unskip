@@ -14,6 +14,14 @@ Close Unskip and run the installer again. The installer targets only the current
 
 If policy blocks installation, use the portable ZIP only when organizational policy permits it. Do not move the local database into the application directory.
 
+## Update check or download fails
+
+Normal messaging and saved devices remain available offline. Confirm that the computer can reach `api.github.com` and `github.com` over HTTPS, then use **Check for updates** again. A firewall, proxy, GitHub outage, rate limit, or organizational policy can prevent the optional check.
+
+Unskip rejects releases with an unexpected tag, filename, repository URL, size, or SHA-256 checksum. Do not rename an installer into the update cache or bypass verification. Download only from this repository's GitHub Releases page if the in-app flow remains unavailable.
+
+If **Install update** reports that the downloaded file changed or is damaged, close Unskip, remove `%LOCALAPPDATA%\Unskip\updates`, reopen it, and download again. This removes only cached installers, not `unskip.db`.
+
 ## The required SDK is not found
 
 This applies only to source builds. Install a stable .NET 10 SDK and run `dotnet --info`. The repository's `global.json` rejects preview SDKs and rolls forward within stable .NET 10 feature bands.
@@ -26,9 +34,9 @@ Confirm that the development machine can reach NuGet.org and that its NuGet conf
 
 Build on Windows 10 or Windows 11 with the .NET 10 SDK. WPF is Windows-only. If using Visual Studio, install the .NET desktop development workload.
 
-## IPv4 is rejected before sending
+## An IPv4 destination is rejected before sending
 
-This is expected. The directory can retain a canonical IPv4 address, but the current native boundary supports Windows computer names or DNS names only. Select or enter the computer name. Do not work around the validation by editing the database.
+Use canonical dotted-decimal notation with four complete segments, for example the fictitious documentation address `192.0.2.25`. Shortened forms and segments with leading zeroes are rejected to avoid ambiguous destination parsing. Do not work around validation by editing the database.
 
 ## Windows reports permission denied or error 5
 
@@ -40,8 +48,8 @@ Verify that the destination is correct and ask the responsible administrator to 
 
 Unskip maps these verified native codes to **Target unavailable**. Check:
 
-1. the Windows computer name is spelled correctly;
-2. the name resolves from the sending computer;
+1. the Windows computer name or canonical IPv4 address is correct;
+2. a hostname resolves from the sending computer, when a hostname is used;
 3. the target is powered on and reachable through the managed network;
 4. a compatible Windows session is active;
 5. the responsible administrator permits the required native Windows operation between these specific computers.

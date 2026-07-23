@@ -8,6 +8,6 @@ One-time destinations remain usable without saving. A valid hostname or canonica
 
 Deleting a device requires explicit confirmation. Historical alias and destination snapshots remain intact after a device is edited or deleted.
 
-The interface uses keyboard-focus indicators, accessible names, and the active Windows light/dark preference. High-contrast mode uses Windows system brushes. **Prepare message** opens the composer for the resolved destination. IPv4 values remain visible and reusable in the directory, but delivery currently rejects them before starting `msg.exe`; use the Windows computer name to send.
+The interface uses keyboard-focus indicators, accessible names, and the active Windows light/dark preference. High-contrast mode uses Windows system brushes. **Prepare message** opens the composer for the resolved hostname or canonical IPv4 destination.
 
 Unskip is unofficial and is not affiliated with Microsoft or any employer. All examples and test data are fictitious.

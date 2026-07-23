@@ -16,9 +16,27 @@ Compare the downloaded file's SHA-256 hash with `SHA256SUMS.txt` before running 
 
 The installer uses the current Windows account and does not request administrator rights by default. It installs under `%LOCALAPPDATA%\Programs\Unskip`, creates a Start menu shortcut, and offers an optional desktop shortcut. Use Windows **Installed apps** to uninstall it.
 
-Early releases are not code-signed because the project does not have a verified signing certificate. Microsoft Defender SmartScreen can therefore show an unknown-publisher or unrecognized-app warning, and managed devices may block execution. Verify the GitHub repository and checksum, then follow your organization's security policy. Do not disable SmartScreen or other protections to install Unskip.
+Early releases are not code-signed because the project does not have a verified signing certificate. [Microsoft Defender SmartScreen](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation) can therefore show an unknown-publisher or unrecognized-app warning, and managed devices may block execution. Verify the GitHub repository and checksum, then follow your organization's security policy. Do not disable SmartScreen or other protections to install Unskip.
 
 For a portable run, extract the complete ZIP to a normal user-writable folder and launch `Unskip.App.exe`. Do not run it from inside the ZIP.
+
+## Update Unskip
+
+The sidebar shows the installed version and a **Check for updates** button. Unskip contacts the official GitHub Releases API only after that button is selected; it does not check in the background and does not require an account or token.
+
+The sidebar also identifies the developer, Juan Carlos Acosta Perabá. Selecting the name opens [jcap.tech](https://jcap.tech) in the default browser.
+
+If a newer stable release exists:
+
+1. select **Download update**;
+2. wait while Unskip downloads the Windows x64 installer and `SHA256SUMS.txt`;
+3. Unskip enables **Install update** only after the installer filename, source URL, size, and SHA-256 checksum are verified;
+4. select **Install update** to start the installer directly and close Unskip;
+5. complete the visible installer. Existing devices and history remain under `%LOCALAPPDATA%\Unskip`.
+
+The update cache is stored below `%LOCALAPPDATA%\Unskip\updates`. It can be removed while Unskip is closed without deleting the device directory or history database.
+
+Updates are optional and user-initiated. A failed or offline check does not block normal use. Early installers remain unsigned and Windows may still show a SmartScreen warning; follow the guidance above rather than disabling security controls.
 
 ## Evaluate from source
 
@@ -37,14 +55,14 @@ These terminal commands are for contributors and source evaluation only. The app
 The sending computer needs:
 
 - Windows 10 or Windows 11 with `msg.exe` available;
-- the Windows computer name or DNS name of the destination;
+- the Windows computer name, DNS name, or canonical IPv4 address of the destination;
 - network access to the Windows facilities used by `msg.exe`;
 - permission to message sessions on the destination;
 - an active compatible session on the destination.
 
 The recipient does not install Unskip or create an Unskip account. Organizational Windows policy, session configuration, and network controls can still prevent native messaging. Ping success alone does not prove that delivery will work.
 
-Unskip currently sends only to computer names or DNS names. IPv4 addresses such as `192.168.50.25` can be saved in the directory, but the composer rejects them before starting `msg.exe`.
+Unskip accepts computer names, DNS names, and canonical dotted-decimal IPv4 addresses. Windows can still reject a valid destination because of reachability, session state, permissions, or organizational policy.
 
 ### Windows environment checklist
 
@@ -58,7 +76,7 @@ Unskip currently sends only to computer names or DNS names. IPv4 addresses such 
 
 1. Open Unskip and choose **Devices**.
 2. Select **Add device**, or enter a one-time computer name such as `lab-pc-01`.
-3. For a saved device, enter a friendly alias and at least one technical destination. Choose the computer name as the preferred destination when sending.
+3. For a saved device, enter a friendly alias and at least one technical destination. Choose the hostname or canonical IPv4 address that should be used for sending.
 4. Select the device or choose **Use** for the one-time destination.
 5. Confirm the alias and resolved technical destination shown under **Resolved destination**.
 6. Choose **Prepare message**.
@@ -86,7 +104,7 @@ Editing or deleting a device does not rewrite old history entries. Deleting a de
 
 Use **One-time destination** when a target should not be retained. The resolved value is displayed before the composer opens. **Save as device** converts it into a normal directory entry.
 
-The same hostname validation applies to saved and one-time destinations. Only letters, digits, hyphens, and dots are accepted for message delivery.
+The same destination validation applies to saved and one-time destinations. Hostnames use ASCII letters, digits, hyphens, and dots. IPv4 addresses must contain four dotted-decimal segments without leading zeroes.
 
 ## Local history
 
@@ -133,7 +151,7 @@ Unskip relies on Windows account and filesystem permissions. It does not current
 - No read receipts, acknowledgements, guaranteed delivery, queued offline delivery, or recipient presence indicator.
 - No central server, cloud synchronization, account system, or telemetry.
 - No recipient-side Unskip installation.
-- Hostname delivery only; IPv4 delivery is deliberately disabled.
+- Hostname and canonical IPv4 delivery depend on the native Windows environment.
 - Native messaging can be blocked by Windows edition, session state, permissions, services, network controls, or organizational policy.
 - Technical details are sanitized and bounded, but should still be treated as support data.
 

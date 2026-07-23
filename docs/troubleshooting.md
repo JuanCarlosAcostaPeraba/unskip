@@ -14,6 +14,14 @@ Close Unskip and run the installer again. The installer targets only the current
 
 If policy blocks installation, use the portable ZIP only when organizational policy permits it. Do not move the local database into the application directory.
 
+## Update check or download fails
+
+Normal messaging and saved devices remain available offline. Confirm that the computer can reach `api.github.com` and `github.com` over HTTPS, then use **Check for updates** again. A firewall, proxy, GitHub outage, rate limit, or organizational policy can prevent the optional check.
+
+Unskip rejects releases with an unexpected tag, filename, repository URL, size, or SHA-256 checksum. Do not rename an installer into the update cache or bypass verification. Download only from this repository's GitHub Releases page if the in-app flow remains unavailable.
+
+If **Install update** reports that the downloaded file changed or is damaged, close Unskip, remove `%LOCALAPPDATA%\Unskip\updates`, reopen it, and download again. This removes only cached installers, not `unskip.db`.
+
 ## The required SDK is not found
 
 This applies only to source builds. Install a stable .NET 10 SDK and run `dotnet --info`. The repository's `global.json` rejects preview SDKs and rolls forward within stable .NET 10 feature bands.

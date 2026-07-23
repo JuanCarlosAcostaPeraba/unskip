@@ -15,9 +15,11 @@ public sealed class MainWindowViewModel : ObservableObject
         IMessageSender messageSender,
         SendHistoryService historyService,
         IHistoryDeletionConfirmation historyConfirmation,
+        ApplicationUpdateViewModel applicationUpdate,
         string versionLabel)
     {
         DeviceDirectory = deviceDirectory ?? throw new ArgumentNullException(nameof(deviceDirectory));
+        Updates = applicationUpdate ?? throw new ArgumentNullException(nameof(applicationUpdate));
         ArgumentException.ThrowIfNullOrWhiteSpace(versionLabel);
         VersionLabel = versionLabel;
         Composer = new MessageComposerViewModel(messageSender, historyService);
@@ -54,6 +56,7 @@ public sealed class MainWindowViewModel : ObservableObject
     public DeviceDirectoryViewModel DeviceDirectory { get; }
     public MessageComposerViewModel Composer { get; }
     public SendHistoryViewModel History { get; }
+    public ApplicationUpdateViewModel Updates { get; }
     public RelayCommand ShowDevicesCommand { get; }
     public RelayCommand ShowComposerCommand { get; }
     public AsyncRelayCommand ShowHistoryCommand { get; }

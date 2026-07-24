@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Unskip.App.Commands;
+using Unskip.App.Services;
 using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
 using Unskip.Core.Messaging.History;
@@ -11,6 +12,7 @@ public sealed class MessageComposerViewModel : ObservableObject
 {
     private readonly IMessageSender _sender;
     private readonly SendHistoryService _history;
+    private readonly IUrgentAttentionPreviewService _urgentAttentionPreview;
     private DeviceDestinationKind _destinationKind;
     private string? _computerName;
     private string? _ipv4Address;
@@ -25,17 +27,29 @@ public sealed class MessageComposerViewModel : ObservableObject
     private bool _isSending;
     private bool _isTechnicalDetailsExpanded;
     private bool _canRetry;
+    private bool _isPreviewing;
+    private string _previewStatus = "Local preview only. Nothing will be sent.";
 
-    public MessageComposerViewModel(IMessageSender sender, SendHistoryService history)
+    public MessageComposerViewModel(
+        IMessageSender sender,
+        SendHistoryService history,
+        IUrgentAttentionPreviewService urgentAttentionPreview)
     {
         _sender = sender ?? throw new ArgumentNullException(nameof(sender));
         _history = history ?? throw new ArgumentNullException(nameof(history));
+        _urgentAttentionPreview = urgentAttentionPreview
+            ?? throw new ArgumentNullException(nameof(urgentAttentionPreview));
         SendCommand = new AsyncRelayCommand(_ => SendAsync(), _ => CanSend);
+        PreviewUrgentOverlayCommand = new AsyncRelayCommand(
+            _ => PreviewUrgentOverlayAsync(),
+            _ => CanPreviewUrgentOverlay);
         RetryCommand = new AsyncRelayCommand(_ => SendAsync(), _ => CanRetry && !IsSending);
         ToggleTechnicalDetailsCommand = new RelayCommand(
             _ => IsTechnicalDetailsExpanded = !IsTechnicalDetailsExpanded,
             _ => HasTechnicalDetails);
-        BackCommand = new RelayCommand(_ => BackRequested?.Invoke(this, EventArgs.Empty), _ => !IsSending);
+        BackCommand = new RelayCommand(
+            _ => BackRequested?.Invoke(this, EventArgs.Empty),
+            _ => !IsSending && !IsPreviewing);
     }
 
     public event EventHandler? BackRequested;
@@ -43,6 +57,8 @@ public sealed class MessageComposerViewModel : ObservableObject
     public event EventHandler? HistoryChanged;
 
     public AsyncRelayCommand SendCommand { get; }
+
+    public AsyncRelayCommand PreviewUrgentOverlayCommand { get; }
 
     public AsyncRelayCommand RetryCommand { get; }
 
@@ -112,9 +128,32 @@ public sealed class MessageComposerViewModel : ObservableObject
     }
 
     public bool CanSend => !IsSending
+        && !IsPreviewing
         && !string.IsNullOrWhiteSpace(Destination)
         && !string.IsNullOrWhiteSpace(Message)
         && !IsMessageOverLimit;
+
+    public bool IsPreviewing
+    {
+        get => _isPreviewing;
+        private set
+        {
+            if (SetProperty(ref _isPreviewing, value))
+            {
+                OnPropertyChanged(nameof(CanPreviewUrgentOverlay));
+                OnPropertyChanged(nameof(CanSend));
+                NotifyCommandStates();
+            }
+        }
+    }
+
+    public bool CanPreviewUrgentOverlay => !IsSending && !IsPreviewing;
+
+    public string PreviewStatus
+    {
+        get => _previewStatus;
+        private set => SetProperty(ref _previewStatus, value);
+    }
 
     public bool CanRetry
     {
@@ -239,6 +278,25 @@ public sealed class MessageComposerViewModel : ObservableObject
         }
     }
 
+    private async Task PreviewUrgentOverlayAsync()
+    {
+        IsPreviewing = true;
+        PreviewStatus = "Opening a local preview. Nothing is being sent.";
+        try
+        {
+            await _urgentAttentionPreview.ShowAsync().ConfigureAwait(true);
+            PreviewStatus = "Local preview closed. Nothing was sent.";
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            PreviewStatus = $"The local preview could not open ({exception.GetType().Name}).";
+        }
+        finally
+        {
+            IsPreviewing = false;
+        }
+    }
+
     private void ApplyValidation(MessageValidationResult validation)
     {
         var messageError = validation.Errors.FirstOrDefault(error => error.Field == "Message");
@@ -326,6 +384,7 @@ public sealed class MessageComposerViewModel : ObservableObject
     private void NotifyCommandStates()
     {
         SendCommand.NotifyCanExecuteChanged();
+        PreviewUrgentOverlayCommand.NotifyCanExecuteChanged();
         RetryCommand.NotifyCanExecuteChanged();
         BackCommand.NotifyCanExecuteChanged();
     }

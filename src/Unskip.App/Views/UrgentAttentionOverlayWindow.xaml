@@ -1,0 +1,114 @@
+<Window x:Class="Unskip.App.Views.UrgentAttentionOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
+        Title="Unskip urgent attention preview"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        AllowsTransparency="True"
+        Background="#D9000000"
+        ShowInTaskbar="False"
+        ShowActivated="True"
+        Topmost="True"
+        KeyboardNavigation.TabNavigation="Cycle"
+        automation:AutomationProperties.Name="Local urgent attention preview"
+        Loaded="OnLoaded"
+        Closed="OnClosed">
+  <Window.InputBindings>
+    <KeyBinding Key="Escape" Command="{Binding CloseCommand}" />
+    <KeyBinding Key="F4" Modifiers="Alt" Command="{Binding CloseCommand}" />
+  </Window.InputBindings>
+
+  <Grid>
+    <Border x:Name="MessageCard"
+            Width="680"
+            MaxWidth="760"
+            MaxHeight="620"
+            Margin="32"
+            Padding="42"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="2"
+            CornerRadius="22"
+            automation:AutomationProperties.Name="Urgent message card">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border HorizontalAlignment="Left"
+                Padding="12,6"
+                Background="{DynamicResource AccentSoftBrush}"
+                CornerRadius="9">
+          <TextBlock Text="LOCAL PREVIEW · NOTHING WAS SENT"
+                     Foreground="{DynamicResource AccentDarkBrush}"
+                     FontSize="11"
+                     FontWeight="Bold" />
+        </Border>
+
+        <TextBlock Grid.Row="1"
+                   Margin="0,24,0,0"
+                   Text="{Binding SenderLabel}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   automation:AutomationProperties.Name="Authenticated sender" />
+
+        <TextBlock Grid.Row="2"
+                   Margin="0,8,0,0"
+                   Text="{Binding Title}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
+                   FontSize="34"
+                   FontWeight="Bold"
+                   TextWrapping="Wrap" />
+
+        <ScrollViewer Grid.Row="3"
+                      Margin="0,22,0,0"
+                      MaxHeight="260"
+                      VerticalScrollBarVisibility="Auto">
+          <TextBlock Text="{Binding Message}"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
+                     FontSize="20"
+                     LineHeight="31"
+                     TextWrapping="Wrap"
+                     automation:AutomationProperties.Name="Urgent message text" />
+        </ScrollViewer>
+
+        <Grid Grid.Row="4" Margin="0,30,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <TextBlock Text="{Binding TimeoutLabel}"
+                     Foreground="{DynamicResource TextSecondaryBrush}"
+                     FontSize="12"
+                     TextWrapping="Wrap" />
+          <Button x:Name="CloseButton"
+                  Grid.Row="1"
+                  Margin="0,18,0,0"
+                  MinWidth="190"
+                  MinHeight="50"
+                  HorizontalAlignment="Right"
+                  Content="Close message"
+                  Command="{Binding CloseCommand}"
+                  IsDefault="True"
+                  Padding="22,12"
+                  Background="{DynamicResource AccentBrush}"
+                  Foreground="White"
+                  BorderThickness="0"
+                  FontSize="15"
+                  FontWeight="SemiBold"
+                  automation:AutomationProperties.Name="Close urgent message preview"
+                  ToolTip="Close this local preview. You can also press Escape or Alt+F4." />
+        </Grid>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

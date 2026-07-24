@@ -18,6 +18,8 @@ Device-directory view-model tests use an in-memory repository, injected clock, a
 
 Message-composer tests inject fake senders. They cover visible resolved destinations, hostname and canonical IPv4 validation, length validation, duplicate-submit protection, accurate result states, retry with draft preservation, and optional technical details. No view-model test starts `msg.exe`.
 
+Urgent-overlay tests use injected delay and geometry seams. They verify bounded timeout validation, single dismissal, cancellation, negative virtual-screen coordinates, fixed accessible dismissal controls, Escape and Alt+F4, and that a local preview neither invokes the sender nor creates history.
+
 History tests use injected clocks and in-memory repositories for MVVM behavior, plus temporary migrated SQLite databases for full metadata round trips, deletion, clearing, and immutable snapshots after device edits or deletion. Test message bodies are verified absent from persisted diagnostics.
 
 ## Native integration test

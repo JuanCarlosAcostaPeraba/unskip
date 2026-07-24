@@ -21,6 +21,7 @@ public sealed class MainWindowViewModel : ObservableObject
         IHistoryDeletionConfirmation historyConfirmation,
         ApplicationUpdateViewModel applicationUpdate,
         IExternalUriLauncher externalUriLauncher,
+        IUrgentAttentionPreviewService urgentAttentionPreview,
         string versionLabel)
     {
         DeviceDirectory = deviceDirectory ?? throw new ArgumentNullException(nameof(deviceDirectory));
@@ -28,7 +29,10 @@ public sealed class MainWindowViewModel : ObservableObject
         _externalUriLauncher = externalUriLauncher ?? throw new ArgumentNullException(nameof(externalUriLauncher));
         ArgumentException.ThrowIfNullOrWhiteSpace(versionLabel);
         VersionLabel = versionLabel;
-        Composer = new MessageComposerViewModel(messageSender, historyService);
+        Composer = new MessageComposerViewModel(
+            messageSender,
+            historyService,
+            urgentAttentionPreview);
         History = new SendHistoryViewModel(historyService, historyConfirmation);
         ShowDevicesCommand = new RelayCommand(_ => Show(Workspace.Devices), _ => !Composer.IsSending);
         ShowComposerCommand = new RelayCommand(

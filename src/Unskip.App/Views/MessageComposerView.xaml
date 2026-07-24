@@ -94,6 +94,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
           <TextBlock Text="{Binding MessageError}"
                      Style="{DynamicResource ErrorTextStyle}" />
@@ -106,13 +107,29 @@
                     Command="{Binding BackCommand}"
                     Style="{DynamicResource SecondaryButtonStyle}"
                     automation:AutomationProperties.Name="Return to device selection" />
-            <Button Grid.Column="1"
-                    MinWidth="150"
-                    Content="Send message  →"
-                    Command="{Binding SendCommand}"
-                    Style="{DynamicResource PrimaryButtonStyle}"
-                    automation:AutomationProperties.Name="Send the message using Windows" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+              <Button MinWidth="180"
+                      Margin="0,0,10,0"
+                      Content="Preview locally"
+                      Command="{Binding PreviewUrgentOverlayCommand}"
+                      Style="{DynamicResource SecondaryButtonStyle}"
+                      automation:AutomationProperties.Name="Preview the urgent overlay on this computer only; nothing is sent"
+                      ToolTip="Opens a local-only urgent overlay preview. It does not contact another computer." />
+              <Button MinWidth="150"
+                      Content="Send message  →"
+                      Command="{Binding SendCommand}"
+                      Style="{DynamicResource PrimaryButtonStyle}"
+                      automation:AutomationProperties.Name="Send the message using Windows" />
+            </StackPanel>
           </Grid>
+          <TextBlock Grid.Row="2"
+                     Margin="0,8,0,0"
+                     HorizontalAlignment="Right"
+                     Text="{Binding PreviewStatus}"
+                     Foreground="{DynamicResource TextSecondaryBrush}"
+                     FontSize="11"
+                     TextWrapping="Wrap"
+                     automation:AutomationProperties.Name="Local preview status" />
         </Grid>
       </Grid>
     </Border>

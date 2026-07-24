@@ -1,3 +1,4 @@
+using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
@@ -157,6 +158,68 @@ public sealed class MessageComposerViewModelTests
         Assert.DoesNotContain("Fictitious private draft", composer.TechnicalDetails, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task LocalPreviewDoesNotSendOrPersistMessageData()
+    {
+        var sender = new QueueMessageSender();
+        var preview = new RecordingUrgentAttentionPreviewService();
+        var clock = new ViewModelTestContext.MutableClock(
+            new DateTimeOffset(2026, 7, 22, 9, 0, 0, TimeSpan.Zero));
+        var historyRepository = new ViewModelTestContext.InMemorySendHistoryRepository();
+        var composer = new MessageComposerViewModel(
+            sender,
+            new SendHistoryService(historyRepository, clock),
+            preview);
+        composer.Prepare(Destination());
+        composer.Message = "A draft that must stay local";
+
+        await composer.PreviewUrgentOverlayCommand.ExecuteAsync();
+
+        Assert.Equal(1, preview.ShowCount);
+        Assert.Empty(sender.Requests);
+        Assert.Empty(historyRepository.Records);
+        Assert.Contains("Nothing was sent", composer.PreviewStatus, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task PreviewFailureDoesNotExposeSensitiveExceptionMessage()
+    {
+        var preview = new RecordingUrgentAttentionPreviewService
+        {
+            Exception = new InvalidOperationException("Sensitive local detail"),
+        };
+        var composer = CreateComposer(new QueueMessageSender(), preview);
+
+        await composer.PreviewUrgentOverlayCommand.ExecuteAsync();
+
+        Assert.Contains(nameof(InvalidOperationException), composer.PreviewStatus, StringComparison.Ordinal);
+        Assert.DoesNotContain("Sensitive local detail", composer.PreviewStatus, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ActivePreviewDisablesSendingAndNavigationUntilItCloses()
+    {
+        var preview = new PendingUrgentAttentionPreviewService();
+        var composer = CreateComposer(new QueueMessageSender(Sent()), preview);
+        composer.Prepare(Destination());
+        composer.Message = "Fictitious local draft";
+
+        var previewTask = composer.PreviewUrgentOverlayCommand.ExecuteAsync();
+        await preview.Started.Task.WaitAsync(TimeSpan.FromSeconds(1));
+
+        Assert.True(composer.IsPreviewing);
+        Assert.False(composer.CanSend);
+        Assert.False(composer.SendCommand.CanExecute(null));
+        Assert.False(composer.BackCommand.CanExecute(null));
+
+        preview.Complete();
+        await previewTask;
+
+        Assert.False(composer.IsPreviewing);
+        Assert.True(composer.CanSend);
+        Assert.True(composer.BackCommand.CanExecute(null));
+    }
+
     private static MessagePreparationRequestedEventArgs Destination()
     {
         return new MessagePreparationRequestedEventArgs(
@@ -166,14 +229,19 @@ public sealed class MessageComposerViewModelTests
             Guid.NewGuid());
     }
 
-    private static MessageComposerViewModel CreateComposer(IMessageSender sender)
+    private static MessageComposerViewModel CreateComposer(
+        IMessageSender sender,
+        IUrgentAttentionPreviewService? preview = null)
     {
         var clock = new ViewModelTestContext.MutableClock(
             new DateTimeOffset(2026, 7, 22, 9, 0, 0, TimeSpan.Zero));
         var history = new SendHistoryService(
             new ViewModelTestContext.InMemorySendHistoryRepository(),
             clock);
-        return new MessageComposerViewModel(sender, history);
+        return new MessageComposerViewModel(
+            sender,
+            history,
+            preview ?? new RecordingUrgentAttentionPreviewService());
     }
 
     private static MessageSendResult Sent()
@@ -249,6 +317,41 @@ public sealed class MessageComposerViewModelTests
             CancellationToken cancellationToken = default)
         {
             throw new InvalidOperationException($"Failure while sending {request.Message}");
+        }
+    }
+
+    private sealed class RecordingUrgentAttentionPreviewService : IUrgentAttentionPreviewService
+    {
+        public int ShowCount { get; private set; }
+
+        public Exception? Exception { get; init; }
+
+        public Task ShowAsync(CancellationToken cancellationToken = default)
+        {
+            ShowCount++;
+            return Exception is null
+                ? Task.CompletedTask
+                : Task.FromException(Exception);
+        }
+    }
+
+    private sealed class PendingUrgentAttentionPreviewService : IUrgentAttentionPreviewService
+    {
+        private readonly TaskCompletionSource _completion =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public TaskCompletionSource Started { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public Task ShowAsync(CancellationToken cancellationToken = default)
+        {
+            Started.TrySetResult();
+            return _completion.Task;
+        }
+
+        public void Complete()
+        {
+            _completion.SetResult();
         }
     }
 }

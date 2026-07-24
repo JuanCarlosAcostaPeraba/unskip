@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Unskip.Core.Messaging;
+using Unskip.Core.Networking;
 
 namespace Unskip.Infrastructure.Windows;
 
@@ -18,13 +19,21 @@ internal sealed class WindowsMsgProcessStartInfoFactory
         _executablePath = Path.GetFullPath(executablePath);
     }
 
-    public ProcessStartInfo Create(ValidatedMessageRequest request)
+    public ProcessStartInfo Create(ValidatedMessageRequest request, string serverName)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         if (request.Target.Kind is not MessageTargetKind.Hostname and not MessageTargetKind.Ipv4Address)
         {
             throw new NotSupportedException("Windows msg.exe delivery requires a validated hostname or canonical IPv4 address.");
+        }
+
+        if (NetworkAddressValidator.IsIpv4Address(serverName)
+            || !NetworkAddressValidator.TryNormalizeHostname(serverName, out var normalizedServerName))
+        {
+            throw new ArgumentException(
+                "Windows msg.exe delivery requires a verified computer name.",
+                nameof(serverName));
         }
 
         var startInfo = new ProcessStartInfo
@@ -39,7 +48,7 @@ internal sealed class WindowsMsgProcessStartInfoFactory
         };
 
         startInfo.ArgumentList.Add("*");
-        startInfo.ArgumentList.Add($"/SERVER:{request.Target.Value}");
+        startInfo.ArgumentList.Add($"/SERVER:{normalizedServerName}");
         startInfo.ArgumentList.Add(request.Message);
 
         return startInfo;

@@ -10,11 +10,15 @@ Tests must not contact or send messages to real network devices. The determinist
 
 Process timeout, cancellation, output capture, and exit-code behavior are tested with `Unskip.TestProcess`, a local helper that never accesses the network or invokes `msg.exe`.
 
+IPv4 delivery tests use an injected DNS lookup and reserved documentation addresses. They cover hostname passthrough, forward-confirmed reverse lookup, missing PTR data, mismatched forward lookup, cancellation, and timeout without contacting a real DNS server.
+
 SQLite integration tests create isolated databases under the system temporary directory, apply the real migrations, and remove those databases after each test. They never read or modify `%LOCALAPPDATA%\Unskip\unskip.db`.
 
 Device-directory view-model tests use an in-memory repository, injected clock, and fake deletion confirmation. They cover cross-field search, saved and manual destination resolution, validation placement, create/edit/delete/favorite operations, and honest handoff to the composer.
 
 Message-composer tests inject fake senders. They cover visible resolved destinations, hostname and canonical IPv4 validation, length validation, duplicate-submit protection, accurate result states, retry with draft preservation, and optional technical details. No view-model test starts `msg.exe`.
+
+Urgent-overlay tests use injected delay and geometry seams. They verify bounded timeout validation, single dismissal, cancellation, negative virtual-screen coordinates, primary-monitor card placement, fixed accessible dismissal controls, Escape and Alt+F4, invalid-content rejection before display access, exact in-memory draft handoff, and that a local preview neither invokes the sender nor creates history.
 
 History tests use injected clocks and in-memory repositories for MVVM behavior, plus temporary migrated SQLite databases for full metadata round trips, deletion, clearing, and immutable snapshots after device edits or deletion. Test message bodies are verified absent from persisted diagnostics.
 

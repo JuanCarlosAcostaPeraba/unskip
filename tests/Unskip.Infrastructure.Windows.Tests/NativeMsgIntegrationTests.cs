@@ -22,6 +22,7 @@ public sealed class NativeMsgIntegrationTests
         var sender = new WindowsMsgSender(
             new WindowsMsgProcessStartInfoFactory(executablePath),
             new SystemProcessInvoker(),
+            new WindowsMsgServerResolver(),
             new WindowsMsgSenderOptions(TimeSpan.FromSeconds(10)));
 
         var result = await sender.SendAsync(

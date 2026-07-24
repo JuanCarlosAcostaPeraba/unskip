@@ -5,6 +5,7 @@ Native delivery is isolated in `Unskip.Infrastructure.Windows`. It starts the fi
 The delivery implementation:
 
 - validates hostnames with ASCII allow-list rules and IPv4 addresses with strict canonical dotted-decimal rules;
+- resolves IPv4 destinations to a hostname and verifies the forward lookup contains the original address before process execution;
 - starts `msg.exe` directly with `ProcessStartInfo` and `UseShellExecute = false`;
 - places every argument in `ArgumentList` separately;
 - never invokes `cmd.exe`, PowerShell, a shell, or string-built commands;
@@ -21,5 +22,7 @@ The optional update boundary accepts only the official latest stable GitHub Rele
 Release `0.1.x` binaries are unsigned. Checksum verification detects corruption or substitution between the published checksum and downloaded installer, but it is not a substitute for Authenticode signing and cannot protect against compromise of the release publisher itself. Organizational policy and SmartScreen decisions remain authoritative.
 
 Unskip does not modify firewall rules, registry entries, Windows services, session rights, or organizational policy. Troubleshooting must prefer target-specific verification and administrator review over blanket security changes.
+
+The urgent-attention overlay is currently a local-only preview. It does not listen on a network port, add a firewall rule, register a service, start with Windows, capture the desktop, suppress system shortcuts, move dismissal controls, or reopen after dismissal. Its close button stays in a predictable location; Escape and Alt+F4 remain available; and a bounded timeout always closes it. The preview neither records an acknowledgement nor claims that content was displayed or read.
 
 The local SQLite database is not application-encrypted. It relies on the current Windows account and filesystem permissions, stores no credentials or message bodies, and never synchronizes through Unskip. Destination metadata and sanitized diagnostics can still be sensitive.

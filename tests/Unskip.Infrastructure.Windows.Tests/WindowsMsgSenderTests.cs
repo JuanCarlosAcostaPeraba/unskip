@@ -31,6 +31,57 @@ public sealed class WindowsMsgSenderTests
     }
 
     [Fact]
+    public async Task Ipv4DestinationUsesResolvedComputerName()
+    {
+        var invoker = new RecordingProcessInvoker(Completed(exitCode: 0));
+        var sender = CreateSender(
+            invoker,
+            new StubServerResolver(WindowsMsgServerResolution.Success("host-25.example.test")));
+
+        var result = await sender.SendAsync(new MessageRequest("192.0.2.25", "Test message"));
+
+        Assert.Equal(MessageDeliveryStatus.Sent, result.Status);
+        Assert.Equal(
+            ["*", "/SERVER:host-25.example.test", "Test message"],
+            invoker.LastStartInfo!.ArgumentList);
+    }
+
+    [Fact]
+    public async Task ResolutionFailureDoesNotStartProcess()
+    {
+        var invoker = new RecordingProcessInvoker(Completed(exitCode: 0));
+        var sender = CreateSender(
+            invoker,
+            new StubServerResolver(WindowsMsgServerResolution.Failure("DNS verification failed.")));
+
+        var result = await sender.SendAsync(new MessageRequest("192.0.2.25", "Test message"));
+
+        Assert.Equal(MessageDeliveryStatus.Failed, result.Status);
+        Assert.Equal(MessageFailureCategory.TargetUnavailable, result.FailureCategory);
+        Assert.Contains("computer name", result.UserMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("DNS verification failed.", result.StandardError);
+        Assert.Equal(0, invoker.InvocationCount);
+    }
+
+    [Fact]
+    public async Task CancellationDuringResolutionDoesNotStartProcess()
+    {
+        var invoker = new RecordingProcessInvoker(Completed(exitCode: 0));
+        using var cancellationSource = new CancellationTokenSource();
+        var sender = CreateSender(
+            invoker,
+            new CancellingServerResolver(cancellationSource));
+
+        var result = await sender.SendAsync(
+            new MessageRequest("192.0.2.25", "Test message"),
+            cancellationSource.Token);
+
+        Assert.Equal(MessageDeliveryStatus.Cancelled, result.Status);
+        Assert.Equal(MessageFailureCategory.Cancelled, result.FailureCategory);
+        Assert.Equal(0, invoker.InvocationCount);
+    }
+
+    [Fact]
     public async Task AccessDeniedDiagnosticMapsToPermissionFailure()
     {
         var execution = Completed(exitCode: 1, standardError: "Error 5 getting session names");
@@ -152,11 +203,14 @@ public sealed class WindowsMsgSenderTests
         Assert.Equal(MessageFailureCategory.ProcessTerminationFailure, result.FailureCategory);
     }
 
-    private static WindowsMsgSender CreateSender(IProcessInvoker invoker)
+    private static WindowsMsgSender CreateSender(
+        IProcessInvoker invoker,
+        IWindowsMsgServerResolver? resolver = null)
     {
         return new WindowsMsgSender(
             new WindowsMsgProcessStartInfoFactory(@"C:\Windows\System32\msg.exe"),
             invoker,
+            resolver ?? new StubServerResolver(WindowsMsgServerResolution.Success("desktop-01")),
             new WindowsMsgSenderOptions(TimeSpan.FromSeconds(1)));
     }
 
@@ -177,13 +231,39 @@ public sealed class WindowsMsgSenderTests
     {
         public int InvocationCount { get; private set; }
 
+        public ProcessStartInfo? LastStartInfo { get; private set; }
+
         public Task<ProcessExecutionResult> ExecuteAsync(
             ProcessStartInfo startInfo,
             TimeSpan timeout,
             CancellationToken cancellationToken)
         {
             InvocationCount++;
+            LastStartInfo = startInfo;
             return Task.FromResult(result);
+        }
+    }
+
+    private sealed class StubServerResolver(WindowsMsgServerResolution resolution)
+        : IWindowsMsgServerResolver
+    {
+        public Task<WindowsMsgServerResolution> ResolveAsync(
+            MessageTarget target,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(resolution);
+        }
+    }
+
+    private sealed class CancellingServerResolver(CancellationTokenSource cancellationSource)
+        : IWindowsMsgServerResolver
+    {
+        public Task<WindowsMsgServerResolution> ResolveAsync(
+            MessageTarget target,
+            CancellationToken cancellationToken)
+        {
+            cancellationSource.Cancel();
+            return Task.FromCanceled<WindowsMsgServerResolution>(cancellationToken);
         }
     }
 }

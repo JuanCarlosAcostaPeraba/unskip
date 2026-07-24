@@ -29,13 +29,14 @@ public sealed class UrgentAttentionOverlayRenderingTests
                 var bounds = new VirtualScreenBounds(-1280, -120, 3000, 900);
                 window = new UrgentAttentionOverlayWindow(viewModel, bounds);
 
-                window.Show();
-                window.UpdateLayout();
-
                 Assert.Equal(bounds.Left, window.Left);
                 Assert.Equal(bounds.Top, window.Top);
                 Assert.Equal(bounds.Width, window.Width);
                 Assert.Equal(bounds.Height, window.Height);
+
+                window.Show();
+                window.UpdateLayout();
+
                 Assert.True(window.Topmost);
                 Assert.Equal(WindowStyle.None, window.WindowStyle);
                 Assert.Equal(ResizeMode.NoResize, window.ResizeMode);

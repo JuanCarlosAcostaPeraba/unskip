@@ -238,11 +238,14 @@ internal sealed class ViewModelTestContext
     {
         public int ShowCount { get; private set; }
 
+        public string? Message { get; private set; }
+
         public Exception? Exception { get; set; }
 
-        public Task ShowAsync(CancellationToken cancellationToken = default)
+        public Task ShowAsync(string message, CancellationToken cancellationToken = default)
         {
             ShowCount++;
+            Message = message;
             return Exception is null
                 ? Task.CompletedTask
                 : Task.FromException(Exception);

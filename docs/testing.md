@@ -10,6 +10,8 @@ Tests must not contact or send messages to real network devices. The determinist
 
 Process timeout, cancellation, output capture, and exit-code behavior are tested with `Unskip.TestProcess`, a local helper that never accesses the network or invokes `msg.exe`.
 
+IPv4 delivery tests use an injected DNS lookup and reserved documentation addresses. They cover hostname passthrough, forward-confirmed reverse lookup, missing PTR data, mismatched forward lookup, cancellation, and timeout without contacting a real DNS server.
+
 SQLite integration tests create isolated databases under the system temporary directory, apply the real migrations, and remove those databases after each test. They never read or modify `%LOCALAPPDATA%\Unskip\unskip.db`.
 
 Device-directory view-model tests use an in-memory repository, injected clock, and fake deletion confirmation. They cover cross-field search, saved and manual destination resolution, validation placement, create/edit/delete/favorite operations, and honest handoff to the composer.

@@ -6,12 +6,14 @@ public sealed class WindowsMsgSender : IMessageSender
 {
     private readonly WindowsMsgProcessStartInfoFactory _startInfoFactory;
     private readonly IProcessInvoker _processInvoker;
+    private readonly IWindowsMsgServerResolver _serverResolver;
     private readonly WindowsMsgSenderOptions _options;
 
     public WindowsMsgSender(WindowsMsgSenderOptions? options = null)
         : this(
             new WindowsMsgProcessStartInfoFactory(),
             new SystemProcessInvoker(),
+            new WindowsMsgServerResolver(),
             options ?? new WindowsMsgSenderOptions())
     {
     }
@@ -19,11 +21,13 @@ public sealed class WindowsMsgSender : IMessageSender
     internal WindowsMsgSender(
         WindowsMsgProcessStartInfoFactory startInfoFactory,
         IProcessInvoker processInvoker,
+        IWindowsMsgServerResolver serverResolver,
         WindowsMsgSenderOptions options)
     {
-        _startInfoFactory = startInfoFactory;
-        _processInvoker = processInvoker;
-        _options = options;
+        _startInfoFactory = startInfoFactory ?? throw new ArgumentNullException(nameof(startInfoFactory));
+        _processInvoker = processInvoker ?? throw new ArgumentNullException(nameof(processInvoker));
+        _serverResolver = serverResolver ?? throw new ArgumentNullException(nameof(serverResolver));
+        _options = options ?? throw new ArgumentNullException(nameof(options));
     }
 
     public async Task<MessageSendResult> SendAsync(
@@ -57,7 +61,38 @@ public sealed class WindowsMsgSender : IMessageSender
                 "Sending was cancelled before Windows was contacted.");
         }
 
-        var startInfo = _startInfoFactory.Create(validation.Request!);
+        WindowsMsgServerResolution resolution;
+        try
+        {
+            resolution = await _serverResolver.ResolveAsync(
+                validation.Request!.Target,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return new MessageSendResult(
+                MessageDeliveryStatus.Cancelled,
+                MessageFailureCategory.Cancelled,
+                null,
+                string.Empty,
+                string.Empty,
+                TimeSpan.Zero,
+                "Sending was cancelled before Windows was contacted.");
+        }
+
+        if (!resolution.IsSuccess)
+        {
+            return new MessageSendResult(
+                MessageDeliveryStatus.Failed,
+                MessageFailureCategory.TargetUnavailable,
+                null,
+                string.Empty,
+                resolution.Diagnostic,
+                TimeSpan.Zero,
+                resolution.UserMessage);
+        }
+
+        var startInfo = _startInfoFactory.Create(validation.Request!, resolution.ServerName!);
         var execution = await _processInvoker.ExecuteAsync(
             startInfo,
             _options.Timeout,

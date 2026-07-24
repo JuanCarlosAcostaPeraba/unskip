@@ -12,7 +12,7 @@ public sealed class WindowsMsgProcessStartInfoFactoryTests
             "Test message");
         var factory = new WindowsMsgProcessStartInfoFactory();
 
-        var startInfo = factory.Create(request);
+        var startInfo = factory.Create(request, "desktop-01");
 
         Assert.True(File.Exists(startInfo.FileName));
         Assert.Equal("msg.exe", Path.GetFileName(startInfo.FileName));
@@ -31,7 +31,7 @@ public sealed class WindowsMsgProcessStartInfoFactoryTests
             message);
         var factory = new WindowsMsgProcessStartInfoFactory(executablePath);
 
-        var startInfo = factory.Create(request);
+        var startInfo = factory.Create(request, "desktop-01");
 
         Assert.Equal(executablePath, startInfo.FileName);
         Assert.False(startInfo.UseShellExecute);
@@ -43,18 +43,29 @@ public sealed class WindowsMsgProcessStartInfoFactoryTests
     }
 
     [Fact]
-    public void CreateUsesCanonicalIpv4AsIndependentServerArgument()
+    public void CreateUsesVerifiedComputerNameForIpv4Request()
     {
         var request = new ValidatedMessageRequest(
             new MessageTarget("192.0.2.25", MessageTargetKind.Ipv4Address),
             "Test message");
         var factory = new WindowsMsgProcessStartInfoFactory(@"C:\Windows\System32\msg.exe");
 
-        var startInfo = factory.Create(request);
+        var startInfo = factory.Create(request, "host-25.example.test");
 
         Assert.False(startInfo.UseShellExecute);
-        Assert.Equal(["*", "/SERVER:192.0.2.25", "Test message"], startInfo.ArgumentList);
+        Assert.Equal(["*", "/SERVER:host-25.example.test", "Test message"], startInfo.ArgumentList);
         Assert.Empty(startInfo.Arguments);
+    }
+
+    [Fact]
+    public void CreateRejectsIpv4ServerName()
+    {
+        var request = new ValidatedMessageRequest(
+            new MessageTarget("192.0.2.25", MessageTargetKind.Ipv4Address),
+            "Test message");
+        var factory = new WindowsMsgProcessStartInfoFactory(@"C:\Windows\System32\msg.exe");
+
+        Assert.Throws<ArgumentException>(() => factory.Create(request, "192.0.2.25"));
     }
 
     [Fact]
@@ -65,6 +76,6 @@ public sealed class WindowsMsgProcessStartInfoFactoryTests
             "Test message");
         var factory = new WindowsMsgProcessStartInfoFactory(@"C:\Windows\System32\msg.exe");
 
-        Assert.Throws<NotSupportedException>(() => factory.Create(request));
+        Assert.Throws<NotSupportedException>(() => factory.Create(request, "desktop-01"));
     }
 }

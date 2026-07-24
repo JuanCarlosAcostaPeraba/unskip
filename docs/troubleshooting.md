@@ -38,6 +38,12 @@ Build on Windows 10 or Windows 11 with the .NET 10 SDK. WPF is Windows-only. If 
 
 Use canonical dotted-decimal notation with four complete segments, for example the fictitious documentation address `192.0.2.25`. Shortened forms and segments with leading zeroes are rejected to avoid ambiguous destination parsing. Do not work around validation by editing the database.
 
+## Unskip cannot verify a computer name for an IPv4 destination
+
+Windows documents the native `/SERVER` argument as a server name. When an IPv4 address is selected, Unskip requires its reverse DNS name to resolve forward to that same address before starting `msg.exe`.
+
+Confirm that the address is correct and try the destination's Windows computer name directly. If the computer name works but IPv4 verification fails, ask the responsible administrator to review the destination's forward and reverse DNS records. Unskip does not create or change DNS records.
+
 ## Windows reports permission denied or error 5
 
 Unskip maps exit code 5, or a bounded diagnostic containing error 5, to **Permission denied**. The sender does not currently have the Windows permission required to message sessions on that destination.
@@ -49,7 +55,7 @@ Verify that the destination is correct and ask the responsible administrator to 
 Unskip maps these verified native codes to **Target unavailable**. Check:
 
 1. the Windows computer name or canonical IPv4 address is correct;
-2. a hostname resolves from the sending computer, when a hostname is used;
+2. the hostname resolves from the sending computer;
 3. the target is powered on and reachable through the managed network;
 4. a compatible Windows session is active;
 5. the responsible administrator permits the required native Windows operation between these specific computers.

@@ -6,4 +6,4 @@ Messages are limited to 1,024 characters. The send action is asynchronous and di
 
 `Sent` means that Windows accepted the native request. It does not prove that a recipient saw, read, or acknowledged the message.
 
-The native delivery boundary accepts validated hostnames and canonical dotted-decimal IPv4 destinations. A valid destination can still be rejected by Windows because of reachability, session state, permissions, or policy.
+The native delivery boundary accepts validated hostnames and canonical dotted-decimal IPv4 destinations. IPv4 destinations must resolve to a forward-verified computer name before Windows is contacted. A valid and verified destination can still be rejected by Windows because of reachability, session state, permissions, or policy.

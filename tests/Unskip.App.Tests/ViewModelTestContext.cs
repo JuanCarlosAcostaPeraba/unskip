@@ -26,6 +26,7 @@ internal sealed class ViewModelTestContext
         UpdateInstaller = new StubUpdateInstallerLauncher();
         ApplicationShutdown = new StubApplicationShutdown();
         ExternalUriLauncher = new StubExternalUriLauncher();
+        UrgentAttentionPreview = new StubUrgentAttentionPreviewService();
         Updates = new ApplicationUpdateViewModel(
             UpdateService,
             UpdateInstaller,
@@ -38,6 +39,7 @@ internal sealed class ViewModelTestContext
             HistoryConfirmation,
             Updates,
             ExternalUriLauncher,
+            UrgentAttentionPreview,
             "Version 0.1.0-test");
     }
 
@@ -60,6 +62,8 @@ internal sealed class ViewModelTestContext
     public StubApplicationShutdown ApplicationShutdown { get; }
 
     public StubExternalUriLauncher ExternalUriLauncher { get; }
+
+    public StubUrgentAttentionPreviewService UrgentAttentionPreview { get; }
 
     public DeviceDirectoryViewModel Directory { get; }
 
@@ -227,6 +231,21 @@ internal sealed class ViewModelTestContext
         {
             OpenedUri = uri;
             return Result;
+        }
+    }
+
+    internal sealed class StubUrgentAttentionPreviewService : IUrgentAttentionPreviewService
+    {
+        public int ShowCount { get; private set; }
+
+        public Exception? Exception { get; set; }
+
+        public Task ShowAsync(CancellationToken cancellationToken = default)
+        {
+            ShowCount++;
+            return Exception is null
+                ? Task.CompletedTask
+                : Task.FromException(Exception);
         }
     }
 

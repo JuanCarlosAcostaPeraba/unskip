@@ -85,6 +85,12 @@ Unskip accepts computer names, DNS names, and canonical dotted-decimal IPv4 addr
 
 The send button is disabled while a request is active. A failed or timed-out request keeps the draft and offers **Retry with this draft**.
 
+### Preview the urgent-attention design locally
+
+Choose **Preview locally** in the message composer to inspect the proposed full-screen presentation on the current computer. This prototype uses clearly labelled sample content. It does not use the selected destination or draft, contact another computer, write history, or prove that anyone read anything.
+
+The preview dims the complete Windows virtual screen and keeps its message card visible above it. Close it with the fixed **Close message** button, Escape, Alt+F4, or wait for the one-minute safety timeout. A display-topology change also closes it safely. Remote transport, recipient installation, firewall configuration, background startup, and policy-controlled deployment are deliberately outside this prototype.
+
 ## Saved devices
 
 A saved device can contain:

@@ -2,5 +2,5 @@ namespace Unskip.App.Services;
 
 public interface IUrgentAttentionPreviewService
 {
-    Task ShowAsync(CancellationToken cancellationToken = default);
+    Task ShowAsync(string message, CancellationToken cancellationToken = default);
 }

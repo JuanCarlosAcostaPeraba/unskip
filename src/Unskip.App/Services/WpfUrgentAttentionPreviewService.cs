@@ -1,6 +1,7 @@
 using System.Windows;
 using Unskip.App.ViewModels;
 using Unskip.App.Views;
+using Unskip.Core.Messaging;
 
 namespace Unskip.App.Services;
 
@@ -18,8 +19,16 @@ internal sealed class WpfUrgentAttentionPreviewService(
     {
     }
 
-    public Task ShowAsync(CancellationToken cancellationToken = default)
+    public Task ShowAsync(string message, CancellationToken cancellationToken = default)
     {
+        var validation = MessageRequestValidator.Validate(
+            new MessageRequest("local-preview", message));
+        var messageError = validation.Errors.FirstOrDefault(error => error.Field == "Message");
+        if (messageError is not null)
+        {
+            throw new ArgumentException(messageError.Message, nameof(message));
+        }
+
         if (_activeWindow is not null)
         {
             _activeWindow.Activate();
@@ -31,12 +40,12 @@ internal sealed class WpfUrgentAttentionPreviewService(
         var viewModel = new UrgentAttentionOverlayViewModel(
             "Local Unskip preview",
             "Urgent message preview",
-            "This is a local preview of the urgent attention overlay. No message was sent to another computer.",
+            message,
             PreviewTimeout,
             new SystemAsyncDelay());
         var window = new UrgentAttentionOverlayWindow(
             viewModel,
-            _virtualScreenProvider.GetBounds());
+            _virtualScreenProvider.GetLayout());
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _activeWindow = window;

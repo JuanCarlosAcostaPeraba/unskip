@@ -2,9 +2,11 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.App.Views;
+using Unskip.Core.Messaging;
 
 namespace Unskip.App.Tests;
 
@@ -26,13 +28,22 @@ public sealed class UrgentAttentionOverlayRenderingTests
                     "Fictitious local preview message",
                     TimeSpan.FromSeconds(60),
                     new PendingDelay());
-                var bounds = new VirtualScreenBounds(-1280, -120, 3000, 900);
-                window = new UrgentAttentionOverlayWindow(viewModel, bounds);
+                var bounds = new VirtualScreenBounds(-1280, -120, 3000, 1020);
+                var attentionBounds = new VirtualScreenBounds(0, 0, 1720, 900);
+                window = new UrgentAttentionOverlayWindow(
+                    viewModel,
+                    new VirtualScreenLayout(bounds, attentionBounds));
 
                 Assert.Equal(bounds.Left, window.Left);
                 Assert.Equal(bounds.Top, window.Top);
                 Assert.Equal(bounds.Width, window.Width);
                 Assert.Equal(bounds.Height, window.Height);
+                var transform = Assert.IsType<TranslateTransform>(
+                    window.FindName("MessageCard") is Border card
+                        ? card.RenderTransform
+                        : null);
+                Assert.Equal(640, transform.X);
+                Assert.Equal(60, transform.Y);
 
                 window.Show();
                 window.UpdateLayout();
@@ -85,11 +96,49 @@ public sealed class UrgentAttentionOverlayRenderingTests
             () => new VirtualScreenBounds(double.NaN, 0, 1920, 1080));
     }
 
+    [Fact]
+    public void VirtualScreenLayoutRejectsAttentionAreaOutsideDesktop()
+    {
+        var desktop = new VirtualScreenBounds(-1280, 0, 3200, 1080);
+        var outsideDesktop = new VirtualScreenBounds(0, 0, 2560, 1080);
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => new VirtualScreenLayout(desktop, outsideDesktop));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("Visible\u0001hidden")]
+    public async Task PreviewServiceRejectsInvalidMessageBeforeReadingDisplayGeometry(string message)
+    {
+        var service = new WpfUrgentAttentionPreviewService(new UnexpectedScreenProvider());
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.ShowAsync(message));
+    }
+
+    [Fact]
+    public async Task PreviewServiceRejectsOversizedMessageBeforeReadingDisplayGeometry()
+    {
+        var service = new WpfUrgentAttentionPreviewService(new UnexpectedScreenProvider());
+        var message = new string('x', MessagePolicy.MaximumMessageLength + 1);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => service.ShowAsync(message));
+    }
+
     private sealed class PendingDelay : IAsyncDelay
     {
         public Task DelayAsync(TimeSpan delay, CancellationToken cancellationToken)
         {
             return Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+        }
+    }
+
+    private sealed class UnexpectedScreenProvider : IVirtualScreenProvider
+    {
+        public VirtualScreenLayout GetLayout()
+        {
+            throw new InvalidOperationException("Display geometry should not be read for invalid content.");
         }
     }
 }

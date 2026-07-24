@@ -93,12 +93,11 @@ public sealed class MessageComposerViewModel : ObservableObject
         {
             if (SetProperty(ref _message, value ?? string.Empty))
             {
-                MessageError = IsMessageOverLimit
-                    ? $"Messages can contain at most {MessagePolicy.MaximumMessageLength:N0} characters."
-                    : null;
+                MessageError = GetMessageValidationError();
                 OnPropertyChanged(nameof(CharacterCountLabel));
                 OnPropertyChanged(nameof(IsMessageOverLimit));
                 OnPropertyChanged(nameof(CanSend));
+                OnPropertyChanged(nameof(CanPreviewUrgentOverlay));
                 NotifyCommandStates();
             }
         }
@@ -147,7 +146,9 @@ public sealed class MessageComposerViewModel : ObservableObject
         }
     }
 
-    public bool CanPreviewUrgentOverlay => !IsSending && !IsPreviewing;
+    public bool CanPreviewUrgentOverlay => !IsSending
+        && !IsPreviewing
+        && GetMessageValidationError() is null;
 
     public string PreviewStatus
     {
@@ -280,11 +281,19 @@ public sealed class MessageComposerViewModel : ObservableObject
 
     private async Task PreviewUrgentOverlayAsync()
     {
+        var validationError = GetMessageValidationError();
+        if (validationError is not null)
+        {
+            MessageError = validationError;
+            PreviewStatus = "Enter a valid message before opening the local preview.";
+            return;
+        }
+
         IsPreviewing = true;
         PreviewStatus = "Opening a local preview. Nothing is being sent.";
         try
         {
-            await _urgentAttentionPreview.ShowAsync().ConfigureAwait(true);
+            await _urgentAttentionPreview.ShowAsync(Message).ConfigureAwait(true);
             PreviewStatus = "Local preview closed. Nothing was sent.";
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
@@ -295,6 +304,12 @@ public sealed class MessageComposerViewModel : ObservableObject
         {
             IsPreviewing = false;
         }
+    }
+
+    private string? GetMessageValidationError()
+    {
+        var validation = MessageRequestValidator.Validate(new MessageRequest(Destination, Message));
+        return validation.Errors.FirstOrDefault(error => error.Field == "Message")?.Message;
     }
 
     private void ApplyValidation(MessageValidationResult validation)

@@ -4,12 +4,18 @@ namespace Unskip.App.Services;
 
 internal sealed class WpfVirtualScreenProvider : IVirtualScreenProvider
 {
-    public VirtualScreenBounds GetBounds()
+    public VirtualScreenLayout GetLayout()
     {
-        return new VirtualScreenBounds(
-            SystemParameters.VirtualScreenLeft,
-            SystemParameters.VirtualScreenTop,
-            SystemParameters.VirtualScreenWidth,
-            SystemParameters.VirtualScreenHeight);
+        return new VirtualScreenLayout(
+            new VirtualScreenBounds(
+                SystemParameters.VirtualScreenLeft,
+                SystemParameters.VirtualScreenTop,
+                SystemParameters.VirtualScreenWidth,
+                SystemParameters.VirtualScreenHeight),
+            new VirtualScreenBounds(
+                0,
+                0,
+                SystemParameters.PrimaryScreenWidth,
+                SystemParameters.PrimaryScreenHeight));
     }
 }

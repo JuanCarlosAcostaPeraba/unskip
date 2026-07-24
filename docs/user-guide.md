@@ -87,9 +87,9 @@ The send button is disabled while a request is active. A failed or timed-out req
 
 ### Preview the urgent-attention design locally
 
-Choose **Preview locally** in the message composer to inspect the proposed full-screen presentation on the current computer. This prototype uses clearly labelled sample content. It does not use the selected destination or draft, contact another computer, write history, or prove that anyone read anything.
+Choose **Preview locally** in the message composer to inspect how the current validated draft would look in the proposed full-screen presentation on this computer. It does not contact the selected destination, write the draft to history or another local store, or prove that anyone read anything. Empty, oversized, and otherwise invalid drafts keep the preview action disabled.
 
-The preview dims the complete Windows virtual screen and keeps its message card visible above it. Close it with the fixed **Close message** button, Escape, Alt+F4, or wait for the one-minute safety timeout. A display-topology change also closes it safely. Remote transport, recipient installation, firewall configuration, background startup, and policy-controlled deployment are deliberately outside this prototype.
+The preview dims the complete Windows virtual screen and keeps its message card wholly on the primary monitor so it is not split between displays. Close it with the fixed **Close message** button, Escape, Alt+F4, or wait for the one-minute safety timeout. A display-topology change also closes it safely. Remote transport, recipient installation, firewall configuration, background startup, and policy-controlled deployment are deliberately outside this prototype.
 
 ## Saved devices
 

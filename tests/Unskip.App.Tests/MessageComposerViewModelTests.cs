@@ -1,3 +1,4 @@
+using System.Globalization;
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
@@ -176,6 +177,7 @@ public sealed class MessageComposerViewModelTests
         await composer.PreviewUrgentOverlayCommand.ExecuteAsync();
 
         Assert.Equal(1, preview.ShowCount);
+        Assert.Equal("A draft that must stay local", preview.Message);
         Assert.Empty(sender.Requests);
         Assert.Empty(historyRepository.Records);
         Assert.Contains("Nothing was sent", composer.PreviewStatus, StringComparison.Ordinal);
@@ -189,6 +191,7 @@ public sealed class MessageComposerViewModelTests
             Exception = new InvalidOperationException("Sensitive local detail"),
         };
         var composer = CreateComposer(new QueueMessageSender(), preview);
+        composer.Message = "Fictitious local draft";
 
         await composer.PreviewUrgentOverlayCommand.ExecuteAsync();
 
@@ -218,6 +221,50 @@ public sealed class MessageComposerViewModelTests
         Assert.False(composer.IsPreviewing);
         Assert.True(composer.CanSend);
         Assert.True(composer.BackCommand.CanExecute(null));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void EmptyDraftCannotBePreviewed(string message)
+    {
+        var composer = CreateComposer(new QueueMessageSender());
+        composer.Prepare(Destination());
+        composer.Message = message;
+
+        Assert.False(composer.CanPreviewUrgentOverlay);
+        Assert.False(composer.PreviewUrgentOverlayCommand.CanExecute(null));
+        if (message.Length > 0)
+        {
+            Assert.Equal("Enter a message.", composer.MessageError);
+        }
+    }
+
+    [Fact]
+    public void OversizedDraftCannotBePreviewed()
+    {
+        var composer = CreateComposer(new QueueMessageSender());
+        composer.Prepare(Destination());
+        composer.Message = new string('x', MessagePolicy.MaximumMessageLength + 1);
+
+        Assert.False(composer.CanPreviewUrgentOverlay);
+        Assert.False(composer.PreviewUrgentOverlayCommand.CanExecute(null));
+        Assert.Contains(
+            MessagePolicy.MaximumMessageLength.ToString(CultureInfo.InvariantCulture),
+            composer.MessageError,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UnsupportedControlCharacterCannotBePreviewed()
+    {
+        var composer = CreateComposer(new QueueMessageSender());
+        composer.Prepare(Destination());
+        composer.Message = "Visible\u0001hidden";
+
+        Assert.False(composer.CanPreviewUrgentOverlay);
+        Assert.False(composer.PreviewUrgentOverlayCommand.CanExecute(null));
+        Assert.Contains("unsupported control character", composer.MessageError, StringComparison.OrdinalIgnoreCase);
     }
 
     private static MessagePreparationRequestedEventArgs Destination()
@@ -324,11 +371,14 @@ public sealed class MessageComposerViewModelTests
     {
         public int ShowCount { get; private set; }
 
+        public string? Message { get; private set; }
+
         public Exception? Exception { get; init; }
 
-        public Task ShowAsync(CancellationToken cancellationToken = default)
+        public Task ShowAsync(string message, CancellationToken cancellationToken = default)
         {
             ShowCount++;
+            Message = message;
             return Exception is null
                 ? Task.CompletedTask
                 : Task.FromException(Exception);
@@ -343,7 +393,7 @@ public sealed class MessageComposerViewModelTests
         public TaskCompletionSource Started { get; } =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        public Task ShowAsync(CancellationToken cancellationToken = default)
+        public Task ShowAsync(string message, CancellationToken cancellationToken = default)
         {
             Started.TrySetResult();
             return _completion.Task;

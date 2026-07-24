@@ -14,15 +14,21 @@ public partial class UrgentAttentionOverlayWindow : Window, IDisposable
 
     internal UrgentAttentionOverlayWindow(
         UrgentAttentionOverlayViewModel viewModel,
-        VirtualScreenBounds bounds)
+        VirtualScreenLayout layout)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         InitializeComponent();
         DataContext = viewModel;
+        var bounds = layout.DesktopBounds;
         Left = bounds.Left;
         Top = bounds.Top;
         Width = bounds.Width;
         Height = bounds.Height;
+        MessageCard.RenderTransform = new TranslateTransform(
+            GetCenter(layout.AttentionBounds.Left, layout.AttentionBounds.Width)
+                - GetCenter(bounds.Left, bounds.Width),
+            GetCenter(layout.AttentionBounds.Top, layout.AttentionBounds.Height)
+                - GetCenter(bounds.Top, bounds.Height));
         if (SystemParameters.HighContrast)
         {
             Background = SystemColors.WindowBrush;
@@ -31,6 +37,11 @@ public partial class UrgentAttentionOverlayWindow : Window, IDisposable
 
         _viewModel.DismissRequested += OnDismissRequested;
         SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;
+    }
+
+    private static double GetCenter(double start, double length)
+    {
+        return start + (length / 2);
     }
 
     private async void OnLoaded(object sender, RoutedEventArgs e)

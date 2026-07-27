@@ -5,9 +5,14 @@ public sealed record AuthenticatedSessionContext(
     bool IsMutuallyAuthenticated,
     bool IsEncrypted,
     bool IsSigned,
-    string? RemoteIdentity);
+    AuthenticationScheme Scheme,
+    string? RemoteIdentityKey,
+    string? RemoteDisplayName);
 
-public sealed record AuthenticatedSender(string Identity);
+public sealed record AuthenticatedSender(
+    string IdentityKey,
+    string DisplayName,
+    AuthenticationScheme Scheme);
 
 public sealed record AuthenticatedSessionValidation(
     bool IsValid,
@@ -32,5 +37,12 @@ public enum AuthenticatedSessionValidationError
     NotMutuallyAuthenticated,
     NotEncrypted,
     NotSigned,
-    InvalidRemoteIdentity,
+    InvalidIdentityKey,
+    InvalidDisplayName,
+}
+
+public enum AuthenticationScheme
+{
+    WindowsNegotiate,
+    MutualTls,
 }

@@ -14,7 +14,8 @@ public sealed class LanReceiverAdmissionServiceTests
             LanProtocolTestData.CreateRequest());
 
         Assert.True(result.IsAcceptedForLocalHandling);
-        Assert.Equal(@"EXAMPLE\operator", result.Sender!.Identity);
+        Assert.Equal("windows-sid:S-1-5-21-1000", result.Sender!.IdentityKey);
+        Assert.Equal(@"EXAMPLE\operator", result.Sender.DisplayName);
         Assert.Equal(LanReceiverStatus.AcceptedForLocalHandling, result.Response.Status);
     }
 
@@ -37,7 +38,9 @@ public sealed class LanReceiverAdmissionServiceTests
         var request = LanProtocolTestData.CreateRequest();
 
         var first = service.Evaluate(LanProtocolTestData.CreateSession(), request);
-        var replay = service.Evaluate(LanProtocolTestData.CreateSession("example\\OPERATOR"), request);
+        var replay = service.Evaluate(
+            LanProtocolTestData.CreateSession("example\\OPERATOR"),
+            request);
 
         Assert.True(first.IsAcceptedForLocalHandling);
         Assert.Equal(LanReceiverResponseCode.ReplayDetected, replay.Response.Code);
@@ -69,6 +72,28 @@ public sealed class LanReceiverAdmissionServiceTests
             request with { MessageId = Guid.NewGuid() });
 
         Assert.Equal(LanReceiverResponseCode.ReplayDetected, replay.Response.Code);
+    }
+
+    [Fact]
+    public void SameDisplayNameWithDifferentAuthoritativeIdentityIsNotAReplay()
+    {
+        var service = CreateService();
+        var request = LanProtocolTestData.CreateRequest();
+        var first = service.Evaluate(
+            LanProtocolTestData.CreateSession(
+                "Display name",
+                CreateMutualTlsIdentityKey(1),
+                AuthenticationScheme.MutualTls),
+            request);
+        var second = service.Evaluate(
+            LanProtocolTestData.CreateSession(
+                "Display name",
+                CreateMutualTlsIdentityKey(2),
+                AuthenticationScheme.MutualTls),
+            request);
+
+        Assert.True(first.IsAcceptedForLocalHandling);
+        Assert.True(second.IsAcceptedForLocalHandling);
     }
 
     [Fact]
@@ -148,5 +173,11 @@ public sealed class LanReceiverAdmissionServiceTests
             Enumerable.Range(seed, LanProtocolPolicy.NonceByteLength)
                 .Select(value => unchecked((byte)value))
                 .ToArray());
+    }
+
+    private static string CreateMutualTlsIdentityKey(byte seed)
+    {
+        return "mtls-sha256:" + Convert.ToHexStringLower(
+            Enumerable.Repeat(seed, 32).ToArray());
     }
 }

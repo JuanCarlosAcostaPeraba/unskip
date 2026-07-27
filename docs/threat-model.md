@@ -42,6 +42,10 @@
 | Flooding and resource exhaustion | Authenticate before parsing, bound frame size before allocation, rate-limit per identity, bound identity and replay tables, fail closed at capacity |
 | Malformed or downgrade payload | Strict version, JSON member, enum, timestamp, expiry, length, UTF-8, and message-policy validation |
 | Unauthorized overlay activation | Admission requires authenticated identity and a future administrator-controlled allow-list before UI dispatch |
+| Certificate subject spoofing | Treat subject and friendly-name text as display-only; authorize the OS-validated certificate by exact SHA-256 fingerprint |
+| Rogue or self-signed certificate | Require operating-system chain, name, purpose, validity, and revocation validation; never install trust or bypass errors in Unskip |
+| Kerberos SPN/account mismatch | Permit Negotiate only with an administrator-provisioned unique SPN on the receiver's real logon account; reject non-mutual fallback |
+| Certificate renewal lockout | Deploy overlapping old/new fingerprint authorization, verify, then remove and revoke the old identity |
 | Receiver used as a screen locker | Fixed close action, Escape, Alt+F4, timeout, no system-shortcut suppression, no forced reopening |
 
 ## Assumptions and limits
@@ -53,6 +57,7 @@
 - Unskip does not provide end-to-end encryption, recipient authentication, durable queuing, offline delivery, or cloud synchronization.
 - The protocol foundation defines recipient authentication requirements but does not yet expose a network receiver or change current delivery.
 - A future receiver depends on managed identity, SPN/authorization policy, and an administrator-approved firewall deployment. Workgroup compatibility is not a reason to weaken authentication.
+- Certificate subjects and friendly names are not stable authorization identities. Exact fingerprints are stable only for a certificate lifetime, so renewal and emergency revocation require explicit allow-list operations.
 - Local-first operation reduces central data collection but does not make reachable network destinations trusted.
 
 ## Security-sensitive changes

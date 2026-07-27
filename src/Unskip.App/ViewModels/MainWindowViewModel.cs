@@ -42,6 +42,8 @@ public sealed class MainWindowViewModel : ObservableObject
             _ => Show(Workspace.Composer),
             _ => !string.IsNullOrWhiteSpace(Composer.Destination) && !Composer.IsSending);
         ShowHistoryCommand = new AsyncRelayCommand(_ => ShowHistoryAsync(), _ => !Composer.IsSending);
+        OpenQuickSendCommand = new RelayCommand(
+            _ => QuickSendRequested?.Invoke(this, EventArgs.Empty));
         OpenDeveloperPortfolioCommand = new RelayCommand(_ => OpenDeveloperPortfolio());
         DeviceDirectory.MessagePreparationRequested += (_, destination) => PrepareComposer(destination, false);
         Composer.BackRequested += (_, _) => Show(Workspace.Devices);
@@ -49,6 +51,9 @@ public sealed class MainWindowViewModel : ObservableObject
     }
 
     public string ProductName { get; } = ProductIdentity.Name;
+
+    public event EventHandler? QuickSendRequested;
+
     public string Tagline { get; } = UiText.Get("LocalMessaging");
     public string AffiliationNotice { get; } = UiText.Get("AffiliationNotice");
     public string DeveloperName { get; } = "Juan Carlos Acosta Perabá";
@@ -88,6 +93,7 @@ public sealed class MainWindowViewModel : ObservableObject
     public RelayCommand ShowDevicesCommand { get; }
     public RelayCommand ShowComposerCommand { get; }
     public AsyncRelayCommand ShowHistoryCommand { get; }
+    public RelayCommand OpenQuickSendCommand { get; }
     public RelayCommand OpenDeveloperPortfolioCommand { get; }
     public bool IsDevicesVisible => _workspace == Workspace.Devices;
     public bool IsComposerVisible => _workspace == Workspace.Composer;

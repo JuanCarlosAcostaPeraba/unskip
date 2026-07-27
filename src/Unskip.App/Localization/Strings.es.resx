@@ -194,4 +194,28 @@
   <data name="ValidationPreferredDestination" xml:space="preserve"><value>Elige un destino preferido que exista en el dispositivo.</value></data>
   <data name="VersionLabel" xml:space="preserve"><value>Versión {0}</value></data>
   <data name="WindowsComputerNameAutomation" xml:space="preserve"><value>Nombre del equipo de Windows</value></data>
+  <data name="QuickChooseDestination" xml:space="preserve"><value>Elige un dispositivo guardado o prepara un destino de un solo uso.</value></data>
+  <data name="QuickDescription" xml:space="preserve"><value>Envía sin abrir el espacio de trabajo completo.</value></data>
+  <data name="QuickDestinationReady" xml:space="preserve"><value>Listo para {0}.</value></data>
+  <data name="QuickDeviceLoadFailed" xml:space="preserve"><value>No se pudieron cargar los dispositivos guardados. Los destinos de un solo uso siguen disponibles.</value></data>
+  <data name="QuickHeading" xml:space="preserve"><value>Envío rápido</value></data>
+  <data name="QuickMessage" xml:space="preserve"><value>Mensaje</value></data>
+  <data name="QuickMessageAutomation" xml:space="preserve"><value>Texto del mensaje rápido</value></data>
+  <data name="QuickNoSavedDevices" xml:space="preserve"><value>Aún no hay dispositivos guardados. Usa un destino de un solo uso.</value></data>
+  <data name="QuickOpenFull" xml:space="preserve"><value>Abrir Unskip</value></data>
+  <data name="QuickOpenFullAutomation" xml:space="preserve"><value>Abrir la ventana completa de Unskip</value></data>
+  <data name="QuickOrOneTime" xml:space="preserve"><value>O usa un nombre de equipo o una dirección IPv4 de un solo uso</value></data>
+  <data name="QuickResolvedDestination" xml:space="preserve"><value>DESTINO RESUELTO</value></data>
+  <data name="QuickResidentHint" xml:space="preserve"><value>Cerrar este panel mantiene Unskip en ejecución.</value></data>
+  <data name="QuickRetry" xml:space="preserve"><value>Reintentar</value></data>
+  <data name="QuickSavedDevice" xml:space="preserve"><value>Dispositivo guardado</value></data>
+  <data name="QuickSavedDeviceAutomation" xml:space="preserve"><value>Elegir un dispositivo guardado</value></data>
+  <data name="QuickSend" xml:space="preserve"><value>Enviar mensaje</value></data>
+  <data name="QuickSendAutomation" xml:space="preserve"><value>Enviar el mensaje rápido</value></data>
+  <data name="QuickWindowAutomation" xml:space="preserve"><value>Panel de envío rápido de Unskip</value></data>
+  <data name="QuickWindowTitle" xml:space="preserve"><value>Unskip · Envío rápido</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Salir de Unskip</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Abrir Unskip</value></data>
+  <data name="TrayQuickSend" xml:space="preserve"><value>Envío rápido</value></data>
+  <data name="TrayTooltip" xml:space="preserve"><value>Unskip · Mensajería local</value></data>
 </root>

@@ -35,4 +35,8 @@ For mutual TLS, operating-system chain, hostname, purpose, validity, and revocat
 
 No production receiver, startup registration, certificate enrollment, trust-store mutation, or firewall rule is approved by those documents.
 
+The mutual-TLS stream boundary is implemented but is not composed into the application. Its public API always uses operating-system certificate validation, online revocation checking, DNS target validation on the client, required client certificates on the server, and effective-protection checks after the handshake. Exact remote fingerprint authorization happens before a protected stream is returned. Failed or timed-out handshakes close the unusable TLS connection.
+
+The infrastructure integration suite uses a private test CA and temporary keys only. Its custom-root validator, disabled revocation lookup, and fixed TLS version are internal test seams and cannot be selected by production callers.
+
 The local SQLite database is not application-encrypted. It relies on the current Windows account and filesystem permissions, stores no credentials or message bodies, and never synchronizes through Unskip. Destination metadata and sanitized diagnostics can still be sensitive.

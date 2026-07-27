@@ -30,6 +30,10 @@ The future `SslStream` adapter must use operating-system certificate validation 
 
 Production code must not use a callback that returns `true` unconditionally, bypass chain errors, accept name mismatch, downgrade protocol protection, or fall back to an unauthenticated channel.
 
+The implemented stream authenticator takes ownership of an already-connected duplex stream. The public production path uses operating-system protocol selection and online revocation checking. A server handshake requires the client certificate; a client handshake validates the configured DNS target. After the handshake, Unskip still verifies mutual authentication, encryption, signing, and exact fingerprint authorization before exposing the protected stream.
+
+Authentication failure closes the TLS stream and its underlying connection because a partially authenticated connection is not reusable. Cancellation and the bounded handshake timeout also fail closed.
+
 ## Authorization identity
 
 Certificate subjects, common names, friendly names, and organization fields are display metadata. They are not authorization keys.
@@ -58,4 +62,4 @@ Backups and diagnostics must never include private keys. Real subjects, fingerpr
 
 ## Development tests
 
-Unit tests use fictitious byte sequences only. A later `SslStream` integration test may create ephemeral test certificates entirely in memory and must remain isolated from production validation callbacks and the Windows trust store.
+Unit tests use fictitious identities and create a private ephemeral CA for real `SslStream` handshakes over local named pipes. On Windows, Schannel cannot use purely ephemeral private-key handles, so leaf certificates are re-imported into temporary per-user key containers for the lifetime of each test and deleted on disposal. They are never added to the certificate trust store. The test-only custom-root validator and relaxed revocation setting are internal and unavailable through the production constructor.

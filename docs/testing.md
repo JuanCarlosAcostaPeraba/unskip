@@ -35,6 +35,10 @@ dotnet test tests/Unskip.Infrastructure.Windows.Tests `
 
 Use only a fictitious or dedicated test target that you own or are authorized to contact. Unset both variables after testing. The normal `dotnet test Unskip.sln` command discovers this test as skipped and remains local-only.
 
+## Mutual-TLS infrastructure tests
+
+The mutual-TLS infrastructure tests perform real client/server `SslStream` handshakes over local named pipes. They use a private ephemeral test CA, fictitious subjects, temporary per-user Schannel key containers, custom trust held only by the test process, and no Windows trust-store mutation. The suite verifies encrypted transfer plus unauthorized fingerprint, DNS-name, missing-client-certificate, and expired-certificate rejection. It never binds a TCP port.
+
 ## Continuous integration
 
 GitHub Actions restores, verifies formatting and analyzers, builds Release, runs the deterministic suite on Windows, audits vulnerable NuGet dependencies, and uploads TRX and coverage results. Pull requests also receive GitHub dependency review. Dependabot checks NuGet and GitHub Actions dependencies weekly.

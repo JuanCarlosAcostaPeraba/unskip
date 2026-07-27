@@ -1,4 +1,5 @@
 using System.Windows;
+using Unskip.App.Localization;
 
 namespace Unskip.App.Services;
 
@@ -6,15 +7,15 @@ public sealed class MessageBoxHistoryDeletionConfirmation : IHistoryDeletionConf
 {
     public Task<bool> ConfirmDeleteAsync(string destinationAlias) => Task.FromResult(
         MessageBox.Show(
-            $"Delete the local history entry for {destinationAlias}?",
-            "Delete history entry",
+            UiText.Format("DeleteHistoryEntryConfirmation", destinationAlias),
+            UiText.Get("DeleteHistoryEntryTitle"),
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning) == MessageBoxResult.Yes);
 
     public Task<bool> ConfirmClearAsync(int count) => Task.FromResult(
         MessageBox.Show(
-            $"Delete all {count} local history entries? This cannot be undone.",
-            "Clear local history",
+            UiText.Format("ClearHistoryConfirmation", count),
+            UiText.Get("ClearHistoryTitle"),
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning) == MessageBoxResult.Yes);
 }

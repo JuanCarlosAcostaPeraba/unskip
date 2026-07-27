@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Unskip.App.Commands;
+using Unskip.App.Localization;
 using Unskip.App.Services;
 using Unskip.Core.Devices;
 using Unskip.Core.Messaging;
@@ -21,14 +22,14 @@ public sealed class MessageComposerViewModel : ObservableObject
     private string _destinationKindLabel = string.Empty;
     private string _message = string.Empty;
     private string? _messageError;
-    private string _resultMessage = "Write a message when you are ready.";
+    private string _resultMessage = UiText.Get("MessageReady");
     private string? _statusLabel;
     private string? _technicalDetails;
     private bool _isSending;
     private bool _isTechnicalDetailsExpanded;
     private bool _canRetry;
     private bool _isPreviewing;
-    private string _previewStatus = "Local preview only. Nothing will be sent.";
+    private string _previewStatus = UiText.Get("PreviewLocalOnly");
 
     public MessageComposerViewModel(
         IMessageSender sender,
@@ -216,14 +217,26 @@ public sealed class MessageComposerViewModel : ObservableObject
         DestinationAlias = destination.Alias;
         Destination = destination.Destination;
         DestinationKindLabel = destination.DestinationKind == DeviceDestinationKind.Ipv4
-            ? "IPv4 address"
-            : "Computer name";
+            ? UiText.Get("Ipv4Address")
+            : UiText.Get("ComputerName");
         DeviceId = destination.DeviceId;
         _destinationKind = destination.DestinationKind;
         _computerName = destination.ComputerName;
         _ipv4Address = destination.Ipv4Address;
         ClearResult();
         MessageError = null;
+        NotifyCommandStates();
+    }
+
+    public void ClearPreparation()
+    {
+        DestinationAlias = string.Empty;
+        Destination = string.Empty;
+        DestinationKindLabel = string.Empty;
+        DeviceId = null;
+        _computerName = null;
+        _ipv4Address = null;
+        ClearResult();
         NotifyCommandStates();
     }
 
@@ -247,8 +260,8 @@ public sealed class MessageComposerViewModel : ObservableObject
 
         IsSending = true;
         CanRetry = false;
-        StatusLabel = "Sending";
-        ResultMessage = $"Asking Windows to send the message to {Destination}.";
+        StatusLabel = UiText.Get("DeliverySending");
+        ResultMessage = UiText.Format("DeliveryRequesting", Destination);
         TechnicalDetails = null;
         IsTechnicalDetailsExpanded = false;
 
@@ -260,8 +273,8 @@ public sealed class MessageComposerViewModel : ObservableObject
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusLabel = "Failed";
-            ResultMessage = "Unskip could not complete the Windows messaging request. You can retry without re-entering the message.";
+            StatusLabel = UiText.Get("DeliveryFailed");
+            ResultMessage = UiText.Get("DeliveryUnexpectedFailure");
             TechnicalDetails = $"Unexpected application error: {exception.GetType().Name}";
             CanRetry = true;
             await RecordAsync(new MessageSendResult(
@@ -285,20 +298,20 @@ public sealed class MessageComposerViewModel : ObservableObject
         if (validationError is not null)
         {
             MessageError = validationError;
-            PreviewStatus = "Enter a valid message before opening the local preview.";
+            PreviewStatus = UiText.Get("PreviewEnterValidMessage");
             return;
         }
 
         IsPreviewing = true;
-        PreviewStatus = "Opening a local preview. Nothing is being sent.";
+        PreviewStatus = UiText.Get("PreviewOpening");
         try
         {
             await _urgentAttentionPreview.ShowAsync(Message).ConfigureAwait(true);
-            PreviewStatus = "Local preview closed. Nothing was sent.";
+            PreviewStatus = UiText.Get("PreviewClosed");
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            PreviewStatus = $"The local preview could not open ({exception.GetType().Name}).";
+            PreviewStatus = UiText.Format("PreviewOpenFailed", exception.GetType().Name);
         }
         finally
         {
@@ -308,16 +321,30 @@ public sealed class MessageComposerViewModel : ObservableObject
 
     private string? GetMessageValidationError()
     {
+        if (string.IsNullOrWhiteSpace(Message))
+        {
+            return UiText.Get("MessageRequired");
+        }
+
+        if (Message.Length > MessagePolicy.MaximumMessageLength)
+        {
+            return UiText.Format("MessageTooLong", MessagePolicy.MaximumMessageLength);
+        }
+
         var validation = MessageRequestValidator.Validate(new MessageRequest(Destination, Message));
-        return validation.Errors.FirstOrDefault(error => error.Field == "Message")?.Message;
+        return validation.Errors.Any(error => error.Field == "Message")
+            ? UiText.Get("MessageInvalidCharacters")
+            : null;
     }
 
     private void ApplyValidation(MessageValidationResult validation)
     {
         var messageError = validation.Errors.FirstOrDefault(error => error.Field == "Message");
-        MessageError = messageError?.Message;
-        StatusLabel = "Rejected";
-        ResultMessage = validation.Errors[0].Message;
+        MessageError = messageError is null ? null : GetMessageValidationError();
+        StatusLabel = UiText.Get("DeliveryRejected");
+        ResultMessage = messageError is not null
+            ? GetMessageValidationError() ?? UiText.Get("DeliveryRejectedMessage")
+            : UiText.Get("DeliveryRejectedMessage");
         TechnicalDetails = null;
         IsTechnicalDetailsExpanded = false;
         CanRetry = false;
@@ -327,15 +354,24 @@ public sealed class MessageComposerViewModel : ObservableObject
     {
         StatusLabel = result.Status switch
         {
-            MessageDeliveryStatus.Sending => "Sending",
-            MessageDeliveryStatus.Sent => "Sent",
-            MessageDeliveryStatus.Rejected => "Rejected",
-            MessageDeliveryStatus.TimedOut => "Timed out",
-            MessageDeliveryStatus.Cancelled => "Cancelled",
-            MessageDeliveryStatus.Failed => "Failed",
+            MessageDeliveryStatus.Sending => UiText.Get("DeliverySending"),
+            MessageDeliveryStatus.Sent => UiText.Get("DeliverySent"),
+            MessageDeliveryStatus.Rejected => UiText.Get("DeliveryRejected"),
+            MessageDeliveryStatus.TimedOut => UiText.Get("DeliveryTimedOut"),
+            MessageDeliveryStatus.Cancelled => UiText.Get("DeliveryCancelled"),
+            MessageDeliveryStatus.Failed => UiText.Get("DeliveryFailed"),
             _ => throw new ArgumentOutOfRangeException(nameof(result), result.Status, null),
         };
-        ResultMessage = result.UserMessage;
+        ResultMessage = result.Status switch
+        {
+            MessageDeliveryStatus.Sending => UiText.Get("DeliverySendingMessage"),
+            MessageDeliveryStatus.Sent => UiText.Get("DeliverySentMessage"),
+            MessageDeliveryStatus.Rejected => UiText.Get("DeliveryRejectedMessage"),
+            MessageDeliveryStatus.TimedOut => UiText.Get("DeliveryTimedOutMessage"),
+            MessageDeliveryStatus.Cancelled => UiText.Get("DeliveryCancelledMessage"),
+            MessageDeliveryStatus.Failed => UiText.Get("DeliveryFailedMessage"),
+            _ => throw new ArgumentOutOfRangeException(nameof(result), result.Status, null),
+        };
         TechnicalDetails = BuildTechnicalDetails(result);
         IsTechnicalDetailsExpanded = false;
         CanRetry = result.Status is MessageDeliveryStatus.Failed or MessageDeliveryStatus.TimedOut;
@@ -365,7 +401,7 @@ public sealed class MessageComposerViewModel : ObservableObject
     private void ClearResult()
     {
         StatusLabel = null;
-        ResultMessage = "Write a message when you are ready.";
+        ResultMessage = UiText.Get("MessageReady");
         TechnicalDetails = null;
         IsTechnicalDetailsExpanded = false;
         CanRetry = false;
@@ -392,7 +428,7 @@ public sealed class MessageComposerViewModel : ObservableObject
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            ResultMessage += " The result could not be added to local history.";
+            ResultMessage += $" {UiText.Get("HistoryRecordFailed")}";
         }
     }
 

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Unskip.App.Commands;
+using Unskip.App.Localization;
 using Unskip.App.Services;
 using Unskip.Core.Messaging;
 using Unskip.Core.Messaging.History;
@@ -21,10 +22,11 @@ public sealed class SendHistoryViewModel : ObservableObject
         _confirmation = confirmation ?? throw new ArgumentNullException(nameof(confirmation));
         Filters =
         [
-            new("All", null), new("Sent", MessageDeliveryStatus.Sent),
-            new("Rejected", MessageDeliveryStatus.Rejected),
-            new("Timed out", MessageDeliveryStatus.TimedOut),
-            new("Failed", MessageDeliveryStatus.Failed),
+            new(UiText.Get("HistoryFilterAll"), null),
+            new(UiText.Get("DeliverySent"), MessageDeliveryStatus.Sent),
+            new(UiText.Get("DeliveryRejected"), MessageDeliveryStatus.Rejected),
+            new(UiText.Get("DeliveryTimedOut"), MessageDeliveryStatus.TimedOut),
+            new(UiText.Get("DeliveryFailed"), MessageDeliveryStatus.Failed),
         ];
         _selectedFilter = Filters[0];
         RetryCommand = new RelayCommand(_ => Retry(), _ => SelectedEntry is not null);
@@ -43,7 +45,9 @@ public sealed class SendHistoryViewModel : ObservableObject
     public string? SearchText { get => _searchText; set { if (SetProperty(ref _searchText, value)) { ApplyFilter(); } } }
     public HistoryFilterOption SelectedFilter { get => _selectedFilter; set { if (SetProperty(ref _selectedFilter, value)) { ApplyFilter(); } } }
     public SendHistoryListItemViewModel? SelectedEntry { get => _selectedEntry; set { if (SetProperty(ref _selectedEntry, value)) { NotifyCommands(); } } }
-    public string CountLabel => _all.Count == 1 ? "1 local entry" : $"{_all.Count} local entries";
+    public string CountLabel => _all.Count == 1
+        ? UiText.Get("HistoryOneEntry")
+        : UiText.Format("HistoryEntryCount", _all.Count);
 
     public async Task ReloadAsync()
     {

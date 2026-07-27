@@ -50,6 +50,29 @@ dotnet run --project src/Unskip.App/Unskip.App.csproj --configuration Release
 
 These terminal commands are for contributors and source evaluation only. The application itself never invokes PowerShell, `cmd.exe`, or another shell.
 
+## Choose the interface language
+
+Unskip supports English and Spanish. On the first run it follows the Windows interface language when that language is supported; otherwise it uses English.
+
+Use the compact **EN** and **ES** controls in the sidebar to change the language. Unskip asks for confirmation because it must restart to update every open screen and dialog. Finish or copy any current message draft before confirming: drafts are not persisted.
+
+The selected language is stored locally in `%LOCALAPPDATA%\Unskip\language.txt`. It is retained across upgrades and uninstall together with the other local Unskip data. If the file is missing, unreadable, or contains an unsupported value, Unskip safely falls back to the Windows language or English.
+
+## Run in the background and use quick send
+
+Unskip remains available in the Windows notification area after you close its main window. Closing either the main window or the quick-send panel hides that window; it does not end the resident process.
+
+Use the Unskip notification-area icon to:
+
+- left-click **Unskip** to open the compact quick-send panel;
+- choose **Quick send** to open the same reusable panel;
+- choose **Open Unskip** to restore and activate the full application;
+- choose **Exit Unskip** when you want to end the resident process completely.
+
+The quick-send panel can select a saved device or validate a one-time computer name or canonical IPv4 address. It always shows the resolved technical destination before enabling the same explicit send action used by the full application. Failed and timed-out attempts retain the draft for retry. Closing and reopening the panel also retains its current local draft while the process remains running.
+
+Unskip does not start automatically with Windows and does not add registry entries or startup tasks. It also shows no pending-message badge: the current native Windows transport has no receiver-side queue or trustworthy pending state.
+
 ## Before the first message
 
 The sending computer needs:
@@ -87,9 +110,9 @@ The send button is disabled while a request is active. A failed or timed-out req
 
 ### Preview the urgent-attention design locally
 
-Choose **Preview locally** in the message composer to inspect how the current validated draft would look in the proposed full-screen presentation on this computer. It does not contact the selected destination, write the draft to history or another local store, or prove that anyone read anything. Empty, oversized, and otherwise invalid drafts keep the preview action disabled.
+Choose **Preview** in the message composer to inspect how the current validated draft would look in the proposed full-screen presentation on this computer. It does not contact the selected destination, write the draft to history or another local store, or prove that anyone read anything. Empty, oversized, and otherwise invalid drafts keep the preview action disabled.
 
-The preview dims the complete Windows virtual screen and keeps its message card wholly on the primary monitor so it is not split between displays. Close it with the fixed **Close message** button, Escape, Alt+F4, or wait for the one-minute safety timeout. A display-topology change also closes it safely. Remote transport, recipient installation, firewall configuration, background startup, and policy-controlled deployment are deliberately outside this prototype.
+The preview dims the complete Windows virtual screen and keeps its message-first card wholly on the primary monitor so it is not split between displays. The card contains only the local source status, the large message, and the fixed **Close message** button. Escape, Alt+F4, and the one-minute safety timeout remain available. A display-topology change also closes it safely. Remote transport, recipient installation, firewall configuration, background startup, and policy-controlled deployment are deliberately outside this prototype.
 
 ## Saved devices
 
@@ -136,7 +159,7 @@ The current Windows user's data is stored in:
 %LOCALAPPDATA%\Unskip\
 ```
 
-The folder contains `unskip.db` and may contain SQLite `-wal` or `-shm` sidecar files. It can include aliases, destinations, descriptions, timestamps, favorites, result metadata, and sanitized diagnostics. It contains no message bodies or credentials, but destination information may still be sensitive.
+The folder contains `unskip.db`, the `language.txt` interface preference, and may contain SQLite `-wal` or `-shm` sidecar files. It can include aliases, destinations, descriptions, timestamps, favorites, result metadata, and sanitized diagnostics. It contains no message bodies or credentials, but destination information may still be sensitive.
 
 To back up or restore data:
 

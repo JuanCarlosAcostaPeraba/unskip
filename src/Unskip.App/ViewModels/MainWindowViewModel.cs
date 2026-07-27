@@ -1,4 +1,5 @@
 using Unskip.App.Commands;
+using Unskip.App.Localization;
 using Unskip.App.Services;
 using Unskip.Core;
 using Unskip.Core.Links;
@@ -22,10 +23,12 @@ public sealed class MainWindowViewModel : ObservableObject
         ApplicationUpdateViewModel applicationUpdate,
         IExternalUriLauncher externalUriLauncher,
         IUrgentAttentionPreviewService urgentAttentionPreview,
+        LanguageSettingsViewModel languageSettings,
         string versionLabel)
     {
         DeviceDirectory = deviceDirectory ?? throw new ArgumentNullException(nameof(deviceDirectory));
         Updates = applicationUpdate ?? throw new ArgumentNullException(nameof(applicationUpdate));
+        Language = languageSettings ?? throw new ArgumentNullException(nameof(languageSettings));
         _externalUriLauncher = externalUriLauncher ?? throw new ArgumentNullException(nameof(externalUriLauncher));
         ArgumentException.ThrowIfNullOrWhiteSpace(versionLabel);
         VersionLabel = versionLabel;
@@ -39,6 +42,8 @@ public sealed class MainWindowViewModel : ObservableObject
             _ => Show(Workspace.Composer),
             _ => !string.IsNullOrWhiteSpace(Composer.Destination) && !Composer.IsSending);
         ShowHistoryCommand = new AsyncRelayCommand(_ => ShowHistoryAsync(), _ => !Composer.IsSending);
+        OpenQuickSendCommand = new RelayCommand(
+            _ => QuickSendRequested?.Invoke(this, EventArgs.Empty));
         OpenDeveloperPortfolioCommand = new RelayCommand(_ => OpenDeveloperPortfolio());
         DeviceDirectory.MessagePreparationRequested += (_, destination) => PrepareComposer(destination, false);
         Composer.BackRequested += (_, _) => Show(Workspace.Devices);
@@ -46,8 +51,11 @@ public sealed class MainWindowViewModel : ObservableObject
     }
 
     public string ProductName { get; } = ProductIdentity.Name;
-    public string Tagline { get; } = ProductIdentity.Tagline;
-    public string AffiliationNotice { get; } = ProductIdentity.AffiliationNotice;
+
+    public event EventHandler? QuickSendRequested;
+
+    public string Tagline { get; } = UiText.Get("LocalMessaging");
+    public string AffiliationNotice { get; } = UiText.Get("AffiliationNotice");
     public string DeveloperName { get; } = "Juan Carlos Acosta Perabá";
     public string DeveloperPortfolioUrl { get; } = DeveloperPortfolioUri.AbsoluteUri;
     public string DeveloperLinkStatus
@@ -57,28 +65,35 @@ public sealed class MainWindowViewModel : ObservableObject
     }
 
     public string VersionLabel { get; }
-    public string CurrentSection => _workspace switch { Workspace.Composer => "Send", Workspace.History => "History", _ => "Devices" };
+    public string CurrentSection => _workspace switch
+    {
+        Workspace.Composer => UiText.Get("SectionSend"),
+        Workspace.History => UiText.Get("SectionHistory"),
+        _ => UiText.Get("SectionDevices"),
+    };
     public string SectionDescription => _workspace switch
     {
-        Workspace.Composer => "Compose a native Windows LAN message and review the real technical destination.",
-        Workspace.History => "Review local send attempts without storing message bodies or claiming acknowledgement.",
-        _ => "Choose a saved device or prepare a one-time destination.",
+        Workspace.Composer => UiText.Get("SectionSendDescription"),
+        Workspace.History => UiText.Get("SectionHistoryDescription"),
+        _ => UiText.Get("SectionDevicesDescription"),
     };
 
     public IReadOnlyList<NavigationItemViewModel> NavigationItems =>
     [
-        new("Send", "↗", IsComposerVisible, null, ShowComposerCommand),
-        new("Devices", "◫", IsDevicesVisible, null, ShowDevicesCommand),
-        new("History", "◷", IsHistoryVisible, null, ShowHistoryCommand),
+        new(UiText.Get("SectionSend"), "↗", IsComposerVisible, null, ShowComposerCommand),
+        new(UiText.Get("SectionDevices"), "◫", IsDevicesVisible, null, ShowDevicesCommand),
+        new(UiText.Get("SectionHistory"), "◷", IsHistoryVisible, null, ShowHistoryCommand),
     ];
 
     public DeviceDirectoryViewModel DeviceDirectory { get; }
     public MessageComposerViewModel Composer { get; }
     public SendHistoryViewModel History { get; }
     public ApplicationUpdateViewModel Updates { get; }
+    public LanguageSettingsViewModel Language { get; }
     public RelayCommand ShowDevicesCommand { get; }
     public RelayCommand ShowComposerCommand { get; }
     public AsyncRelayCommand ShowHistoryCommand { get; }
+    public RelayCommand OpenQuickSendCommand { get; }
     public RelayCommand OpenDeveloperPortfolioCommand { get; }
     public bool IsDevicesVisible => _workspace == Workspace.Devices;
     public bool IsComposerVisible => _workspace == Workspace.Composer;
@@ -112,7 +127,7 @@ public sealed class MainWindowViewModel : ObservableObject
     {
         DeveloperLinkStatus = _externalUriLauncher.TryOpen(DeveloperPortfolioUri)
             ? string.Empty
-            : "Couldn't open the portfolio. Visit jcap.tech in your browser.";
+            : UiText.Get("PortfolioOpenFailed");
     }
 
     private void Show(Workspace workspace)

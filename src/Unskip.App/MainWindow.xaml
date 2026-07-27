@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="clr-namespace:Unskip.App.ViewModels"
-        xmlns:views="clr-namespace:Unskip.App.Views"
-        xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
+         xmlns:viewModels="clr-namespace:Unskip.App.ViewModels"
+         xmlns:views="clr-namespace:Unskip.App.Views"
+         xmlns:l10n="clr-namespace:Unskip.App.Localization"
+         xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
         mc:Ignorable="d"
         Title="{Binding CurrentSection, StringFormat=Unskip · {0}}"
         Width="1320"
@@ -191,14 +192,14 @@
 
   <Grid>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="232" />
+      <ColumnDefinition Width="214" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
 
-    <Border Background="{DynamicResource SidebarBrush}" Padding="24,28">
+    <Border Background="{DynamicResource SidebarBrush}" Padding="20,24">
       <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
-          <Grid Margin="0,0,0,38">
+          <Grid Margin="0,0,0,30">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="42" />
               <ColumnDefinition Width="*" />
@@ -209,11 +210,11 @@
                      Width="36"
                      Height="36"
                      Stretch="Uniform"
-                     automation:AutomationProperties.Name="Unskip logo" />
+                     automation:AutomationProperties.Name="{l10n:Localize UnskipLogoAutomation}" />
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
               <TextBlock Text="{Binding ProductName}" Foreground="White" FontSize="20" FontWeight="SemiBold" />
-              <TextBlock Text="Local messaging" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="11" />
+              <TextBlock Text="{l10n:Localize LocalMessaging}" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="11" />
             </StackPanel>
           </Grid>
 
@@ -255,27 +256,60 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+          <Button Margin="0,6,0,0"
+                  Padding="12,10"
+                  HorizontalContentAlignment="Left"
+                  Content="{l10n:Localize QuickHeading}"
+                  Command="{Binding OpenQuickSendCommand}"
+                  Style="{StaticResource SecondaryButtonStyle}"
+                  automation:AutomationProperties.Name="{l10n:Localize QuickWindowAutomation}" />
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom">
-          <Border Padding="12" Background="#18383C" CornerRadius="10">
-            <StackPanel>
-              <TextBlock Text="LOCAL ONLY" Foreground="#5ED4CA" FontSize="10" FontWeight="Bold" />
-              <TextBlock Margin="0,5,0,0" Text="No cloud · No telemetry" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="11" />
-            </StackPanel>
-          </Border>
+          <TextBlock Margin="2,0,2,6"
+                     Text="{l10n:Localize Language}"
+                     Foreground="{DynamicResource SidebarMutedBrush}"
+                     FontSize="10"
+                     FontWeight="SemiBold" />
+          <StackPanel Orientation="Horizontal">
+            <Button MinWidth="52"
+                    Padding="8,5"
+                    Content="EN"
+                    Command="{Binding Language.ChangeLanguageCommand}"
+                    CommandParameter="en"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    automation:AutomationProperties.Name="{l10n:Localize LanguageEnglishAutomation}" />
+            <Button MinWidth="52"
+                    Margin="8,0,0,0"
+                    Padding="8,5"
+                    Content="ES"
+                    Command="{Binding Language.ChangeLanguageCommand}"
+                    CommandParameter="es"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    automation:AutomationProperties.Name="{l10n:Localize LanguageSpanishAutomation}" />
+          </StackPanel>
+          <TextBlock Margin="2,6,2,10"
+                     Text="{Binding Language.StatusMessage}"
+                     Foreground="{DynamicResource SidebarMutedBrush}"
+                     FontSize="10"
+                     TextWrapping="Wrap" />
+          <TextBlock Margin="2,0,2,0"
+                     Text="{l10n:Localize LocalOnly}"
+                     Foreground="#5ED4CA"
+                     FontSize="10"
+                     FontWeight="Bold" />
           <TextBlock Margin="2,14,2,0" Text="{Binding AffiliationNotice}"
                      Foreground="#718D8F" FontSize="10" TextWrapping="Wrap" />
           <TextBlock Margin="2,10,2,0"
                      Foreground="#718D8F"
                      FontSize="10"
                      TextWrapping="Wrap">
-            <Run Text="Developed by " />
+            <Run Text="{l10n:Localize DevelopedBy}" />
             <Hyperlink x:Name="DeveloperPortfolioLink"
                        Command="{Binding OpenDeveloperPortfolioCommand}"
                        Foreground="#5ED4CA"
                        ToolTip="{Binding DeveloperPortfolioUrl}"
-                       automation:AutomationProperties.Name="Open Juan Carlos Acosta Perabá portfolio">
+                       automation:AutomationProperties.Name="{l10n:Localize PortfolioAutomation}">
               <Run Text="{Binding DeveloperName, Mode=OneWay}" />
             </Hyperlink>
           </TextBlock>
@@ -286,13 +320,13 @@
                      TextWrapping="Wrap" />
           <TextBlock Margin="2,8,2,0" Text="{Binding VersionLabel}"
                      Foreground="#718D8F" FontSize="10"
-                     automation:AutomationProperties.Name="Application version" />
+                     automation:AutomationProperties.Name="{l10n:Localize ApplicationVersionAutomation}" />
           <Button Margin="0,10,0,0"
                   Padding="10,7"
-                  Content="Check for updates"
+                  Content="{l10n:Localize CheckForUpdates}"
                   Command="{Binding Updates.CheckForUpdatesCommand}"
                   Style="{StaticResource SecondaryButtonStyle}"
-                  automation:AutomationProperties.Name="Check for application updates" />
+                  automation:AutomationProperties.Name="{l10n:Localize CheckForUpdatesAutomation}" />
           <TextBlock Margin="2,8,2,0"
                      Text="{Binding Updates.StatusMessage}"
                      Foreground="{DynamicResource SidebarMutedBrush}"
@@ -304,7 +338,7 @@
                        Maximum="100"
                        Value="{Binding Updates.DownloadProgress, Mode=OneWay}"
                        Visibility="{Binding Updates.IsProgressVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                       automation:AutomationProperties.Name="Update download progress" />
+                       automation:AutomationProperties.Name="{l10n:Localize UpdateDownloadProgressAutomation}" />
           <TextBlock Margin="2,4,2,0"
                      Text="{Binding Updates.DownloadProgressLabel}"
                      Foreground="{DynamicResource SidebarMutedBrush}"
@@ -313,54 +347,53 @@
                      Visibility="{Binding Updates.IsProgressVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
           <Button Margin="0,8,0,0"
                   Padding="10,7"
-                  Content="Download update"
+                  Content="{l10n:Localize DownloadUpdate}"
                   Command="{Binding Updates.DownloadUpdateCommand}"
                   Style="{StaticResource SecondaryButtonStyle}"
                   Visibility="{Binding Updates.IsDownloadVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                  automation:AutomationProperties.Name="Download available update" />
+                  automation:AutomationProperties.Name="{l10n:Localize DownloadAvailableUpdateAutomation}" />
           <Button Margin="0,8,0,0"
                   Padding="10,7"
-                  Content="Install update"
+                  Content="{l10n:Localize InstallUpdate}"
                   Command="{Binding Updates.InstallUpdateCommand}"
                   Style="{StaticResource SecondaryButtonStyle}"
                   Visibility="{Binding Updates.IsInstallVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                  automation:AutomationProperties.Name="Install verified update" />
+                  automation:AutomationProperties.Name="{l10n:Localize InstallVerifiedUpdateAutomation}" />
         </StackPanel>
       </DockPanel>
     </Border>
 
-    <Grid Grid.Column="1" Margin="34,26,34,22">
+    <Grid Grid.Column="1" Margin="28,24,28,20">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <Grid Margin="2,0,2,22">
+      <Grid Margin="2,0,2,18">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel>
-          <TextBlock Text="{Binding CurrentSection}" Foreground="{DynamicResource TextPrimaryBrush}"
-                     FontSize="31" FontWeight="SemiBold" />
-          <TextBlock Margin="0,5,0,0" Text="{Binding SectionDescription}"
-                     Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" />
-        </StackPanel>
-        <Button Grid.Column="1" Content="＋  Add device"
+        <TextBlock Text="{Binding CurrentSection}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
+                   FontSize="29"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="{l10n:Localize AddDevice}"
                 Command="{Binding DeviceDirectory.NewDeviceCommand}"
                 Visibility="{Binding IsDevicesVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                automation:AutomationProperties.Name="Add a saved device">
+                automation:AutomationProperties.Name="{l10n:Localize AddDeviceAutomation}">
           <Button.Style>
             <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
             </Style>
           </Button.Style>
         </Button>
-        <Button Grid.Column="1" Content="←  Change destination"
+        <Button Grid.Column="1" Content="{l10n:Localize ChangeDestination}"
                 Command="{Binding Composer.BackCommand}"
                 Style="{StaticResource SecondaryButtonStyle}"
                 Visibility="{Binding IsComposerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                automation:AutomationProperties.Name="Return to device selection" />
+                automation:AutomationProperties.Name="{l10n:Localize ChangeDestinationAutomation}" />
       </Grid>
 
       <Grid Grid.Row="1" Visibility="{Binding IsDevicesVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -384,22 +417,22 @@
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <StackPanel>
-                <TextBlock Text="Saved devices" Foreground="{DynamicResource TextPrimaryBrush}"
+                <TextBlock Text="{l10n:Localize SavedDevices}" Foreground="{DynamicResource TextPrimaryBrush}"
                            FontSize="18" FontWeight="SemiBold" />
                 <TextBlock Text="{Binding DeviceDirectory.FilterResultLabel}"
                            Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" />
               </StackPanel>
               <Border Grid.Column="1" Padding="9,5" Background="{DynamicResource AccentSoftBrush}" CornerRadius="9">
-                <TextBlock Text="Favorites first" Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" FontWeight="SemiBold" />
+                <TextBlock Text="{l10n:Localize FavoritesFirst}" Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" FontWeight="SemiBold" />
               </Border>
             </Grid>
 
             <Grid Grid.Row="1" Margin="0,18,0,16">
               <TextBox Text="{Binding DeviceDirectory.SearchText, UpdateSourceTrigger=PropertyChanged}"
                        Style="{StaticResource FieldTextBoxStyle}"
-                       automation:AutomationProperties.Name="Search saved devices"
-                       ToolTip="Search alias, computer name, IPv4 address, or description" />
-              <TextBlock Margin="13,0,0,0" Text="Search alias, computer, IPv4 or description"
+                       automation:AutomationProperties.Name="{l10n:Localize SearchSavedDevicesAutomation}"
+                       ToolTip="{l10n:Localize SearchSavedDevicesTooltip}" />
+              <TextBlock Margin="13,0,0,0" Text="{l10n:Localize SearchSavedDevicesPlaceholder}"
                          Foreground="{DynamicResource TextSecondaryBrush}" IsHitTestVisible="False"
                          VerticalAlignment="Center">
                 <TextBlock.Style>
@@ -425,7 +458,7 @@
                      Background="Transparent"
                      BorderThickness="0"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     automation:AutomationProperties.Name="Saved devices">
+                     automation:AutomationProperties.Name="{l10n:Localize SavedDevices}">
               <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type viewModels:DeviceListItemViewModel}">
                   <Grid>
@@ -448,7 +481,7 @@
                             Command="{Binding DataContext.DeviceDirectory.ToggleFavoriteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                             CommandParameter="{Binding}"
                             Style="{StaticResource SecondaryButtonStyle}"
-                            automation:AutomationProperties.Name="Toggle favorite" />
+                            automation:AutomationProperties.Name="{l10n:Localize ToggleFavoriteAutomation}" />
                   </Grid>
                 </DataTemplate>
               </ListBox.ItemTemplate>
@@ -465,9 +498,9 @@
 
           <Border Style="{StaticResource CardStyle}" Padding="20">
             <StackPanel>
-              <TextBlock Text="One-time destination" Foreground="{DynamicResource TextPrimaryBrush}"
+              <TextBlock Text="{l10n:Localize OneTimeDestination}" Foreground="{DynamicResource TextPrimaryBrush}"
                          FontSize="16" FontWeight="SemiBold" />
-              <TextBlock Margin="0,4,0,12" Text="Use a computer name or IPv4 address without saving it."
+              <TextBlock Margin="0,4,0,12" Text="{l10n:Localize OneTimeDestinationHelp}"
                          Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
               <Grid>
                 <Grid.ColumnDefinitions>
@@ -477,8 +510,8 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding DeviceDirectory.ManualDestination, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource FieldTextBoxStyle}"
-                         automation:AutomationProperties.Name="One-time computer name or IPv4 address" />
-                <Button Grid.Column="2" Content="Use"
+                         automation:AutomationProperties.Name="{l10n:Localize OneTimeDestinationAutomation}" />
+                <Button Grid.Column="2" Content="{l10n:Localize Use}"
                         Command="{Binding DeviceDirectory.UseManualDestinationCommand}"
                         Style="{StaticResource PrimaryButtonStyle}" />
               </Grid>
@@ -497,7 +530,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel>
-                  <TextBlock Text="Resolved destination" Foreground="{DynamicResource TextSecondaryBrush}"
+                  <TextBlock Text="{l10n:Localize ResolvedDestination}" Foreground="{DynamicResource TextSecondaryBrush}"
                              FontSize="11" FontWeight="Bold" />
                   <TextBlock Margin="0,7,0,0" Text="{Binding DeviceDirectory.PreparedAlias}"
                              Foreground="{DynamicResource TextPrimaryBrush}" FontSize="23" FontWeight="SemiBold" />
@@ -511,30 +544,30 @@
 
                 <StackPanel Grid.Row="2">
                   <StackPanel Visibility="{Binding DeviceDirectory.HasSelectedDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBlock Text="Saved details" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
+                    <TextBlock Text="{l10n:Localize SavedDetails}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
                     <TextBlock Margin="0,10,0,0" Text="{Binding DeviceDirectory.SelectedDevice.Description}"
                                Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
                     <TextBlock Margin="0,14,0,0" Foreground="{DynamicResource TextSecondaryBrush}">
-                      <Run Text="Preferred: " /><Run Text="{Binding DeviceDirectory.SelectedDevice.PreferredDestinationLabel, Mode=OneWay}" FontWeight="SemiBold" />
+                      <Run Text="{l10n:Localize Preferred}" /><Run Text="{Binding DeviceDirectory.SelectedDevice.PreferredDestinationLabel, Mode=OneWay}" FontWeight="SemiBold" />
                     </TextBlock>
                     <StackPanel Margin="0,18,0,0" Orientation="Horizontal">
-                      <Button Content="Edit" Command="{Binding DeviceDirectory.EditDeviceCommand}"
+                      <Button Content="{l10n:Localize Edit}" Command="{Binding DeviceDirectory.EditDeviceCommand}"
                               Style="{StaticResource SecondaryButtonStyle}" />
-                      <Button Margin="10,0,0,0" Content="Delete" Command="{Binding DeviceDirectory.DeleteDeviceCommand}"
+                      <Button Margin="10,0,0,0" Content="{l10n:Localize Delete}" Command="{Binding DeviceDirectory.DeleteDeviceCommand}"
                               Style="{StaticResource DangerButtonStyle}" />
                     </StackPanel>
                   </StackPanel>
 
                   <StackPanel Visibility="{Binding DeviceDirectory.IsManualPrepared, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBlock Text="Unsaved destination" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
-                    <TextBlock Margin="0,8,0,0" Text="You can use this once or turn it into a saved device."
+                    <TextBlock Text="{l10n:Localize UnsavedDestination}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,8,0,0" Text="{l10n:Localize ManualDestinationHelp}"
                                Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
-                    <Button Margin="0,16,0,0" HorizontalAlignment="Left" Content="Save as device"
+                    <Button Margin="0,16,0,0" HorizontalAlignment="Left" Content="{l10n:Localize SaveAsDevice}"
                             Command="{Binding DeviceDirectory.SaveManualDestinationCommand}"
                             Style="{StaticResource SecondaryButtonStyle}" />
                   </StackPanel>
 
-                  <TextBlock Text="Select a saved device or enter a one-time destination. The technical target will always appear here before sending."
+                  <TextBlock Text="{l10n:Localize SelectDestinationHelp}"
                              Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap">
                     <TextBlock.Style>
                       <Style TargetType="TextBlock">
@@ -549,10 +582,10 @@
                   </TextBlock>
                 </StackPanel>
 
-                <Button Grid.Row="3" Margin="0,22,0,0" Content="Prepare message  →"
+                <Button Grid.Row="3" Margin="0,22,0,0" Content="{l10n:Localize PrepareMessage}"
                         Command="{Binding DeviceDirectory.PrepareMessageCommand}"
                         Style="{StaticResource PrimaryButtonStyle}"
-                        automation:AutomationProperties.Name="Prepare a message for the resolved destination" />
+                        automation:AutomationProperties.Name="{l10n:Localize PrepareMessageAutomation}" />
               </Grid>
 
               <Border Background="{DynamicResource SurfaceBrush}">
@@ -570,53 +603,53 @@
                   <StackPanel>
                     <TextBlock Text="{Binding DeviceDirectory.Editor.Title}"
                                Foreground="{DynamicResource TextPrimaryBrush}" FontSize="21" FontWeight="SemiBold" />
-                    <TextBlock Margin="0,4,0,20" Text="Aliases can represent people, rooms, or shared workstations."
+                    <TextBlock Margin="0,4,0,20" Text="{l10n:Localize AliasesHelp}"
                                Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
 
-                    <TextBlock Text="Alias" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Text="{l10n:Localize Alias}" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding DeviceDirectory.Editor.Alias, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldTextBoxStyle}"
-                             automation:AutomationProperties.Name="Device alias" />
+                             automation:AutomationProperties.Name="{l10n:Localize DeviceAliasAutomation}" />
                     <TextBlock Text="{Binding DeviceDirectory.Editor.AliasError}" Style="{StaticResource ErrorTextStyle}" />
 
-                    <TextBlock Margin="0,14,0,6" Text="Computer name" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Margin="0,14,0,6" Text="{l10n:Localize ComputerName}" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding DeviceDirectory.Editor.ComputerName, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldTextBoxStyle}"
-                             automation:AutomationProperties.Name="Windows computer name" />
+                             automation:AutomationProperties.Name="{l10n:Localize WindowsComputerNameAutomation}" />
                     <TextBlock Text="{Binding DeviceDirectory.Editor.ComputerNameError}" Style="{StaticResource ErrorTextStyle}" />
 
-                    <TextBlock Margin="0,14,0,6" Text="IPv4 address" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Margin="0,14,0,6" Text="{l10n:Localize Ipv4Address}" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Text="{Binding DeviceDirectory.Editor.Ipv4Address, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldTextBoxStyle}"
-                             automation:AutomationProperties.Name="IPv4 address" />
+                             automation:AutomationProperties.Name="{l10n:Localize Ipv4Address}" />
                     <TextBlock Text="{Binding DeviceDirectory.Editor.Ipv4AddressError}" Style="{StaticResource ErrorTextStyle}" />
                     <TextBlock Text="{Binding DeviceDirectory.Editor.DestinationError}" Style="{StaticResource ErrorTextStyle}" />
 
-                    <TextBlock Margin="0,14,0,7" Text="Preferred destination" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Margin="0,14,0,7" Text="{l10n:Localize PreferredDestination}" Style="{StaticResource FieldLabelStyle}" />
                     <StackPanel Orientation="Horizontal">
-                      <RadioButton Content="Computer name" GroupName="PreferredDestination"
+                      <RadioButton Content="{l10n:Localize ComputerName}" GroupName="PreferredDestination"
                                    IsChecked="{Binding DeviceDirectory.Editor.PreferHostname}" Foreground="{DynamicResource TextPrimaryBrush}" />
-                      <RadioButton Margin="18,0,0,0" Content="IPv4 address" GroupName="PreferredDestination"
+                      <RadioButton Margin="18,0,0,0" Content="{l10n:Localize Ipv4Address}" GroupName="PreferredDestination"
                                    IsChecked="{Binding DeviceDirectory.Editor.PreferIpv4}" Foreground="{DynamicResource TextPrimaryBrush}" />
                     </StackPanel>
                     <TextBlock Text="{Binding DeviceDirectory.Editor.PreferredDestinationError}" Style="{StaticResource ErrorTextStyle}" />
 
-                    <TextBlock Margin="0,14,0,6" Text="Description" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Margin="0,14,0,6" Text="{l10n:Localize Description}" Style="{StaticResource FieldLabelStyle}" />
                     <TextBox Height="66" AcceptsReturn="True" TextWrapping="Wrap"
                              Text="{Binding DeviceDirectory.Editor.Description, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldTextBoxStyle}"
-                             automation:AutomationProperties.Name="Device description" />
+                             automation:AutomationProperties.Name="{l10n:Localize DeviceDescriptionAutomation}" />
                     <TextBlock Text="{Binding DeviceDirectory.Editor.DescriptionError}" Style="{StaticResource ErrorTextStyle}" />
 
-                    <CheckBox Margin="0,16,0,0" Content="Add to favorites"
+                    <CheckBox Margin="0,16,0,0" Content="{l10n:Localize AddToFavorites}"
                               IsChecked="{Binding DeviceDirectory.Editor.IsFavorite}"
                               Foreground="{DynamicResource TextPrimaryBrush}" />
                     <TextBlock Text="{Binding DeviceDirectory.Editor.GeneralError}" Style="{StaticResource ErrorTextStyle}" />
 
                     <StackPanel Margin="0,22,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
-                      <Button Content="Cancel" Command="{Binding DeviceDirectory.CancelEditCommand}"
+                      <Button Content="{l10n:Localize Cancel}" Command="{Binding DeviceDirectory.CancelEditCommand}"
                               Style="{StaticResource SecondaryButtonStyle}" />
-                      <Button Margin="10,0,0,0" Content="Save device" Command="{Binding DeviceDirectory.SaveDeviceCommand}"
+                      <Button Margin="10,0,0,0" Content="{l10n:Localize SaveDevice}" Command="{Binding DeviceDirectory.SaveDeviceCommand}"
                               Style="{StaticResource PrimaryButtonStyle}" />
                     </StackPanel>
                   </StackPanel>
@@ -660,11 +693,11 @@
           <TextBlock Text="{Binding Composer.ResultMessage}"
                      Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextTrimming="CharacterEllipsis"
                      Visibility="{Binding IsComposerVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
-          <TextBlock Text="History stays only on this Windows account. Message bodies are never stored."
+          <TextBlock Text="{l10n:Localize HistoryLocalPrivacy}"
                      Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                      Visibility="{Binding IsHistoryVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </Grid>
-        <TextBlock Grid.Column="1" Text="Offline by design"
+        <TextBlock Grid.Column="1" Text="{l10n:Localize OfflineByDesign}"
                    Foreground="{DynamicResource AccentDarkBrush}" FontSize="11" FontWeight="SemiBold" />
       </Grid>
     </Grid>

@@ -1,4 +1,5 @@
 using System.Windows;
+using Unskip.App.Localization;
 using Unskip.App.ViewModels;
 using Unskip.App.Views;
 using Unskip.Core.Messaging;
@@ -38,8 +39,7 @@ internal sealed class WpfUrgentAttentionPreviewService(
         cancellationToken.ThrowIfCancellationRequested();
 
         var viewModel = new UrgentAttentionOverlayViewModel(
-            "Local Unskip preview",
-            "Urgent message preview",
+            UiText.Get("LocalPreviewSender"),
             message,
             PreviewTimeout,
             new SystemAsyncDelay());

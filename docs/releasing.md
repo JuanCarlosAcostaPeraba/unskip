@@ -33,14 +33,16 @@ The script resets only repository-owned paths below `artifacts`, publishes the a
 Development is integrated into `dev`. The `main` branch is reserved for releases, and each new commit merged into `main` starts `.github/workflows/release.yml` automatically.
 
 1. Merge completed feature and dependency pull requests into `dev` and confirm CI is green.
-2. Set the intended release version in `Directory.Build.props`. Use `VersionPrefix` for `MAJOR.MINOR.PATCH`; add `VersionSuffix` for a pre-release identifier such as `beta.1`.
-3. Confirm that `vMAJOR.MINOR.PATCH[-SUFFIX]` has never been used for another commit.
-4. Open a release pull request from `dev` into `main`, review the complete change set, and wait for its checks.
-5. Merge the pull request. Do not push a release tag manually.
-6. Watch the Release workflow. It repeats formatting, build, deterministic tests, and dependency auditing before packaging, creating the annotated tag, and publishing the GitHub release.
-7. Inspect the generated release notes, filenames, and `SHA256SUMS.txt` before announcing the release.
+2. Open a release pull request from `dev` into `main`, review the complete change set, and wait for its checks.
+3. Merge the pull request. Do not edit a version file or push a release tag.
+4. The Release workflow calculates the next stable version, repeats formatting, build, deterministic tests, and dependency auditing, then packages, tags, and publishes the GitHub release.
+5. Inspect the generated release notes, filenames, and `SHA256SUMS.txt` before announcing the release.
 
-A version without a suffix creates a normal release. A version with a suffix, such as `0.2.0-beta.1`, creates a pre-release. The workflow refuses to reuse a tag that belongs to another commit. If a run fails after creating its tag or release, fix the underlying infrastructure problem and rerun the same workflow: an existing tag must point to the same `main` commit, and existing release assets are replaced safely.
+Stable tags use `vMAJOR.MINOR.PATCH`. While Unskip is in `0.x`, each new release increments the minor component and resets the patch component, so `v0.3.0` is followed by `v0.4.0`. Starting with `v1.0.0`, automatic releases increment the patch component. Non-stable tags and pre-release tags are ignored when choosing the next version.
+
+The source tree deliberately uses `0.0.0-dev` for local builds. The Release workflow passes its resolved version to the build and packaging commands so the application, installer, portable archive, checksums, tag, and GitHub release all agree.
+
+If a run fails after creating its tag or release, fix the underlying infrastructure problem and rerun the same workflow. A stable tag already pointing at that `main` commit is reused, and existing release assets are replaced safely. Tags on any other commit are never moved or overwritten.
 
 After a successful release, merge `main` back into `dev` if GitHub reports that the branches have diverged. This keeps the exact released commit in the development history.
 

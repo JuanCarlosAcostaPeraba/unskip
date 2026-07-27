@@ -23,8 +23,7 @@ public sealed class UrgentAttentionOverlayRenderingTests
             try
             {
                 var viewModel = new UrgentAttentionOverlayViewModel(
-                    "Local preview",
-                    "Urgent preview",
+                    "You · local preview · nothing sent",
                     "Fictitious local preview message",
                     TimeSpan.FromSeconds(60),
                     new PendingDelay());
@@ -53,6 +52,8 @@ public sealed class UrgentAttentionOverlayRenderingTests
                 Assert.Equal(ResizeMode.NoResize, window.ResizeMode);
                 Assert.False(window.ShowInTaskbar);
 
+                var messageScroller = Assert.IsType<ScrollViewer>(window.FindName("MessageScroller"));
+                Assert.Equal(ScrollBarVisibility.Auto, messageScroller.VerticalScrollBarVisibility);
                 var closeButton = Assert.IsType<Button>(window.FindName("CloseButton"));
                 Assert.Equal(
                     "Close urgent message preview",

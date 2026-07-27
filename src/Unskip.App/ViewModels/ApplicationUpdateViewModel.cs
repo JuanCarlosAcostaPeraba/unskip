@@ -2,6 +2,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using Unskip.App.Commands;
+using Unskip.App.Localization;
 using Unskip.App.Services;
 using Unskip.Core.Updates;
 
@@ -18,7 +19,7 @@ public sealed class ApplicationUpdateViewModel : ObservableObject
     private int _downloadProgress;
     private bool _isBusy;
     private bool _isDownloading;
-    private string _statusMessage = "Updates are checked only when you ask.";
+    private string _statusMessage = UiText.Get("UpdatesOnDemand");
 
     public ApplicationUpdateViewModel(
         IApplicationUpdateService applicationUpdateService,
@@ -103,7 +104,7 @@ public sealed class ApplicationUpdateViewModel : ObservableObject
     {
         IsBusy = true;
         IsDownloading = false;
-        StatusMessage = "Checking GitHub Releases...";
+        StatusMessage = UiText.Get("UpdatesChecking");
         try
         {
             var result = await _applicationUpdateService
@@ -112,14 +113,14 @@ public sealed class ApplicationUpdateViewModel : ObservableObject
             _availableRelease = result.Release;
             _download = null;
             StatusMessage = result.IsUpdateAvailable
-                ? $"Version {result.Release!.Version} is available."
-                : "You're up to date.";
+                ? UiText.Format("UpdatesAvailable", result.Release!.Version)
+                : UiText.Get("UpdatesCurrent");
         }
         catch (Exception exception) when (IsExpectedUpdateFailure(exception))
         {
             _availableRelease = null;
             _download = null;
-            StatusMessage = "Couldn't check for updates. Unskip still works offline.";
+            StatusMessage = UiText.Get("UpdatesCheckFailed");
         }
         finally
         {
@@ -138,24 +139,24 @@ public sealed class ApplicationUpdateViewModel : ObservableObject
         IsBusy = true;
         IsDownloading = true;
         DownloadProgress = 0;
-        StatusMessage = $"Downloading version {_availableRelease.Version}...";
+        StatusMessage = UiText.Format("UpdatesDownloading", _availableRelease.Version);
         try
         {
             var progress = new Progress<int>(value => DownloadProgress = Math.Clamp(value, 0, 100));
             _download = await _applicationUpdateService
                 .DownloadAsync(_availableRelease, progress)
                 .ConfigureAwait(true);
-            StatusMessage = "Download verified. Ready to install.";
+            StatusMessage = UiText.Get("UpdatesReadyToInstall");
         }
         catch (InvalidDataException)
         {
             _download = null;
-            StatusMessage = "The update could not be verified. It was not opened.";
+            StatusMessage = UiText.Get("UpdatesVerificationFailed");
         }
         catch (Exception exception) when (IsExpectedUpdateFailure(exception))
         {
             _download = null;
-            StatusMessage = "Couldn't download the update. Try again when you're online.";
+            StatusMessage = UiText.Get("UpdatesDownloadFailed");
         }
         finally
         {
@@ -174,28 +175,28 @@ public sealed class ApplicationUpdateViewModel : ObservableObject
 
         IsBusy = true;
         IsDownloading = false;
-        StatusMessage = "Verifying the installer again...";
+        StatusMessage = UiText.Get("UpdatesVerifyingInstaller");
         try
         {
             if (!await _applicationUpdateService.VerifyAsync(_download).ConfigureAwait(true))
             {
                 _download = null;
-                StatusMessage = "The downloaded update changed or is damaged. Download it again.";
+                StatusMessage = UiText.Get("UpdatesInstallerChanged");
                 return;
             }
 
             if (!_installerLauncher.TryLaunch(_download.InstallerPath))
             {
-                StatusMessage = "Windows couldn't start the installer. Try downloading it again.";
+                StatusMessage = UiText.Get("UpdatesInstallerStartFailedRetry");
                 return;
             }
 
-            StatusMessage = "Installer started. Unskip will close.";
+            StatusMessage = UiText.Get("UpdatesInstallerStarted");
             _applicationShutdown.Shutdown();
         }
         catch (Exception exception) when (IsExpectedUpdateFailure(exception))
         {
-            StatusMessage = "Windows couldn't start the verified installer.";
+            StatusMessage = UiText.Get("UpdatesInstallerStartFailed");
         }
         finally
         {

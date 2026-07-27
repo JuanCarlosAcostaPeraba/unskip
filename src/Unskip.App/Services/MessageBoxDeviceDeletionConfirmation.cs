@@ -1,4 +1,5 @@
 using System.Windows;
+using Unskip.App.Localization;
 
 namespace Unskip.App.Services;
 
@@ -8,8 +9,8 @@ public sealed class MessageBoxDeviceDeletionConfirmation : IDeviceDeletionConfir
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(deviceAlias);
         var result = MessageBox.Show(
-            $"Delete '{deviceAlias}' from this device directory?\n\nExisting send-history snapshots will be preserved.",
-            "Delete device",
+            UiText.Format("DeleteDeviceConfirmation", deviceAlias),
+            UiText.Get("DeleteDeviceTitle"),
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning,
             MessageBoxResult.No);

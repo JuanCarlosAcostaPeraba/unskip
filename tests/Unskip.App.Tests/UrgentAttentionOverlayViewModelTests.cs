@@ -56,7 +56,6 @@ public sealed class UrgentAttentionOverlayViewModelTests
         Assert.Throws<ArgumentOutOfRangeException>(
             () => new UrgentAttentionOverlayViewModel(
                 "Local preview",
-                "Urgent preview",
                 "Fictitious local preview",
                 TimeSpan.FromSeconds(seconds),
                 new CompletedDelay()));
@@ -66,7 +65,6 @@ public sealed class UrgentAttentionOverlayViewModelTests
     {
         return new UrgentAttentionOverlayViewModel(
             "Local preview",
-            "Urgent preview",
             "Fictitious local preview",
             TimeSpan.FromSeconds(60),
             delay);

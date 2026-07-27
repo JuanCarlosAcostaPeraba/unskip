@@ -7,8 +7,6 @@ internal static class ApplicationVersion
 {
     public static string Value { get; } = GetVersion(typeof(App).Assembly);
 
-    public static string DisplayLabel { get; } = $"Version {Value}";
-
     public static SemanticVersion Current { get; } = SemanticVersion.Parse(Value);
 
     private static string GetVersion(Assembly assembly)

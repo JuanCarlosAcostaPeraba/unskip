@@ -58,6 +58,21 @@ Use the compact **EN** and **ES** controls in the sidebar to change the language
 
 The selected language is stored locally in `%LOCALAPPDATA%\Unskip\language.txt`. It is retained across upgrades and uninstall together with the other local Unskip data. If the file is missing, unreadable, or contains an unsupported value, Unskip safely falls back to the Windows language or English.
 
+## Run in the background and use quick send
+
+Unskip remains available in the Windows notification area after you close its main window. Closing either the main window or the quick-send panel hides that window; it does not end the resident process.
+
+Use the Unskip notification-area icon to:
+
+- left-click **Unskip** to open the compact quick-send panel;
+- choose **Quick send** to open the same reusable panel;
+- choose **Open Unskip** to restore and activate the full application;
+- choose **Exit Unskip** when you want to end the resident process completely.
+
+The quick-send panel can select a saved device or validate a one-time computer name or canonical IPv4 address. It always shows the resolved technical destination before enabling the same explicit send action used by the full application. Failed and timed-out attempts retain the draft for retry. Closing and reopening the panel also retains its current local draft while the process remains running.
+
+Unskip does not start automatically with Windows and does not add registry entries or startup tasks. It also shows no pending-message badge: the current native Windows transport has no receiver-side queue or trustworthy pending state.
+
 ## Before the first message
 
 The sending computer needs:

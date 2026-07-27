@@ -228,6 +228,18 @@ public sealed class MessageComposerViewModel : ObservableObject
         NotifyCommandStates();
     }
 
+    public void ClearPreparation()
+    {
+        DestinationAlias = string.Empty;
+        Destination = string.Empty;
+        DestinationKindLabel = string.Empty;
+        DeviceId = null;
+        _computerName = null;
+        _ipv4Address = null;
+        ClearResult();
+        NotifyCommandStates();
+    }
+
     private async Task SendAsync()
     {
         var request = new MessageRequest(Destination, Message);

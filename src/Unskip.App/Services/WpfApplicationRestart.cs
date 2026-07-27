@@ -4,8 +4,11 @@ using System.Windows;
 
 namespace Unskip.App.Services;
 
-internal sealed class WpfApplicationRestart : IApplicationRestart
+internal sealed class WpfApplicationRestart(ApplicationExitState exitState) : IApplicationRestart
 {
+    private readonly ApplicationExitState _exitState =
+        exitState ?? throw new ArgumentNullException(nameof(exitState));
+
     public bool TryRestart()
     {
         var executablePath = Environment.ProcessPath;
@@ -22,6 +25,7 @@ internal sealed class WpfApplicationRestart : IApplicationRestart
             {
                 UseShellExecute = false,
             });
+            _exitState.RequestExit();
             Application.Current.Shutdown();
             return true;
         }

@@ -256,6 +256,13 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+          <Button Margin="0,6,0,0"
+                  Padding="12,10"
+                  HorizontalContentAlignment="Left"
+                  Content="{l10n:Localize QuickHeading}"
+                  Command="{Binding OpenQuickSendCommand}"
+                  Style="{StaticResource SecondaryButtonStyle}"
+                  automation:AutomationProperties.Name="{l10n:Localize QuickWindowAutomation}" />
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom">

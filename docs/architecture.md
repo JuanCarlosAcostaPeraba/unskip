@@ -26,6 +26,10 @@ The visible developer portfolio link is a fixed HTTPS URI exposed by `MainWindow
 
 UI localization belongs to `Unskip.App`. Neutral `Strings.resx` resources define English and `Strings.es.resx` supplies the Spanish satellite catalog; an automated test requires both catalogs to expose exactly the same keys. XAML uses a small markup extension, while view models and dialog services resolve dynamic text through the same resource manager. Startup selects a validated persisted preference or the supported Windows UI language, falling back to English. Language changes are explicit, persisted below `%LOCALAPPDATA%\Unskip`, and applied through a direct executable restart with `UseShellExecute = false`; the restart confirmation warns that drafts are not persisted.
 
+Resident behavior remains a presentation-layer concern. `ResidentApplicationController` coordinates testable window and notification-area seams, while `NotifyIconTrayService` is the only Windows Forms adapter and is used solely for the native notification icon and menu. WPF remains responsible for every application window. Normal close requests hide reusable windows; a shared `ApplicationExitState` allows tray exit, update installation, language restart, and Windows session ending to bypass close-to-tray interception and shut down cleanly.
+
+`QuickSendViewModel` loads saved devices through the existing `DeviceDirectoryService` and delegates message validation, sending, result wording, retries, and history persistence to a dedicated `MessageComposerViewModel`. The compact window therefore introduces no second transport path and stores no message body. Notification-area state deliberately has no pending count because no receiver-side durable state exists yet.
+
 ## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.

@@ -194,4 +194,28 @@
   <data name="ValidationPreferredDestination" xml:space="preserve"><value>Choose a preferred destination that is present on the device.</value></data>
   <data name="VersionLabel" xml:space="preserve"><value>Version {0}</value></data>
   <data name="WindowsComputerNameAutomation" xml:space="preserve"><value>Windows computer name</value></data>
+  <data name="QuickChooseDestination" xml:space="preserve"><value>Choose a saved device or prepare a one-time destination.</value></data>
+  <data name="QuickDescription" xml:space="preserve"><value>Send without opening the full workspace.</value></data>
+  <data name="QuickDestinationReady" xml:space="preserve"><value>Ready for {0}.</value></data>
+  <data name="QuickDeviceLoadFailed" xml:space="preserve"><value>The saved devices could not be loaded. One-time destinations still work.</value></data>
+  <data name="QuickHeading" xml:space="preserve"><value>Quick send</value></data>
+  <data name="QuickMessage" xml:space="preserve"><value>Message</value></data>
+  <data name="QuickMessageAutomation" xml:space="preserve"><value>Quick message text</value></data>
+  <data name="QuickNoSavedDevices" xml:space="preserve"><value>No saved devices yet. Use a one-time destination.</value></data>
+  <data name="QuickOpenFull" xml:space="preserve"><value>Open Unskip</value></data>
+  <data name="QuickOpenFullAutomation" xml:space="preserve"><value>Open the full Unskip window</value></data>
+  <data name="QuickOrOneTime" xml:space="preserve"><value>Or use a one-time computer name or IPv4 address</value></data>
+  <data name="QuickResolvedDestination" xml:space="preserve"><value>RESOLVED DESTINATION</value></data>
+  <data name="QuickResidentHint" xml:space="preserve"><value>Closing this panel keeps Unskip running.</value></data>
+  <data name="QuickRetry" xml:space="preserve"><value>Retry</value></data>
+  <data name="QuickSavedDevice" xml:space="preserve"><value>Saved device</value></data>
+  <data name="QuickSavedDeviceAutomation" xml:space="preserve"><value>Choose a saved device</value></data>
+  <data name="QuickSend" xml:space="preserve"><value>Send message</value></data>
+  <data name="QuickSendAutomation" xml:space="preserve"><value>Send the quick message</value></data>
+  <data name="QuickWindowAutomation" xml:space="preserve"><value>Unskip quick-send panel</value></data>
+  <data name="QuickWindowTitle" xml:space="preserve"><value>Unskip · Quick send</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Exit Unskip</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Open Unskip</value></data>
+  <data name="TrayQuickSend" xml:space="preserve"><value>Quick send</value></data>
+  <data name="TrayTooltip" xml:space="preserve"><value>Unskip · Local messaging</value></data>
 </root>

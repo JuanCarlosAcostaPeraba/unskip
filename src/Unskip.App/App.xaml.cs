@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Windows;
+using Unskip.App.Localization;
 using Unskip.App.Services;
 using Unskip.App.ViewModels;
 using Unskip.Core.Devices;
@@ -18,6 +20,17 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        var languagePreference = FileLanguagePreferenceStore.ForCurrentUser();
+        var language = LanguagePolicy.Resolve(
+            languagePreference.Load(),
+            CultureInfo.CurrentUICulture);
+        var culture = LanguagePolicy.CreateCulture(language);
+        UiText.SetCulture(culture);
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+
         SystemThemeManager.Apply(Resources);
 
         var database = UnskipDatabase.ForCurrentUser();
@@ -41,6 +54,11 @@ public partial class App : Application
             new SystemUpdateInstallerLauncher(),
             new WpfApplicationShutdown(),
             ApplicationVersion.Current);
+        var languageSettings = new LanguageSettingsViewModel(
+            language,
+            languagePreference,
+            new MessageBoxLanguageChangeConfirmation(),
+            new WpfApplicationRestart());
         var viewModel = new MainWindowViewModel(
             deviceDirectory,
             new WindowsMsgSender(),
@@ -49,7 +67,8 @@ public partial class App : Application
             updates,
             new SystemExternalUriLauncher(),
             new WpfUrgentAttentionPreviewService(),
-            ApplicationVersion.DisplayLabel);
+            languageSettings,
+            UiText.Format("VersionLabel", ApplicationVersion.Current));
         viewModel.InitializeAsync().GetAwaiter().GetResult();
 
         base.OnStartup(e);

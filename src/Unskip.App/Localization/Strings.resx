@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AddDevice" xml:space="preserve"><value>＋ Add device</value></data>
+  <data name="AddDeviceAutomation" xml:space="preserve"><value>Add a saved device</value></data>
+  <data name="AddDevicePlain" xml:space="preserve"><value>Add device</value></data>
+  <data name="AddToFavorites" xml:space="preserve"><value>Add to favorites</value></data>
+  <data name="AffiliationNotice" xml:space="preserve"><value>Unskip is an unofficial community project and is not affiliated with Microsoft or any employer.</value></data>
+  <data name="Alias" xml:space="preserve"><value>Alias</value></data>
+  <data name="AliasesHelp" xml:space="preserve"><value>Aliases can represent people, rooms, or shared workstations.</value></data>
+  <data name="ApplicationVersionAutomation" xml:space="preserve"><value>Application version</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ChangeDestination" xml:space="preserve"><value>← Change destination</value></data>
+  <data name="ChangeDestinationAutomation" xml:space="preserve"><value>Return to device selection</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="CheckForUpdatesAutomation" xml:space="preserve"><value>Check for application updates</value></data>
+  <data name="CheckHighlightedFields" xml:space="preserve"><value>Check the highlighted fields.</value></data>
+  <data name="ClearHistory" xml:space="preserve"><value>Clear history</value></data>
+  <data name="ClearHistoryAutomation" xml:space="preserve"><value>Clear all local history</value></data>
+  <data name="ClearHistoryConfirmation" xml:space="preserve"><value>Delete all {0} local history entries? This cannot be undone.</value></data>
+  <data name="ClearHistoryTitle" xml:space="preserve"><value>Clear local history</value></data>
+  <data name="CloseMessage" xml:space="preserve"><value>Close message</value></data>
+  <data name="ClosePreviewAutomation" xml:space="preserve"><value>Close urgent message preview</value></data>
+  <data name="ClosePreviewTooltip" xml:space="preserve"><value>Close this local preview. You can also press Escape or Alt+F4.</value></data>
+  <data name="ComputerName" xml:space="preserve"><value>Computer name</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="DeleteDeviceConfirmation" xml:space="preserve"><value>Delete '{0}' from this device directory?&#xA;&#xA;Existing send-history snapshots will be preserved.</value></data>
+  <data name="DeleteDeviceTitle" xml:space="preserve"><value>Delete device</value></data>
+  <data name="DeleteHistoryEntry" xml:space="preserve"><value>Delete entry</value></data>
+  <data name="DeleteHistoryEntryConfirmation" xml:space="preserve"><value>Delete the local history entry for {0}?</value></data>
+  <data name="DeleteHistoryEntryTitle" xml:space="preserve"><value>Delete history entry</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
+  <data name="DeliveryCancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="DeliveryCancelledMessage" xml:space="preserve"><value>The send request was cancelled.</value></data>
+  <data name="DeliveryFailed" xml:space="preserve"><value>Failed</value></data>
+  <data name="DeliveryFailedMessage" xml:space="preserve"><value>Windows could not complete the messaging request. You can retry with this draft.</value></data>
+  <data name="DeliveryRejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="DeliveryRejectedMessage" xml:space="preserve"><value>Windows rejected the request. Check the destination, session, permissions, and technical details.</value></data>
+  <data name="DeliveryRequesting" xml:space="preserve"><value>Asking Windows to send the message to {0}.</value></data>
+  <data name="DeliverySending" xml:space="preserve"><value>Sending</value></data>
+  <data name="DeliverySendingMessage" xml:space="preserve"><value>Windows is processing the messaging request.</value></data>
+  <data name="DeliverySent" xml:space="preserve"><value>Sent</value></data>
+  <data name="DeliverySentMessage" xml:space="preserve"><value>Windows accepted the request. This does not prove that anyone saw or read the message.</value></data>
+  <data name="DeliveryTimedOut" xml:space="preserve"><value>Timed out</value></data>
+  <data name="DeliveryTimedOutMessage" xml:space="preserve"><value>Windows did not finish the request before the safety timeout. You can retry with this draft.</value></data>
+  <data name="DeliveryUnexpectedFailure" xml:space="preserve"><value>Unskip could not complete the Windows messaging request. You can retry without re-entering the message.</value></data>
+  <data name="Destination" xml:space="preserve"><value>Destination</value></data>
+  <data name="DevelopedBy" xml:space="preserve"><value>Developed by </value></data>
+  <data name="DeviceAliasAutomation" xml:space="preserve"><value>Device alias</value></data>
+  <data name="DeviceDescriptionAutomation" xml:space="preserve"><value>Device description</value></data>
+  <data name="DeviceAddedToFavorites" xml:space="preserve"><value>{0} added to favorites.</value></data>
+  <data name="DeviceAlreadySaved" xml:space="preserve"><value>That alias, computer name, or IPv4 address is already saved.</value></data>
+  <data name="DeviceConflict" xml:space="preserve"><value>That device conflicts with an existing entry.</value></data>
+  <data name="DeviceDeleted" xml:space="preserve"><value>Deleted {0}. Historical snapshots were preserved.</value></data>
+  <data name="DeviceDirectoryLocal" xml:space="preserve"><value>Your device directory stays on this Windows account.</value></data>
+  <data name="DeviceMissing" xml:space="preserve"><value>That device no longer exists.</value></data>
+  <data name="DeviceRemovedFromFavorites" xml:space="preserve"><value>{0} removed from favorites.</value></data>
+  <data name="DeviceSaved" xml:space="preserve"><value>Saved {0}.</value></data>
+  <data name="DeviceSelected" xml:space="preserve"><value>Selected {0} → {1}.</value></data>
+  <data name="DownloadAvailableUpdateAutomation" xml:space="preserve"><value>Download available update</value></data>
+  <data name="DownloadUpdate" xml:space="preserve"><value>Download update</value></data>
+  <data name="Duration" xml:space="preserve"><value>Duration</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="EditDevice" xml:space="preserve"><value>Edit device</value></data>
+  <data name="EnterCanonicalIpv4" xml:space="preserve"><value>Enter a canonical IPv4 address with four numbers from 0 to 255.</value></data>
+  <data name="EnterDestination" xml:space="preserve"><value>Enter a computer name or IPv4 address.</value></data>
+  <data name="FavoritesFirst" xml:space="preserve"><value>Favorites first</value></data>
+  <data name="FilterHistoryAutomation" xml:space="preserve"><value>Filter history by status</value></data>
+  <data name="HistoryDetails" xml:space="preserve"><value>History details</value></data>
+  <data name="HistoryEntryCount" xml:space="preserve"><value>{0} local entries</value></data>
+  <data name="HistoryFilterAll" xml:space="preserve"><value>All</value></data>
+  <data name="HistoryLocalPrivacy" xml:space="preserve"><value>History stays only on this Windows account. Message bodies are never stored.</value></data>
+  <data name="HistoryMessageSummary" xml:space="preserve"><value>Message body not stored · {0} characters</value></data>
+  <data name="HistoryOneEntry" xml:space="preserve"><value>1 local entry</value></data>
+  <data name="HistoryRecordFailed" xml:space="preserve"><value>The result could not be added to local history.</value></data>
+  <data name="HistoryPrivacyBadge" xml:space="preserve"><value>PRIVACY BY DEFAULT</value></data>
+  <data name="HistoryPrivacyHelp" xml:space="preserve"><value>Retry restores only the destination. You must intentionally write the message again.</value></data>
+  <data name="HistorySnapshotHelp" xml:space="preserve"><value>Targets are immutable snapshots. Editing a device never rewrites this record.</value></data>
+  <data name="HistoryStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="InstallUpdate" xml:space="preserve"><value>Install update</value></data>
+  <data name="InstallVerifiedUpdateAutomation" xml:space="preserve"><value>Install verified update</value></data>
+  <data name="Ipv4Address" xml:space="preserve"><value>IPv4 address</value></data>
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+  <data name="LanguageEnglishAutomation" xml:space="preserve"><value>Switch Unskip to English</value></data>
+  <data name="LanguageRestartConfirmation" xml:space="preserve"><value>Unskip must restart to switch to {0}. Your current draft will not be saved. Continue?</value></data>
+  <data name="LanguageRestartFailed" xml:space="preserve"><value>The language was saved, but Unskip could not restart. Reopen it to apply the change.</value></data>
+  <data name="LanguageRestartTitle" xml:space="preserve"><value>Change language</value></data>
+  <data name="LanguageSaveFailed" xml:space="preserve"><value>The language preference could not be saved.</value></data>
+  <data name="LanguageSpanishAutomation" xml:space="preserve"><value>Switch Unskip to Spanish</value></data>
+  <data name="ManualDestination" xml:space="preserve"><value>Manual destination</value></data>
+  <data name="ManualDestinationReady" xml:space="preserve"><value>Manual destination ready → {0}.</value></data>
+  <data name="MatchingDeviceCount" xml:space="preserve"><value>{0} matching</value></data>
+  <data name="LocalMessaging" xml:space="preserve"><value>Local messaging</value></data>
+  <data name="LocalOnly" xml:space="preserve"><value>LOCAL ONLY · NO TELEMETRY</value></data>
+  <data name="LocalPreviewStatusAutomation" xml:space="preserve"><value>Local preview status</value></data>
+  <data name="LocalPreviewSender" xml:space="preserve"><value>You · local preview · nothing sent</value></data>
+  <data name="LocalSendHistory" xml:space="preserve"><value>Local send history</value></data>
+  <data name="LocalSendHistoryEntriesAutomation" xml:space="preserve"><value>Local send history entries</value></data>
+  <data name="ManualDestinationHelp" xml:space="preserve"><value>You can use this once or turn it into a saved device.</value></data>
+  <data name="MessageCharacterLimitTooltip" xml:space="preserve"><value>Enter up to 1,024 characters</value></data>
+  <data name="MessageInvalidCharacters" xml:space="preserve"><value>Remove unsupported control characters from the message.</value></data>
+  <data name="MessageReady" xml:space="preserve"><value>Write a message when you are ready.</value></data>
+  <data name="MessageRequired" xml:space="preserve"><value>Enter a message.</value></data>
+  <data name="MessageSenderPreviewStatusAutomation" xml:space="preserve"><value>Message sender and local preview status</value></data>
+  <data name="MessageTextAutomation" xml:space="preserve"><value>Message text</value></data>
+  <data name="MessageTextPlaceholder" xml:space="preserve"><value>Write a message...</value></data>
+  <data name="MessageTooLong" xml:space="preserve"><value>Keep the message to {0} characters or fewer.</value></data>
+  <data name="NativeAcceptanceDisclaimer" xml:space="preserve"><value>Windows acceptance is not proof that anyone read the message.</value></data>
+  <data name="NoComputerName" xml:space="preserve"><value>No computer name</value></data>
+  <data name="NoIpv4Address" xml:space="preserve"><value>No IPv4 address</value></data>
+  <data name="NoSavedDevices" xml:space="preserve"><value>No saved devices</value></data>
+  <data name="NotUsedYet" xml:space="preserve"><value>Not used yet</value></data>
+  <data name="OfflineByDesign" xml:space="preserve"><value>Offline by design</value></data>
+  <data name="OneTimeDestination" xml:space="preserve"><value>One-time destination</value></data>
+  <data name="OneTimeDestinationAutomation" xml:space="preserve"><value>One-time computer name or IPv4 address</value></data>
+  <data name="OneTimeDestinationHelp" xml:space="preserve"><value>Use a computer name or IPv4 address without saving it.</value></data>
+  <data name="OneSavedDevice" xml:space="preserve"><value>1 saved device</value></data>
+  <data name="OpeningMessage" xml:space="preserve"><value>Opening a message for {0}. Nothing has been sent yet.</value></data>
+  <data name="PortfolioAutomation" xml:space="preserve"><value>Open Juan Carlos Acosta Perabá portfolio</value></data>
+  <data name="PortfolioOpenFailed" xml:space="preserve"><value>Couldn't open the portfolio. Visit jcap.tech in your browser.</value></data>
+  <data name="Preferred" xml:space="preserve"><value>Preferred: </value></data>
+  <data name="PreferredDestination" xml:space="preserve"><value>Preferred destination</value></data>
+  <data name="PrepareMessage" xml:space="preserve"><value>Prepare message →</value></data>
+  <data name="PrepareMessageAutomation" xml:space="preserve"><value>Prepare a message for the resolved destination</value></data>
+  <data name="Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="PreviewAutomation" xml:space="preserve"><value>Preview the urgent overlay on this computer only; nothing is sent</value></data>
+  <data name="PreviewClosed" xml:space="preserve"><value>Local preview closed. Nothing was sent.</value></data>
+  <data name="PreviewEnterValidMessage" xml:space="preserve"><value>Enter a valid message before opening the local preview.</value></data>
+  <data name="PreviewLocalOnly" xml:space="preserve"><value>Local preview only. Nothing will be sent.</value></data>
+  <data name="PreviewOpenFailed" xml:space="preserve"><value>The local preview could not open ({0}).</value></data>
+  <data name="PreviewOpening" xml:space="preserve"><value>Opening a local preview. Nothing is being sent.</value></data>
+  <data name="PreviewTooltip" xml:space="preserve"><value>Open a local preview. Nothing is sent.</value></data>
+  <data name="ResolvedDestination" xml:space="preserve"><value>Resolved destination</value></data>
+  <data name="ResolvedDestinationAutomation" xml:space="preserve"><value>Resolved technical destination</value></data>
+  <data name="Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="SaveAsDevice" xml:space="preserve"><value>Save as device</value></data>
+  <data name="SaveDevice" xml:space="preserve"><value>Save device</value></data>
+  <data name="SavedDetails" xml:space="preserve"><value>Saved details</value></data>
+  <data name="SavedDevice" xml:space="preserve"><value>Saved device</value></data>
+  <data name="SavedDeviceCount" xml:space="preserve"><value>{0} saved devices</value></data>
+  <data name="SavedDevices" xml:space="preserve"><value>Saved devices</value></data>
+  <data name="SearchHistoryAutomation" xml:space="preserve"><value>Search local history</value></data>
+  <data name="SearchHistoryPlaceholder" xml:space="preserve"><value>Search alias or destination</value></data>
+  <data name="SearchSavedDevicesAutomation" xml:space="preserve"><value>Search saved devices</value></data>
+  <data name="SearchSavedDevicesPlaceholder" xml:space="preserve"><value>Search alias, computer, IPv4 or description</value></data>
+  <data name="SearchSavedDevicesTooltip" xml:space="preserve"><value>Search alias, computer name, IPv4 address, or description</value></data>
+  <data name="SectionDevices" xml:space="preserve"><value>Devices</value></data>
+  <data name="SectionDevicesDescription" xml:space="preserve"><value>Choose a saved device or prepare a one-time destination.</value></data>
+  <data name="SectionHistory" xml:space="preserve"><value>History</value></data>
+  <data name="SectionHistoryDescription" xml:space="preserve"><value>Review local send attempts without storing message bodies or claiming acknowledgement.</value></data>
+  <data name="SectionSend" xml:space="preserve"><value>Send</value></data>
+  <data name="SectionSendDescription" xml:space="preserve"><value>Compose a native Windows LAN message and review the real technical destination.</value></data>
+  <data name="SelectDestinationHelp" xml:space="preserve"><value>Select a saved device or enter a one-time destination. The technical target will always appear here before sending.</value></data>
+  <data name="Send" xml:space="preserve"><value>Send</value></data>
+  <data name="SendAutomation" xml:space="preserve"><value>Send the message using Windows</value></data>
+  <data name="TechnicalDetails" xml:space="preserve"><value>Technical details</value></data>
+  <data name="ToggleFavoriteAutomation" xml:space="preserve"><value>Toggle favorite</value></data>
+  <data name="UnsavedDestination" xml:space="preserve"><value>Unsaved destination</value></data>
+  <data name="UpdateDownloadProgressAutomation" xml:space="preserve"><value>Update download progress</value></data>
+  <data name="UpdatesAvailable" xml:space="preserve"><value>Version {0} is available.</value></data>
+  <data name="UpdatesCheckFailed" xml:space="preserve"><value>Couldn't check for updates. Unskip still works offline.</value></data>
+  <data name="UpdatesChecking" xml:space="preserve"><value>Checking GitHub Releases...</value></data>
+  <data name="UpdatesCurrent" xml:space="preserve"><value>You're up to date.</value></data>
+  <data name="UpdatesDownloadFailed" xml:space="preserve"><value>Couldn't download the update. Try again when you're online.</value></data>
+  <data name="UpdatesDownloading" xml:space="preserve"><value>Downloading version {0}...</value></data>
+  <data name="UpdatesInstallerChanged" xml:space="preserve"><value>The downloaded update changed or is damaged. Download it again.</value></data>
+  <data name="UpdatesInstallerStarted" xml:space="preserve"><value>Installer started. Unskip will close.</value></data>
+  <data name="UpdatesInstallerStartFailed" xml:space="preserve"><value>Windows couldn't start the verified installer.</value></data>
+  <data name="UpdatesInstallerStartFailedRetry" xml:space="preserve"><value>Windows couldn't start the installer. Try downloading it again.</value></data>
+  <data name="UpdatesOnDemand" xml:space="preserve"><value>Updates are checked only when you ask.</value></data>
+  <data name="UpdatesReadyToInstall" xml:space="preserve"><value>Download verified. Ready to install.</value></data>
+  <data name="UpdatesVerificationFailed" xml:space="preserve"><value>The update could not be verified. It was not opened.</value></data>
+  <data name="UpdatesVerifyingInstaller" xml:space="preserve"><value>Verifying the installer again...</value></data>
+  <data name="UrgentMessageCardAutomation" xml:space="preserve"><value>Urgent message card</value></data>
+  <data name="UrgentMessageTextAutomation" xml:space="preserve"><value>Urgent message text</value></data>
+  <data name="UrgentPreviewAutomation" xml:space="preserve"><value>Local urgent attention preview</value></data>
+  <data name="UrgentPreviewTitle" xml:space="preserve"><value>Unskip urgent attention preview</value></data>
+  <data name="UnskipLogoAutomation" xml:space="preserve"><value>Unskip logo</value></data>
+  <data name="Use" xml:space="preserve"><value>Use</value></data>
+  <data name="UseDestination" xml:space="preserve"><value>Use destination</value></data>
+  <data name="UsedOn" xml:space="preserve"><value>Used {0:d}</value></data>
+  <data name="UsedRecently" xml:space="preserve"><value>Used recently</value></data>
+  <data name="UseValidDestination" xml:space="preserve"><value>Use a valid computer name or canonical IPv4 address.</value></data>
+  <data name="ValidationAliasCharacters" xml:space="preserve"><value>Remove control characters from the alias.</value></data>
+  <data name="ValidationAliasRequired" xml:space="preserve"><value>Enter an alias.</value></data>
+  <data name="ValidationAliasTooLong" xml:space="preserve"><value>Use {0} characters or fewer.</value></data>
+  <data name="ValidationDescriptionCharacters" xml:space="preserve"><value>Remove unsupported control characters from the description.</value></data>
+  <data name="ValidationDescriptionTooLong" xml:space="preserve"><value>Use {0} characters or fewer.</value></data>
+  <data name="ValidationDestinationRequired" xml:space="preserve"><value>Enter a computer name or an IPv4 address.</value></data>
+  <data name="ValidationHostname" xml:space="preserve"><value>Use a computer or DNS name containing only letters, digits, hyphens, and dots.</value></data>
+  <data name="ValidationPreferredDestination" xml:space="preserve"><value>Choose a preferred destination that is present on the device.</value></data>
+  <data name="VersionLabel" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="WindowsComputerNameAutomation" xml:space="preserve"><value>Windows computer name</value></data>
+</root>

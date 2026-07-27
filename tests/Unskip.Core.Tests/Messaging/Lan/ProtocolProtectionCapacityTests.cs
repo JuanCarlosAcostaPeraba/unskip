@@ -9,7 +9,7 @@ public sealed class ProtocolProtectionCapacityTests
     {
         var clock = new MutableClock(LanProtocolTestData.Now);
         var protection = new ReplayProtectionService(clock);
-        var sender = new AuthenticatedSender(@"EXAMPLE\operator");
+        var sender = CreateSender(1);
 
         for (var index = 0; index < LanProtocolPolicy.ReplayCapacity; index++)
         {
@@ -36,19 +36,19 @@ public sealed class ProtocolProtectionCapacityTests
 
         for (var index = 0; index < LanProtocolPolicy.MaximumTrackedIdentities; index++)
         {
-            var result = limiter.TryAcquire(new AuthenticatedSender($@"EXAMPLE\user-{index}"));
+            var result = limiter.TryAcquire(CreateSender(index + 1));
             Assert.Equal(IdentityRateLimitResult.Accepted, result);
         }
 
         Assert.Equal(
             IdentityRateLimitResult.CapacityExceeded,
-            limiter.TryAcquire(new AuthenticatedSender(@"EXAMPLE\overflow")));
+            limiter.TryAcquire(CreateSender(LanProtocolPolicy.MaximumTrackedIdentities + 1)));
 
         clock.UtcNow += LanProtocolPolicy.RateLimitWindow + TimeSpan.FromSeconds(1);
 
         Assert.Equal(
             IdentityRateLimitResult.Accepted,
-            limiter.TryAcquire(new AuthenticatedSender(@"EXAMPLE\after-window")));
+            limiter.TryAcquire(CreateSender(LanProtocolPolicy.MaximumTrackedIdentities + 2)));
     }
 
     private static LanMessageRequest CreateRequest(int seed)
@@ -65,5 +65,13 @@ public sealed class ProtocolProtectionCapacityTests
         var bytes = new byte[16];
         BitConverter.GetBytes(seed + 1).CopyTo(bytes, 0);
         return new Guid(bytes);
+    }
+
+    private static AuthenticatedSender CreateSender(int seed)
+    {
+        return new(
+            $"windows-sid:S-1-5-21-{seed}",
+            $"Example user {seed}",
+            AuthenticationScheme.WindowsNegotiate);
     }
 }

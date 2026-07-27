@@ -6,8 +6,7 @@ public sealed class IdentityRateLimiter
 {
     private readonly IClock _clock;
     private readonly Lock _gate = new();
-    private readonly Dictionary<string, RateWindow> _windows =
-        new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, RateWindow> _windows = new(StringComparer.Ordinal);
 
     public IdentityRateLimiter(IClock clock)
     {
@@ -23,14 +22,14 @@ public sealed class IdentityRateLimiter
             var now = _clock.UtcNow;
             RemoveExpiredWindows(now);
 
-            if (!_windows.TryGetValue(sender.Identity, out var window))
+            if (!_windows.TryGetValue(sender.IdentityKey, out var window))
             {
                 if (_windows.Count >= LanProtocolPolicy.MaximumTrackedIdentities)
                 {
                     return IdentityRateLimitResult.CapacityExceeded;
                 }
 
-                _windows.Add(sender.Identity, new RateWindow(now, 1));
+                _windows.Add(sender.IdentityKey, new RateWindow(now, 1));
                 return IdentityRateLimitResult.Accepted;
             }
 
@@ -39,7 +38,7 @@ public sealed class IdentityRateLimiter
                 return IdentityRateLimitResult.RateLimited;
             }
 
-            _windows[sender.Identity] = window with { Count = window.Count + 1 };
+            _windows[sender.IdentityKey] = window with { Count = window.Count + 1 };
             return IdentityRateLimitResult.Accepted;
         }
     }

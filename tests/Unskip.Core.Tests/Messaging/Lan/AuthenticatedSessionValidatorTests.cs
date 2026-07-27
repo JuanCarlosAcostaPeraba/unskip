@@ -11,7 +11,9 @@ public sealed class AuthenticatedSessionValidatorTests
             LanProtocolTestData.CreateSession("  EXAMPLE\\operator  "));
 
         Assert.True(result.IsValid);
-        Assert.Equal(@"EXAMPLE\operator", result.Sender!.Identity);
+        Assert.Equal("windows-sid:S-1-5-21-1000", result.Sender!.IdentityKey);
+        Assert.Equal(@"EXAMPLE\operator", result.Sender.DisplayName);
+        Assert.Equal(AuthenticationScheme.WindowsNegotiate, result.Sender.Scheme);
     }
 
     [Theory]
@@ -31,12 +33,25 @@ public sealed class AuthenticatedSessionValidatorTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("EXAMPLE\\user\nadmin")]
-    public void InvalidRemoteIdentityIsRejected(string? identity)
+    public void InvalidDisplayNameIsRejected(string? displayName)
     {
         var result = AuthenticatedSessionValidator.Validate(
-            LanProtocolTestData.CreateSession(identity!));
+            LanProtocolTestData.CreateSession(displayName!));
 
-        Assert.Equal(AuthenticatedSessionValidationError.InvalidRemoteIdentity, result.Error);
+        Assert.Equal(AuthenticatedSessionValidationError.InvalidDisplayName, result.Error);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("windows-sid:not-a-sid")]
+    [InlineData("mtls-sha256:0000")]
+    public void InvalidAuthoritativeIdentityKeyIsRejected(string? identityKey)
+    {
+        var result = AuthenticatedSessionValidator.Validate(
+            LanProtocolTestData.CreateSession(identityKey: identityKey!));
+
+        Assert.Equal(AuthenticatedSessionValidationError.InvalidIdentityKey, result.Error);
     }
 
     public static TheoryData<AuthenticatedSessionContext, AuthenticatedSessionValidationError>
@@ -44,19 +59,47 @@ public sealed class AuthenticatedSessionValidatorTests
         new()
         {
             {
-                new(false, true, true, true, @"EXAMPLE\operator"),
+                new(
+                    false,
+                    true,
+                    true,
+                    true,
+                    AuthenticationScheme.WindowsNegotiate,
+                    "windows-sid:S-1-5-21-1000",
+                    @"EXAMPLE\operator"),
                 AuthenticatedSessionValidationError.NotAuthenticated
             },
             {
-                new(true, false, true, true, @"EXAMPLE\operator"),
+                new(
+                    true,
+                    false,
+                    true,
+                    true,
+                    AuthenticationScheme.WindowsNegotiate,
+                    "windows-sid:S-1-5-21-1000",
+                    @"EXAMPLE\operator"),
                 AuthenticatedSessionValidationError.NotMutuallyAuthenticated
             },
             {
-                new(true, true, false, true, @"EXAMPLE\operator"),
+                new(
+                    true,
+                    true,
+                    false,
+                    true,
+                    AuthenticationScheme.WindowsNegotiate,
+                    "windows-sid:S-1-5-21-1000",
+                    @"EXAMPLE\operator"),
                 AuthenticatedSessionValidationError.NotEncrypted
             },
             {
-                new(true, true, true, false, @"EXAMPLE\operator"),
+                new(
+                    true,
+                    true,
+                    true,
+                    false,
+                    AuthenticationScheme.WindowsNegotiate,
+                    "windows-sid:S-1-5-21-1000",
+                    @"EXAMPLE\operator"),
                 AuthenticatedSessionValidationError.NotSigned
             },
         };

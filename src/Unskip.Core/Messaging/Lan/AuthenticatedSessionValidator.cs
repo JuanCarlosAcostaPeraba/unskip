@@ -2,7 +2,7 @@ namespace Unskip.Core.Messaging.Lan;
 
 public static class AuthenticatedSessionValidator
 {
-    private const int MaximumIdentityLength = 256;
+    private const int MaximumDisplayNameLength = 256;
 
     public static AuthenticatedSessionValidation Validate(AuthenticatedSessionContext context)
     {
@@ -32,15 +32,25 @@ public static class AuthenticatedSessionValidator
                 AuthenticatedSessionValidationError.NotSigned);
         }
 
-        var identity = context.RemoteIdentity?.Trim();
-        if (string.IsNullOrWhiteSpace(identity)
-            || identity.Length > MaximumIdentityLength
-            || identity.Any(char.IsControl))
+        if (!AuthenticatedIdentityKey.TryNormalize(
+                context.Scheme,
+                context.RemoteIdentityKey,
+                out var identityKey))
         {
             return AuthenticatedSessionValidation.Failure(
-                AuthenticatedSessionValidationError.InvalidRemoteIdentity);
+                AuthenticatedSessionValidationError.InvalidIdentityKey);
         }
 
-        return AuthenticatedSessionValidation.Success(new AuthenticatedSender(identity));
+        var displayName = context.RemoteDisplayName?.Trim();
+        if (string.IsNullOrWhiteSpace(displayName)
+            || displayName.Length > MaximumDisplayNameLength
+            || displayName.Any(char.IsControl))
+        {
+            return AuthenticatedSessionValidation.Failure(
+                AuthenticatedSessionValidationError.InvalidDisplayName);
+        }
+
+        return AuthenticatedSessionValidation.Success(
+            new AuthenticatedSender(identityKey!, displayName, context.Scheme));
     }
 }

@@ -74,6 +74,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes. Product work is
 - [Troubleshooting](docs/troubleshooting.md)
 - [Privacy](docs/privacy.md) and [local data](docs/local-persistence.md)
 - [Security design](docs/security.md) and [threat model](docs/threat-model.md)
+- [Receiver certificate deployment](docs/certificate-deployment.md)
 - [Architecture](docs/architecture.md) and [testing](docs/testing.md)
 - [Release and packaging process](docs/releasing.md)
 

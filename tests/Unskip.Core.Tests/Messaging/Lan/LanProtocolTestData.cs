@@ -23,9 +23,12 @@ internal static class LanProtocolTestData
             message);
     }
 
-    internal static AuthenticatedSessionContext CreateSession(string identity = @"EXAMPLE\operator")
+    internal static AuthenticatedSessionContext CreateSession(
+        string displayName = @"EXAMPLE\operator",
+        string identityKey = "windows-sid:S-1-5-21-1000",
+        AuthenticationScheme scheme = AuthenticationScheme.WindowsNegotiate)
     {
-        return new(true, true, true, true, identity);
+        return new(true, true, true, true, scheme, identityKey, displayName);
     }
 }
 

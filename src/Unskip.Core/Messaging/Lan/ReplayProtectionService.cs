@@ -26,8 +26,8 @@ public sealed class ReplayProtectionService
             var now = _clock.UtcNow;
             RemoveExpiredEntries(now);
 
-            var messageKey = new ReplayMessageKey(sender.Identity, request.MessageId);
-            var nonceKey = new ReplayNonceKey(sender.Identity, request.Nonce);
+            var messageKey = new ReplayMessageKey(sender.IdentityKey, request.MessageId);
+            var nonceKey = new ReplayNonceKey(sender.IdentityKey, request.Nonce);
             if (_messageIds.ContainsKey(messageKey) || _nonces.ContainsKey(nonceKey))
             {
                 return ReplayProtectionResult.ReplayDetected;
@@ -58,9 +58,9 @@ public sealed class ReplayProtectionService
         }
     }
 
-    private sealed record ReplayMessageKey(string Identity, Guid MessageId);
+    private sealed record ReplayMessageKey(string IdentityKey, Guid MessageId);
 
-    private sealed record ReplayNonceKey(string Identity, string Nonce);
+    private sealed record ReplayNonceKey(string IdentityKey, string Nonce);
 
     private sealed class ReplayMessageKeyComparer : IEqualityComparer<ReplayMessageKey>
     {
@@ -71,14 +71,14 @@ public sealed class ReplayProtectionService
             return ReferenceEquals(left, right)
                 || (left is not null
                     && right is not null
-                    && StringComparer.OrdinalIgnoreCase.Equals(left.Identity, right.Identity)
+                    && StringComparer.Ordinal.Equals(left.IdentityKey, right.IdentityKey)
                     && left.MessageId == right.MessageId);
         }
 
         public int GetHashCode(ReplayMessageKey value)
         {
             return HashCode.Combine(
-                StringComparer.OrdinalIgnoreCase.GetHashCode(value.Identity),
+                StringComparer.Ordinal.GetHashCode(value.IdentityKey),
                 value.MessageId);
         }
     }
@@ -92,14 +92,14 @@ public sealed class ReplayProtectionService
             return ReferenceEquals(left, right)
                 || (left is not null
                     && right is not null
-                    && StringComparer.OrdinalIgnoreCase.Equals(left.Identity, right.Identity)
+                    && StringComparer.Ordinal.Equals(left.IdentityKey, right.IdentityKey)
                     && StringComparer.Ordinal.Equals(left.Nonce, right.Nonce));
         }
 
         public int GetHashCode(ReplayNonceKey value)
         {
             return HashCode.Combine(
-                StringComparer.OrdinalIgnoreCase.GetHashCode(value.Identity),
+                StringComparer.Ordinal.GetHashCode(value.IdentityKey),
                 StringComparer.Ordinal.GetHashCode(value.Nonce));
         }
     }

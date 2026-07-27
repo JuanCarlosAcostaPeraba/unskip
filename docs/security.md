@@ -29,6 +29,10 @@ The protocol-v1 foundation is transport-independent and inactive in the producti
 
 Protocol requests use unique IDs, UTC timestamps, short expiries, 128-bit nonces, strict message bounds, a bounded replay window, and per-identity rate limiting. Replay and rate-limit tables have fixed capacities and fail closed rather than evicting live protection state under pressure. An accepted response means only that an authenticated receiver accepted the request for local handling.
 
-The selected managed-network direction and mutual-TLS alternative are recorded in [ADR 0001](decisions/0001-authenticated-lan-transport.md). No production receiver, allow-list, startup registration, or firewall rule is approved by that decision.
+The transport decision was amended after confirming that Kerberos SPNs belong to the actual service logon account. A per-user receiver cannot assume the computer account's `HOST/...` SPN. `NegotiateStream` is therefore limited to explicit administrator-provisioned SPN deployments, while mutual TLS is the default deployable direction. Neither mode may accept a session lacking mutual authentication.
+
+For mutual TLS, operating-system chain, hostname, purpose, validity, and revocation validation happens before Unskip authorization. An exact SHA-256 fingerprint is the authoritative identity key; certificate subject text is display-only. The application never generates a CA, installs trust, accepts arbitrary self-signed certificates, disables validation, or persists private keys. [ADR 0001](decisions/0001-authenticated-lan-transport.md) and [certificate deployment](certificate-deployment.md) define these gates.
+
+No production receiver, startup registration, certificate enrollment, trust-store mutation, or firewall rule is approved by those documents.
 
 The local SQLite database is not application-encrypted. It relies on the current Windows account and filesystem permissions, stores no credentials or message bodies, and never synchronizes through Unskip. Destination metadata and sanitized diagnostics can still be sensitive.

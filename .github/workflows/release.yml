@@ -43,66 +43,38 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $properties = [xml](Get-Content -LiteralPath Directory.Build.props -Raw)
-          $prefixNodes = @($properties.SelectNodes('/Project/PropertyGroup/VersionPrefix'))
-          $suffixNodes = @($properties.SelectNodes('/Project/PropertyGroup/VersionSuffix'))
-
-          if ($prefixNodes.Count -ne 1) {
-            throw 'Directory.Build.props must declare exactly one VersionPrefix.'
-          }
-
-          if ($suffixNodes.Count -gt 1) {
-            throw 'Directory.Build.props must declare at most one VersionSuffix.'
-          }
-
-          $version = $prefixNodes[0].InnerText.Trim()
-          if ($suffixNodes.Count -eq 1 -and $suffixNodes[0].InnerText.Trim()) {
-            $version += "-$($suffixNodes[0].InnerText.Trim())"
-          }
-
-          $semVerPattern = '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:(?:0|[1-9]\d*)|(?:\d*[A-Za-z-][0-9A-Za-z-]*))(?:\.(?:(?:0|[1-9]\d*)|(?:\d*[A-Za-z-][0-9A-Za-z-]*)))*)?$'
-          if ($version -notmatch $semVerPattern) {
-            throw "The project version must be SemVer (MAJOR.MINOR.PATCH with an optional pre-release suffix). Received: $version"
-          }
-
-          $tag = "v$version"
           git fetch origin --tags
           if ($LASTEXITCODE -ne 0) {
             throw 'Unable to fetch existing release tags.'
           }
 
-          $matchingTags = @(git tag --list $tag)
-          if ($LASTEXITCODE -ne 0) {
-            throw 'Unable to inspect existing release tags.'
-          }
+          $release = ./eng/resolve-release-version.ps1 `
+            -RepositoryRoot . `
+            -Commit '${{ github.sha }}'
+          "version=$($release.Version)" >> $env:GITHUB_OUTPUT
+          "tag=$($release.Tag)" >> $env:GITHUB_OUTPUT
+          "tag_exists=$($release.TagExists.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
-          $tagExists = $matchingTags.Count -eq 1
-          $existingCommit = if ($tagExists) {
-            git rev-list -n 1 $tag
-            if ($LASTEXITCODE -ne 0) {
-              throw "Unable to resolve existing release tag $tag."
-            }
-          } else {
-            ''
-          }
-
-          if ($tagExists -and $existingCommit.Trim() -ne '${{ github.sha }}') {
-            throw "Version $version is already assigned to commit $($existingCommit.Trim()). Increment VersionPrefix or VersionSuffix before merging into main."
-          }
-
-          "version=$version" >> $env:GITHUB_OUTPUT
-          "tag=$tag" >> $env:GITHUB_OUTPUT
-          "tag_exists=$($tagExists.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
-          "prerelease=$($version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          Write-Host "Release version: $($release.Version)"
+          Write-Host "Release tag: $($release.Tag)"
+          Write-Host "Tag already exists at this commit: $($release.TagExists)"
 
       - name: Restore
-        run: dotnet restore Unskip.sln
+        run: >
+          dotnet restore Unskip.sln
+          -p:Version=${{ steps.version.outputs.version }}
 
       - name: Verify formatting and analyzers
         run: dotnet format Unskip.sln --verify-no-changes --no-restore
 
       - name: Build
-        run: dotnet build Unskip.sln --configuration Release --no-restore
+        run: >
+          dotnet build Unskip.sln
+          --configuration Release
+          --no-restore
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:InformationalVersion=${{ steps.version.outputs.version }}+${{ github.sha }}
+          -p:IncludeSourceRevisionInInformationalVersion=false
 
       - name: Test deterministic suite
         run: >
@@ -111,6 +83,7 @@ jobs:
           --no-build
           --no-restore
           --filter "Category!=NativeIntegration"
+          -p:Version=${{ steps.version.outputs.version }}
 
       - name: Audit NuGet dependencies
         run: dotnet list Unskip.sln package --vulnerable --include-transitive
@@ -176,7 +149,6 @@ jobs:
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          IS_PRERELEASE: ${{ steps.version.outputs.prerelease }}
           RELEASE_TAG: ${{ steps.version.outputs.tag }}
           RELEASE_VERSION: ${{ steps.version.outputs.version }}
         shell: pwsh
@@ -197,9 +169,6 @@ jobs:
             '--generate-notes',
             '--title', "Unskip $env:RELEASE_VERSION"
           )
-          if ($env:IS_PRERELEASE -eq 'true') {
-            $arguments += '--prerelease'
-          }
           $arguments += $assets
           gh @arguments
           if ($LASTEXITCODE -ne 0) {

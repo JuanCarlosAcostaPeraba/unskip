@@ -37,6 +37,10 @@ jobs:
             Directory.Packages.props
             **/*.csproj
 
+      - name: Test automatic release versioning
+        shell: pwsh
+        run: ./eng/test-release-version-resolver.ps1
+
       - name: Restore
         run: dotnet restore Unskip.sln
 

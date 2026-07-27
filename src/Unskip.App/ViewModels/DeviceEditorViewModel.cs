@@ -1,3 +1,4 @@
+using Unskip.App.Localization;
 using Unskip.Core.Devices;
 
 namespace Unskip.App.ViewModels;
@@ -27,7 +28,9 @@ public sealed class DeviceEditorViewModel : ObservableObject
         private set => SetProperty(ref _isOpen, value);
     }
 
-    public string Title => DeviceId.HasValue ? "Edit device" : "Add device";
+    public string Title => DeviceId.HasValue
+        ? UiText.Get("EditDevice")
+        : UiText.Get("AddDevicePlain");
 
     public string? Alias
     {
@@ -235,28 +238,29 @@ public sealed class DeviceEditorViewModel : ObservableObject
 
         foreach (var error in errors)
         {
+            var localizedMessage = LocalizeError(error);
             switch (error.Field)
             {
                 case "Alias":
-                    AliasError ??= error.Message;
+                    AliasError ??= localizedMessage;
                     break;
                 case "ComputerName":
-                    ComputerNameError ??= error.Message;
+                    ComputerNameError ??= localizedMessage;
                     break;
                 case "Ipv4Address":
-                    Ipv4AddressError ??= error.Message;
+                    Ipv4AddressError ??= localizedMessage;
                     break;
                 case "Destination":
-                    DestinationError ??= error.Message;
+                    DestinationError ??= localizedMessage;
                     break;
                 case "Description":
-                    DescriptionError ??= error.Message;
+                    DescriptionError ??= localizedMessage;
                     break;
                 case "PreferredDestination":
-                    PreferredDestinationError ??= error.Message;
+                    PreferredDestinationError ??= localizedMessage;
                     break;
                 default:
-                    GeneralError ??= error.Message;
+                    GeneralError ??= localizedMessage;
                     break;
             }
         }
@@ -264,8 +268,28 @@ public sealed class DeviceEditorViewModel : ObservableObject
 
     public void ShowConflict()
     {
-        GeneralError = "That alias, computer name, or IPv4 address is already saved.";
+        GeneralError = UiText.Get("DeviceAlreadySaved");
     }
+
+    private static string LocalizeError(DeviceValidationError error) =>
+        error.Code switch
+        {
+            DeviceValidationErrorCode.Required => UiText.Get("ValidationAliasRequired"),
+            DeviceValidationErrorCode.TooLong when error.Field == "Alias" =>
+                UiText.Format("ValidationAliasTooLong", DevicePolicy.MaximumAliasLength),
+            DeviceValidationErrorCode.TooLong =>
+                UiText.Format("ValidationDescriptionTooLong", DevicePolicy.MaximumDescriptionLength),
+            DeviceValidationErrorCode.InvalidCharacters when error.Field == "Alias" =>
+                UiText.Get("ValidationAliasCharacters"),
+            DeviceValidationErrorCode.InvalidCharacters =>
+                UiText.Get("ValidationDescriptionCharacters"),
+            DeviceValidationErrorCode.InvalidHostname => UiText.Get("ValidationHostname"),
+            DeviceValidationErrorCode.InvalidIpv4 => UiText.Get("EnterCanonicalIpv4"),
+            DeviceValidationErrorCode.DestinationRequired => UiText.Get("ValidationDestinationRequired"),
+            DeviceValidationErrorCode.PreferredDestinationUnavailable =>
+                UiText.Get("ValidationPreferredDestination"),
+            _ => error.Message,
+        };
 
     private void ClearErrors()
     {

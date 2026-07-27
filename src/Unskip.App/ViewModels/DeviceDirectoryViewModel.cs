@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Unskip.App.Commands;
+using Unskip.App.Localization;
 using Unskip.App.Services;
 using Unskip.Core.Devices;
 using Unskip.Core.Networking;
@@ -24,7 +25,7 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
     private string? _preparedKindLabel;
     private string? _searchText;
     private DeviceListItemViewModel? _selectedDevice;
-    private string _statusMessage = "Your device directory stays on this Windows account.";
+    private string _statusMessage = UiText.Get("DeviceDirectoryLocal");
 
     public DeviceDirectoryViewModel(
         DeviceDirectoryService directory,
@@ -196,14 +197,14 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
 
     public string DeviceCountLabel => _allDevices.Count switch
     {
-        0 => "No saved devices",
-        1 => "1 saved device",
-        var count => $"{count} saved devices",
+        0 => UiText.Get("NoSavedDevices"),
+        1 => UiText.Get("OneSavedDevice"),
+        var count => UiText.Format("SavedDeviceCount", count),
     };
 
     public string FilterResultLabel => string.IsNullOrWhiteSpace(SearchText)
         ? DeviceCountLabel
-        : $"{FilteredDevices.Count} matching";
+        : UiText.Format("MatchingDeviceCount", FilteredDevices.Count);
 
     public async Task InitializeAsync()
     {
@@ -263,20 +264,20 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
                 case DeviceMutationStatus.Succeeded:
                     Editor.Close();
                     await ReloadAsync(result.Device!.Id).ConfigureAwait(true);
-                    StatusMessage = $"Saved {result.Device.Alias}.";
+                    StatusMessage = UiText.Format("DeviceSaved", result.Device.Alias);
                     break;
                 case DeviceMutationStatus.ValidationFailed:
                     Editor.ApplyErrors(result.ValidationErrors);
-                    StatusMessage = "Check the highlighted fields.";
+                    StatusMessage = UiText.Get("CheckHighlightedFields");
                     break;
                 case DeviceMutationStatus.Conflict:
                     Editor.ShowConflict();
-                    StatusMessage = "That device conflicts with an existing entry.";
+                    StatusMessage = UiText.Get("DeviceConflict");
                     break;
                 case DeviceMutationStatus.NotFound:
                     Editor.Close();
                     await ReloadAsync().ConfigureAwait(true);
-                    StatusMessage = "That device no longer exists.";
+                    StatusMessage = UiText.Get("DeviceMissing");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(result), result.Status, null);
@@ -303,8 +304,8 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
             var result = await _directory.DeleteAsync(SelectedDevice.Id).ConfigureAwait(true);
             await ReloadAsync().ConfigureAwait(true);
             StatusMessage = result.IsSuccessful
-                ? $"Deleted {alias}. Historical snapshots were preserved."
-                : "That device no longer exists.";
+                ? UiText.Format("DeviceDeleted", alias)
+                : UiText.Get("DeviceMissing");
         }
         finally
         {
@@ -325,8 +326,10 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
             var result = await _directory.SetFavoriteAsync(item.Id, !item.IsFavorite).ConfigureAwait(true);
             await ReloadAsync(item.Id).ConfigureAwait(true);
             StatusMessage = result.IsSuccessful
-                ? $"{item.Alias} {(item.IsFavorite ? "removed from" : "added to")} favorites."
-                : "That device no longer exists.";
+                ? UiText.Format(
+                    item.IsFavorite ? "DeviceRemovedFromFavorites" : "DeviceAddedToFavorites",
+                    item.Alias)
+                : UiText.Get("DeviceMissing");
         }
         finally
         {
@@ -342,7 +345,7 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
         PreparedDestinationKind = item.Device.PreferredDestination;
         PreparedDeviceId = item.Id;
         IsManualPrepared = false;
-        StatusMessage = $"Selected {item.Alias} → {item.ResolvedDestination}.";
+        StatusMessage = UiText.Format("DeviceSelected", item.Alias, item.ResolvedDestination);
     }
 
     private void PrepareManualDestination()
@@ -350,42 +353,43 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
         var candidate = ManualDestination?.Trim();
         if (string.IsNullOrWhiteSpace(candidate))
         {
-            ManualDestinationError = "Enter a computer name or IPv4 address.";
+            ManualDestinationError = UiText.Get("EnterDestination");
             return;
         }
 
         string? normalized;
         string kindLabel;
+        DeviceDestinationKind destinationKind;
         if (NetworkAddressValidator.TryNormalizeCanonicalIpv4(candidate, out normalized))
         {
-            kindLabel = "IPv4 address";
+            kindLabel = UiText.Get("Ipv4Address");
+            destinationKind = DeviceDestinationKind.Ipv4;
         }
         else if (candidate.All(character => char.IsDigit(character) || character == '.'))
         {
-            ManualDestinationError = "Enter a canonical IPv4 address with four numbers from 0 to 255.";
+            ManualDestinationError = UiText.Get("EnterCanonicalIpv4");
             return;
         }
         else if (NetworkAddressValidator.TryNormalizeHostname(candidate, out normalized))
         {
-            kindLabel = "Computer name";
+            kindLabel = UiText.Get("ComputerName");
+            destinationKind = DeviceDestinationKind.Hostname;
         }
         else
         {
-            ManualDestinationError = "Use a valid computer name or canonical IPv4 address.";
+            ManualDestinationError = UiText.Get("UseValidDestination");
             return;
         }
 
         SelectedDevice = null;
-        PreparedAlias = "Manual destination";
+        PreparedAlias = UiText.Get("ManualDestination");
         PreparedDestination = normalized;
         PreparedKindLabel = kindLabel;
-        PreparedDestinationKind = kindLabel == "IPv4 address"
-            ? DeviceDestinationKind.Ipv4
-            : DeviceDestinationKind.Hostname;
+        PreparedDestinationKind = destinationKind;
         PreparedDeviceId = null;
         IsManualPrepared = true;
         ManualDestinationError = null;
-        StatusMessage = $"Manual destination ready → {normalized}.";
+        StatusMessage = UiText.Format("ManualDestinationReady", normalized);
     }
 
     private void PrepareMessage()
@@ -397,7 +401,7 @@ public sealed class DeviceDirectoryViewModel : ObservableObject
             return;
         }
 
-        StatusMessage = $"Opening a message for {PreparedAlias}. Nothing has been sent yet.";
+        StatusMessage = UiText.Format("OpeningMessage", PreparedAlias);
         MessagePreparationRequested?.Invoke(
             this,
             new MessagePreparationRequestedEventArgs(

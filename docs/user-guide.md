@@ -50,6 +50,14 @@ dotnet run --project src/Unskip.App/Unskip.App.csproj --configuration Release
 
 These terminal commands are for contributors and source evaluation only. The application itself never invokes PowerShell, `cmd.exe`, or another shell.
 
+## Choose the interface language
+
+Unskip supports English and Spanish. On the first run it follows the Windows interface language when that language is supported; otherwise it uses English.
+
+Use the compact **EN** and **ES** controls in the sidebar to change the language. Unskip asks for confirmation because it must restart to update every open screen and dialog. Finish or copy any current message draft before confirming: drafts are not persisted.
+
+The selected language is stored locally in `%LOCALAPPDATA%\Unskip\language.txt`. It is retained across upgrades and uninstall together with the other local Unskip data. If the file is missing, unreadable, or contains an unsupported value, Unskip safely falls back to the Windows language or English.
+
 ## Before the first message
 
 The sending computer needs:
@@ -136,7 +144,7 @@ The current Windows user's data is stored in:
 %LOCALAPPDATA%\Unskip\
 ```
 
-The folder contains `unskip.db` and may contain SQLite `-wal` or `-shm` sidecar files. It can include aliases, destinations, descriptions, timestamps, favorites, result metadata, and sanitized diagnostics. It contains no message bodies or credentials, but destination information may still be sensitive.
+The folder contains `unskip.db`, the `language.txt` interface preference, and may contain SQLite `-wal` or `-shm` sidecar files. It can include aliases, destinations, descriptions, timestamps, favorites, result metadata, and sanitized diagnostics. It contains no message bodies or credentials, but destination information may still be sensitive.
 
 To back up or restore data:
 

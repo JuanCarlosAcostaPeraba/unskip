@@ -70,7 +70,7 @@ public sealed class MessageComposerViewModelTests
         await composer.SendCommand.ExecuteAsync();
 
         Assert.Equal("Sent", composer.StatusLabel);
-        Assert.Contains("does not confirm", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("does not prove", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("was read", composer.ResultMessage, StringComparison.OrdinalIgnoreCase);
         Assert.False(composer.CanRetry);
     }

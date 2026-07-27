@@ -1,3 +1,4 @@
+using Unskip.App.Localization;
 using Unskip.Core.Devices;
 
 namespace Unskip.App.ViewModels;
@@ -10,9 +11,9 @@ public sealed class DeviceListItemViewModel(Device device, DateTimeOffset curren
 
     public string Alias => Device.Alias;
 
-    public string ComputerName => Device.ComputerName ?? "No computer name";
+    public string ComputerName => Device.ComputerName ?? UiText.Get("NoComputerName");
 
-    public string Ipv4Address => Device.Ipv4Address ?? "No IPv4 address";
+    public string Ipv4Address => Device.Ipv4Address ?? UiText.Get("NoIpv4Address");
 
     public bool IsFavorite => Device.IsFavorite;
 
@@ -20,9 +21,9 @@ public sealed class DeviceListItemViewModel(Device device, DateTimeOffset curren
 
     public string PreferredDestinationLabel => Device.PreferredDestination switch
     {
-        DeviceDestinationKind.Hostname => "Computer name",
-        DeviceDestinationKind.Ipv4 => "IPv4 address",
-        _ => "Destination",
+        DeviceDestinationKind.Hostname => UiText.Get("ComputerName"),
+        DeviceDestinationKind.Ipv4 => UiText.Get("Ipv4Address"),
+        _ => UiText.Get("Destination"),
     };
 
     public string ResolvedDestination => Device.PreferredDestination switch
@@ -33,13 +34,13 @@ public sealed class DeviceListItemViewModel(Device device, DateTimeOffset curren
     };
 
     public string Description => string.IsNullOrWhiteSpace(Device.Description)
-        ? "Saved device"
+        ? UiText.Get("SavedDevice")
         : Device.Description;
 
     public string RecencyLabel => Device.LastUsedAt switch
     {
-        null => "Not used yet",
-        var timestamp when timestamp.Value >= currentTime.AddDays(-1) => "Used recently",
-        var timestamp => $"Used {timestamp.Value.LocalDateTime:d}",
+        null => UiText.Get("NotUsedYet"),
+        var timestamp when timestamp.Value >= currentTime.AddDays(-1) => UiText.Get("UsedRecently"),
+        var timestamp => UiText.Format("UsedOn", timestamp.Value.LocalDateTime),
     };
 }

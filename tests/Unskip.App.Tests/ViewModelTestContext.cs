@@ -27,6 +27,14 @@ internal sealed class ViewModelTestContext
         ApplicationShutdown = new StubApplicationShutdown();
         ExternalUriLauncher = new StubExternalUriLauncher();
         UrgentAttentionPreview = new StubUrgentAttentionPreviewService();
+        LanguagePreference = new StubLanguagePreferenceStore();
+        LanguageConfirmation = new StubLanguageChangeConfirmation();
+        ApplicationRestart = new StubApplicationRestart();
+        Language = new LanguageSettingsViewModel(
+            "en",
+            LanguagePreference,
+            LanguageConfirmation,
+            ApplicationRestart);
         Updates = new ApplicationUpdateViewModel(
             UpdateService,
             UpdateInstaller,
@@ -40,6 +48,7 @@ internal sealed class ViewModelTestContext
             Updates,
             ExternalUriLauncher,
             UrgentAttentionPreview,
+            Language,
             "Version 0.1.0-test");
     }
 
@@ -65,9 +74,17 @@ internal sealed class ViewModelTestContext
 
     public StubUrgentAttentionPreviewService UrgentAttentionPreview { get; }
 
+    public StubLanguagePreferenceStore LanguagePreference { get; }
+
+    public StubLanguageChangeConfirmation LanguageConfirmation { get; }
+
+    public StubApplicationRestart ApplicationRestart { get; }
+
     public DeviceDirectoryViewModel Directory { get; }
 
     public ApplicationUpdateViewModel Updates { get; }
+
+    public LanguageSettingsViewModel Language { get; }
 
     public MainWindowViewModel Main { get; }
 
@@ -249,6 +266,47 @@ internal sealed class ViewModelTestContext
             return Exception is null
                 ? Task.CompletedTask
                 : Task.FromException(Exception);
+        }
+    }
+
+    internal sealed class StubLanguagePreferenceStore : ILanguagePreferenceStore
+    {
+        public bool SaveResult { get; set; } = true;
+
+        public string? SavedLanguage { get; private set; }
+
+        public string? Load() => SavedLanguage;
+
+        public bool TrySave(string language)
+        {
+            SavedLanguage = language;
+            return SaveResult;
+        }
+    }
+
+    internal sealed class StubLanguageChangeConfirmation : ILanguageChangeConfirmation
+    {
+        public bool Response { get; set; } = true;
+
+        public string? LanguageName { get; private set; }
+
+        public bool Confirm(string languageName)
+        {
+            LanguageName = languageName;
+            return Response;
+        }
+    }
+
+    internal sealed class StubApplicationRestart : IApplicationRestart
+    {
+        public bool Result { get; set; } = true;
+
+        public int RequestCount { get; private set; }
+
+        public bool TryRestart()
+        {
+            RequestCount++;
+            return Result;
         }
     }
 

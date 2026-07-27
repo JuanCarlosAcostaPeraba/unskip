@@ -24,6 +24,8 @@ The urgent-attention prototype remains entirely inside `Unskip.App`. `IUrgentAtt
 
 The visible developer portfolio link is a fixed HTTPS URI exposed by `MainWindowViewModel`. An injected `IExternalUriLauncher` seam delegates it to the Windows default browser association after validating the URI; failures are reported in the sidebar without crashing the application.
 
+UI localization belongs to `Unskip.App`. Neutral `Strings.resx` resources define English and `Strings.es.resx` supplies the Spanish satellite catalog; an automated test requires both catalogs to expose exactly the same keys. XAML uses a small markup extension, while view models and dialog services resolve dynamic text through the same resource manager. Startup selects a validated persisted preference or the supported Windows UI language, falling back to English. Language changes are explicit, persisted below `%LOCALAPPDATA%\Unskip`, and applied through a direct executable restart with `UseShellExecute = false`; the restart confirmation warns that drafts are not persisted.
+
 ## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.

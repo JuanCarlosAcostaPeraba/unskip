@@ -191,14 +191,14 @@
 
   <Grid>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="232" />
+      <ColumnDefinition Width="214" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
 
-    <Border Background="{DynamicResource SidebarBrush}" Padding="24,28">
+    <Border Background="{DynamicResource SidebarBrush}" Padding="20,24">
       <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top">
-          <Grid Margin="0,0,0,38">
+          <Grid Margin="0,0,0,30">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="42" />
               <ColumnDefinition Width="*" />
@@ -258,12 +258,11 @@
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom">
-          <Border Padding="12" Background="#18383C" CornerRadius="10">
-            <StackPanel>
-              <TextBlock Text="LOCAL ONLY" Foreground="#5ED4CA" FontSize="10" FontWeight="Bold" />
-              <TextBlock Margin="0,5,0,0" Text="No cloud · No telemetry" Foreground="{DynamicResource SidebarMutedBrush}" FontSize="11" />
-            </StackPanel>
-          </Border>
+          <TextBlock Margin="2,0,2,0"
+                     Text="LOCAL ONLY · NO TELEMETRY"
+                     Foreground="#5ED4CA"
+                     FontSize="10"
+                     FontWeight="Bold" />
           <TextBlock Margin="2,14,2,0" Text="{Binding AffiliationNotice}"
                      Foreground="#718D8F" FontSize="10" TextWrapping="Wrap" />
           <TextBlock Margin="2,10,2,0"
@@ -329,24 +328,23 @@
       </DockPanel>
     </Border>
 
-    <Grid Grid.Column="1" Margin="34,26,34,22">
+    <Grid Grid.Column="1" Margin="28,24,28,20">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <Grid Margin="2,0,2,22">
+      <Grid Margin="2,0,2,18">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel>
-          <TextBlock Text="{Binding CurrentSection}" Foreground="{DynamicResource TextPrimaryBrush}"
-                     FontSize="31" FontWeight="SemiBold" />
-          <TextBlock Margin="0,5,0,0" Text="{Binding SectionDescription}"
-                     Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" />
-        </StackPanel>
+        <TextBlock Text="{Binding CurrentSection}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
+                   FontSize="29"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center" />
         <Button Grid.Column="1" Content="＋  Add device"
                 Command="{Binding DeviceDirectory.NewDeviceCommand}"
                 Visibility="{Binding IsDevicesVisible, Converter={StaticResource BooleanToVisibilityConverter}}"

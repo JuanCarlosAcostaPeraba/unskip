@@ -22,11 +22,11 @@
 
   <Grid>
     <Border x:Name="MessageCard"
-            Width="680"
-            MaxWidth="760"
+            Width="720"
+            MaxWidth="800"
             MaxHeight="620"
             Margin="32"
-            Padding="42"
+            Padding="46"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             Background="{DynamicResource SurfaceBrush}"
@@ -37,77 +37,47 @@
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
           <RowDefinition Height="*" />
           <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border HorizontalAlignment="Left"
-                Padding="12,6"
-                Background="{DynamicResource AccentSoftBrush}"
-                CornerRadius="9">
-          <TextBlock Text="LOCAL PREVIEW · NOTHING WAS SENT"
-                     Foreground="{DynamicResource AccentDarkBrush}"
-                     FontSize="11"
-                     FontWeight="Bold" />
-        </Border>
-
-        <TextBlock Grid.Row="1"
-                   Margin="0,24,0,0"
-                   Text="{Binding SenderLabel}"
-                   Foreground="{DynamicResource TextSecondaryBrush}"
-                   FontSize="14"
+        <TextBlock Text="{Binding SenderLabel}"
+                   Foreground="{DynamicResource AccentDarkBrush}"
+                   FontSize="13"
                    FontWeight="SemiBold"
-                   automation:AutomationProperties.Name="Authenticated sender" />
+                   automation:AutomationProperties.Name="Message sender and local preview status" />
 
-        <TextBlock Grid.Row="2"
-                   Margin="0,8,0,0"
-                   Text="{Binding Title}"
-                   Foreground="{DynamicResource TextPrimaryBrush}"
-                   FontSize="34"
-                   FontWeight="Bold"
-                   TextWrapping="Wrap" />
-
-        <ScrollViewer Grid.Row="3"
-                      Margin="0,22,0,0"
-                      MaxHeight="260"
+        <ScrollViewer x:Name="MessageScroller"
+                      Grid.Row="1"
+                      Margin="0,24,0,0"
+                      MaxHeight="360"
                       VerticalScrollBarVisibility="Auto">
           <TextBlock Text="{Binding Message}"
                      Foreground="{DynamicResource TextPrimaryBrush}"
-                     FontSize="20"
-                     LineHeight="31"
+                     FontSize="34"
+                     FontWeight="SemiBold"
+                     LineHeight="46"
                      TextWrapping="Wrap"
                      automation:AutomationProperties.Name="Urgent message text" />
         </ScrollViewer>
 
-        <Grid Grid.Row="4" Margin="0,30,0,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-          </Grid.RowDefinitions>
-          <TextBlock Text="{Binding TimeoutLabel}"
-                     Foreground="{DynamicResource TextSecondaryBrush}"
-                     FontSize="12"
-                     TextWrapping="Wrap" />
-          <Button x:Name="CloseButton"
-                  Grid.Row="1"
-                  Margin="0,18,0,0"
-                  MinWidth="190"
-                  MinHeight="50"
-                  HorizontalAlignment="Right"
-                  Content="Close message"
-                  Command="{Binding CloseCommand}"
-                  IsDefault="True"
-                  Padding="22,12"
-                  Background="{DynamicResource AccentBrush}"
-                  Foreground="White"
-                  BorderThickness="0"
-                  FontSize="15"
-                  FontWeight="SemiBold"
-                  automation:AutomationProperties.Name="Close urgent message preview"
-                  ToolTip="Close this local preview. You can also press Escape or Alt+F4." />
-        </Grid>
+        <Button x:Name="CloseButton"
+                Grid.Row="2"
+                Margin="0,34,0,0"
+                MinWidth="190"
+                MinHeight="50"
+                HorizontalAlignment="Right"
+                Content="Close message"
+                Command="{Binding CloseCommand}"
+                IsDefault="True"
+                Padding="22,12"
+                Background="{DynamicResource AccentBrush}"
+                Foreground="White"
+                BorderThickness="0"
+                FontSize="15"
+                FontWeight="SemiBold"
+                automation:AutomationProperties.Name="Close urgent message preview"
+                ToolTip="Close this local preview. You can also press Escape or Alt+F4." />
       </Grid>
     </Border>
   </Grid>

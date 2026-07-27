@@ -11,13 +11,11 @@ internal sealed class UrgentAttentionOverlayViewModel
 
     public UrgentAttentionOverlayViewModel(
         string senderLabel,
-        string title,
         string message,
         TimeSpan timeout,
         IAsyncDelay delay)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(senderLabel);
-        ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
         if (timeout <= TimeSpan.Zero || timeout > TimeSpan.FromMinutes(5))
         {
@@ -28,7 +26,6 @@ internal sealed class UrgentAttentionOverlayViewModel
         }
 
         SenderLabel = senderLabel;
-        Title = title;
         Message = message;
         _timeout = timeout;
         _delay = delay ?? throw new ArgumentNullException(nameof(delay));
@@ -39,11 +36,7 @@ internal sealed class UrgentAttentionOverlayViewModel
 
     public string SenderLabel { get; }
 
-    public string Title { get; }
-
     public string Message { get; }
-
-    public string TimeoutLabel => $"This local preview closes automatically after {_timeout.TotalSeconds:N0} seconds.";
 
     public RelayCommand CloseCommand { get; }
 

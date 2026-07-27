@@ -38,8 +38,7 @@ internal sealed class WpfUrgentAttentionPreviewService(
         cancellationToken.ThrowIfCancellationRequested();
 
         var viewModel = new UrgentAttentionOverlayViewModel(
-            "Local Unskip preview",
-            "Urgent message preview",
+            "You · local preview · nothing sent",
             message,
             PreviewTimeout,
             new SystemAsyncDelay());

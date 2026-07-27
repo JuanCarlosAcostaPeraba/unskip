@@ -30,6 +30,10 @@ Resident behavior remains a presentation-layer concern. `ResidentApplicationCont
 
 `QuickSendViewModel` loads saved devices through the existing `DeviceDirectoryService` and delegates message validation, sending, result wording, retries, and history persistence to a dedicated `MessageComposerViewModel`. The compact window therefore introduces no second transport path and stores no message body. Notification-area state deliberately has no pending count because no receiver-side durable state exists yet.
 
+The future LAN protocol foundation lives in `Unskip.Core.Messaging.Lan` and has no socket or WPF dependency. `LanProtocolFrameCodec` applies bounded big-endian length framing and strict deterministic UTF-8 JSON. `LanMessageRequestValidator` enforces protocol version, UTC freshness, lifetime, nonce, kind, and the existing message policy. `AuthenticatedSessionValidator` converts only a fully authenticated, mutually authenticated, encrypted, signed transport context into an authoritative sender identity. `LanReceiverAdmissionService` applies per-identity rate limiting and independent message-ID/nonce replay protection before returning the honest **accepted for local handling** status.
+
+No production code constructs those protocol components yet. The current `IMessageSender` composition still selects `WindowsMsgSender`, and no listener, firewall change, startup entry, remote overlay dispatch, incoming persistence, pending count, or conversation model has been introduced. [ADR 0001](decisions/0001-authenticated-lan-transport.md) records the transport decision and deployment gates.
+
 ## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.

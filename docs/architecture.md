@@ -36,6 +36,10 @@ An authenticated sender has a scheme-bound authoritative key and a separate disp
 
 No production code constructs those protocol components yet. The current `IMessageSender` composition still selects `WindowsMsgSender`, and no listener, firewall change, startup entry, certificate enrollment, trust-store mutation, remote overlay dispatch, incoming persistence, pending count, or conversation model has been introduced. [ADR 0001](decisions/0001-authenticated-lan-transport.md) records the amended transport decision and deployment gates.
 
+`MutualTlsStreamAuthenticator` in `Unskip.Infrastructure.Windows` owns the real Schannel/`SslStream` handshake boundary over an already-connected duplex stream. Its public constructor always uses operating-system chain, hostname, EKU, validity, and online revocation validation. Server mode requires a client certificate; client mode supplies the configured sender certificate and validates the expected receiver DNS name. Both modes require effective mutual authentication, encryption, and signing, then authorize the remote SHA-256 fingerprint and produce the core authenticated-session context. The successful result owns the protected stream and underlying connection; failed authentication destroys the unusable TLS stream and connection.
+
+An internal certificate-validator seam exists only for deterministic infrastructure tests. Those tests build a private ephemeral CA and temporary Schannel-compatible keys without modifying the Windows trust store. Production callers cannot inject that seam or change revocation and protocol options.
+
 ## Domain and infrastructure boundaries
 
 Destination and message validation live in core behind `IMessageSender`. Device rules and CRUD orchestration live in core behind `IDeviceRepository`; SQLite implements that contract in infrastructure. Windows process execution is isolated behind an internal invoker so deterministic tests cannot accidentally send real messages.

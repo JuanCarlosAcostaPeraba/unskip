@@ -25,4 +25,10 @@ Unskip does not modify firewall rules, registry entries, Windows services, sessi
 
 The urgent-attention overlay is currently a local-only preview. It does not listen on a network port, add a firewall rule, register a service, start with Windows, capture the desktop, suppress system shortcuts, move dismissal controls, or reopen after dismissal. Its close button stays in a predictable location; Escape and Alt+F4 remain available; and a bounded timeout always closes it. The preview neither records an acknowledgement nor claims that content was displayed or read.
 
+The protocol-v1 foundation is transport-independent and inactive in the production send path. It defines strict, bounded frames and admission gates for a future receiver but does not bind a socket. The future transport must authenticate before it parses protocol data and must reject any session that is not authenticated, mutually authenticated, encrypted, signed, and associated with a valid remote Windows identity. Payloads contain no sender identity.
+
+Protocol requests use unique IDs, UTC timestamps, short expiries, 128-bit nonces, strict message bounds, a bounded replay window, and per-identity rate limiting. Replay and rate-limit tables have fixed capacities and fail closed rather than evicting live protection state under pressure. An accepted response means only that an authenticated receiver accepted the request for local handling.
+
+The selected managed-network direction and mutual-TLS alternative are recorded in [ADR 0001](decisions/0001-authenticated-lan-transport.md). No production receiver, allow-list, startup registration, or firewall rule is approved by that decision.
+
 The local SQLite database is not application-encrypted. It relies on the current Windows account and filesystem permissions, stores no credentials or message bodies, and never synchronizes through Unskip. Destination metadata and sanitized diagnostics can still be sensitive.
